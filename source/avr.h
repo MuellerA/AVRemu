@@ -80,8 +80,8 @@ namespace AVR
     const std::vector<const Instruction*>& Instructions() const { return _instructions ; }
     const std::vector<Command>&            Program()      const { return _program      ; }
 
-    void SetProgram(size_t address, const std::vector<Command> &prg) ;
-    void SetEeprom(size_t address, const std::vector<uint8> &eeprom) ;
+    size_t SetProgram(size_t address, const std::vector<Command> &prg) ;
+    size_t SetEeprom(size_t address, const std::vector<uint8> &eeprom) ;
 
   protected:
     void AddInstruction(const Instruction *instr) ;

@@ -21,35 +21,37 @@ int test()
   std::vector<AVR::Command> prog ;
   prog.reserve(0x20000) ;
 
-  for (auto *instr : avr.Instructions())
   {
-    if (instr)
+    for (auto *instr : avr.Instructions())
     {
-      bool is2word = false ;
+      if (instr)
+      {
+        bool is2word = false ;
 
-      is2word |= instr->Pattern() == 0b1001010000001100 ; // JMP
-      is2word |= instr->Pattern() == 0b1001010000001110 ; // JMP
-      is2word |= instr->Pattern() == 0b1001000000000000 ; // LDS
-      is2word |= instr->Pattern() == 0b1001001000000000 ; // STS
+        is2word |= instr->Pattern() == 0b1001010000001100 ; // JMP
+        is2word |= instr->Pattern() == 0b1001010000001110 ; // JMP
+        is2word |= instr->Pattern() == 0b1001000000000000 ; // LDS
+        is2word |= instr->Pattern() == 0b1001001000000000 ; // STS
 
-      AVR::Command min = instr->Pattern() & instr->Mask() ;
-      prog.push_back(min) ;
-      if (is2word) prog.push_back(0x0000) ;
+        AVR::Command min = instr->Pattern() & instr->Mask() ;
+        prog.push_back(min) ;
+        if (is2word) prog.push_back(0x0000) ;
 
-      AVR::Command max = instr->Pattern() + ~instr->Mask() ;
-      prog.push_back(max) ;
-      if (is2word) prog.push_back(0xffff) ;
+        AVR::Command max = instr->Pattern() + ~instr->Mask() ;
+        prog.push_back(max) ;
+        if (is2word) prog.push_back(0xffff) ;
+      }
     }
-  }
 
-  avr.PC() = 0 ;
-  avr.SetProgram(0, prog) ;
-  printf("prog size: %ld\n", prog.size()) ;
+    avr.PC() = 0 ;
+    size_t nCommand = avr.SetProgram(0, prog) ;
+    printf("prog size: %ld\n", prog.size()) ;
 
-  while (avr.PC() < prog.size())
-  {
-    std::string disasm = avr.Disasm() ;
-    printf("%s\n", disasm.c_str()) ;
+    for (size_t iCommand = 0 ; iCommand < nCommand ; ++iCommand)
+    {
+      std::string disasm = avr.Disasm() ;
+      printf("%s\n", disasm.c_str()) ;
+    }
   }
 
   printf("================================================================================\n") ;
@@ -67,10 +69,10 @@ int test()
       prog.insert(prog.end(), cmds, cmds + nCmd) ;
     }
     avr.PC() = 0 ;
-    avr.SetProgram(0, prog) ;
+    size_t nCommand = avr.SetProgram(0, prog) ;
     printf("prog size: %ld\n", prog.size()) ;
 
-    while (avr.PC() < prog.size())
+    for (size_t iCommand = 0 ; iCommand < nCommand ; ++iCommand)
     {
       std::string disasm = avr.Disasm() ;
       printf("%s\n", disasm.c_str()) ;
@@ -156,13 +158,18 @@ int main(int argc, char *argv[])
     prog.insert(prog.end(), cmds, cmds + nCmd) ;
   }
   mcu->PC() = 0 ;
-  mcu->SetProgram(0, prog) ;
-  printf("prog size: %ld\n", prog.size()) ;
+  size_t nCommand = mcu->SetProgram(0, prog) ;
+  printf("prog size:   %ld\n", prog.size()) ;
+  printf("loaded size: %ld\n", nCommand) ;
 
-  while (mcu->PC() < prog.size())
+  size_t progEnd = nCommand % mcu->Program().size() ;
+  
+  while (true)
   {
     std::string disasm = mcu->Disasm() ;
     printf("%s\n", disasm.c_str()) ;
+    if (mcu->PC() == progEnd)
+      break ;
   }
 
   fclose(f) ;

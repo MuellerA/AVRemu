@@ -88,7 +88,7 @@ namespace AVR
     std::string instrDisasm = instr->Disasm(*this, cmd) ;
 
     char buff[1024] ;
-    switch (_pc - pc)
+    switch ((_pc - pc) % _programSize)
     {
     case 1:
       sprintf(buff, "%s%05lx:   %s     %04x          ", knownAddress.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), _program[pc]) ;
@@ -131,30 +131,36 @@ namespace AVR
     }
   }
 
-  void Mcu::SetProgram(size_t address, const std::vector<Command> &prg)
+  size_t Mcu::SetProgram(size_t startAddress, const std::vector<Command> &prg)
   {
-    if (address >= _programSize)
-      return ;
+    if (startAddress >= _programSize)
+      return 0 ;
 
-    for (Command cmd : prg)
+    size_t nCopy = prg.size() ;
+    if ((startAddress + nCopy) > _programSize)
     {
-      _program[address++] = cmd ;
-      if (address >= _programSize)
-        return ;
+      fprintf(stderr, "Mcu::SetProgram(): data too big for program memory\n") ;
+      nCopy = _programSize - startAddress ;
     }
+        
+    std::copy(prg.begin(), prg.begin()+nCopy, _program.begin()+startAddress) ;
+    return nCopy ;
   }
 
-  void Mcu::SetEeprom(size_t address, const std::vector<uint8> &eeprom)
+  size_t Mcu::SetEeprom(size_t startAddress, const std::vector<uint8> &eeprom)
   {
-    if (address >= _eepromSize)
-      return ;
+    if (startAddress >= _eepromSize)
+      return 0 ;
 
-    for (uint8 byte : eeprom)
+    size_t nCopy = eeprom.size() ;
+    if ((startAddress + nCopy) > _eepromSize)
     {
-      _eeprom[address++] = byte ;
-      if (address >= _eepromSize)
-        return ;
+      fprintf(stderr, "Mcu::SetEeprom(): data too big for eeprom memory\n") ;
+      nCopy = _eepromSize - startAddress ;
     }
+    
+    std::copy(eeprom.begin(), eeprom.begin()+nCopy, _eeprom.begin()+startAddress) ;
+    return nCopy ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
