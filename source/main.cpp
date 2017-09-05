@@ -89,7 +89,8 @@ int usage(const char *name)
   fprintf(stderr, "usage: %s -h\n", name) ;
   fprintf(stderr, "          this help\n") ;
   fprintf(stderr, "       %s [-mcu <mcu>] <avr-bin>\n", name) ;
-  fprintf(stderr, "          <mcu> is one of 'ATmega48PA', 'ATmega88PA', 'ATmega168PA', 'ATmega328P'\n") ;
+  fprintf(stderr, "          <mcu> is one of 'ATmega48PA', 'ATmega88PA', 'ATmega168PA', 'ATmega328P',\n") ;
+  fprintf(stderr, "          'ATtiny24A', 'ATtiny44A', 'ATtiny84A', 'ATtiny25', 'ATtiny45', 'ATtiny85'\n") ;
   fprintf(stderr, "          <avr-bin> is the binary file\n") ;
   return 1 ;
 }
@@ -123,11 +124,17 @@ int main(int argc, char *argv[])
     return usage(argv[0]) ;
 
   AVR::Mcu *mcu ;
-  if      (!strcmp(mcuType, "ATany"      )) mcu = new AVR::ATmega48PA()  ;
-  else if (!strcmp(mcuType, "ATmega48PA" )) mcu = new AVR::ATmega88PA()  ;
+  if      (!strcmp(mcuType, "ATany"      )) mcu = new AVR::ATany()       ;
+  else if (!strcmp(mcuType, "ATmega48PA" )) mcu = new AVR::ATmega48PA()  ;
   else if (!strcmp(mcuType, "ATmega88PA" )) mcu = new AVR::ATmega88PA()  ;
   else if (!strcmp(mcuType, "ATmega168PA")) mcu = new AVR::ATmega168PA() ;
   else if (!strcmp(mcuType, "ATmega328P" )) mcu = new AVR::ATmega328P()  ;
+  else if (!strcmp(mcuType, "ATtiny24A"  )) mcu = new AVR::ATtiny24A()   ;
+  else if (!strcmp(mcuType, "ATtiny44A"  )) mcu = new AVR::ATtiny44A()   ;
+  else if (!strcmp(mcuType, "ATtiny84A"  )) mcu = new AVR::ATtiny84A()   ;
+  else if (!strcmp(mcuType, "ATtiny25"   )) mcu = new AVR::ATtiny25()    ;
+  else if (!strcmp(mcuType, "ATtiny45"   )) mcu = new AVR::ATtiny45()    ;
+  else if (!strcmp(mcuType, "ATtiny85"   )) mcu = new AVR::ATtiny85()    ;
   else return usage(argv[0]) ;
   
   FILE *f = fopen(argv[iArg], "rb") ;

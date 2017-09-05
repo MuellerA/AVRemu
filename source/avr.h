@@ -159,10 +159,66 @@ namespace AVR
   // ATtiny24A/44A/84A
   ////////////////////////////////////////////////////////////////////////////////
 
+  class ATtinyX4 : public Mcu
+  {
+  protected:
+    ATtinyX4(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize) ;
+    virtual ~ATtinyX4() ;
+  } ;
+
+  class ATtiny84A : public ATtinyX4
+  {
+  public:
+    ATtiny84A() ;
+    ~ATtiny84A() ;
+  } ;
+  
+  class ATtiny44A : public ATtinyX4
+  {
+  public:
+    ATtiny44A() ;
+    ~ATtiny44A() ;
+  } ;
+  
+  class ATtiny24A : public ATtinyX4
+  {
+  public:
+    ATtiny24A() ;
+    ~ATtiny24A() ;
+  } ;
+  
   ////////////////////////////////////////////////////////////////////////////////
   // ATtiny25/V/45/V/85/V
   ////////////////////////////////////////////////////////////////////////////////
 
+  class ATtinyX5 : public Mcu
+  {
+  protected:
+    ATtinyX5(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize) ;
+    virtual ~ATtinyX5() ;
+  } ;
+
+  class ATtiny85 : public ATtinyX5
+  {
+  public:
+    ATtiny85() ;
+    ~ATtiny85() ;
+  } ;
+  
+  class ATtiny45 : public ATtinyX5
+  {
+  public:
+    ATtiny45() ;
+    ~ATtiny45() ;
+  } ;
+  
+  class ATtiny25 : public ATtinyX5
+  {
+  public:
+    ATtiny25() ;
+    ~ATtiny25() ;
+  } ;
+  
   ////////////////////////////////////////////////////////////////////////////////
   // ATxmega xxA
   ////////////////////////////////////////////////////////////////////////////////

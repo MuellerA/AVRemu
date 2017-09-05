@@ -230,7 +230,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega328P::ATmega328P() : ATmegaXX8(0x4000, 0x00e0, 0x0800, 0x0400)
+  ATmega328P::ATmega328P() : ATmegaXX8(0x8000/2, 0x00e0, 0x0800, 0x0400)
   {
     const Instruction *instructions[] { &instrJMP, &instrCALL, } ;
     for (const Instruction* iInstr: instructions)
@@ -264,14 +264,14 @@ namespace AVR
         { 0x2c, "EEPROM Ready" },
         { 0x2e, "Analog Comparator" },
         { 0x30, "2-wire Serial Interface" },
-        { 0x31, "Store Program Memory Ready" },
+        { 0x32, "Store Program Memory Ready" },
       } ;
   }
   ATmega328P::~ATmega328P() {}
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega168PA::ATmega168PA() : ATmegaXX8(0x2000, 0x00e0, 0x0400, 0x0200)
+  ATmega168PA::ATmega168PA() : ATmegaXX8(0x4000/2, 0x00e0, 0x0400, 0x0200)
   {
     const Instruction *instructions[] { &instrJMP, &instrCALL, } ;
     for (const Instruction* iInstr: instructions)
@@ -305,14 +305,14 @@ namespace AVR
         { 0x2c, "EEPROM Ready" },
         { 0x2e, "Analog Comparator" },
         { 0x30, "2-wire Serial Interface" },
-        { 0x31, "Store Program Memory Ready" },
+        { 0x32, "Store Program Memory Ready" },
       } ;
   }
   ATmega168PA::~ATmega168PA() {}
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega88PA::ATmega88PA() : ATmegaXX8(0x1000, 0x00e0, 0x0400, 0x0200)
+  ATmega88PA::ATmega88PA() : ATmegaXX8(0x2000/2, 0x00e0, 0x0400, 0x0200)
   {
     // ignoring BOOTRST / IVSEL Fuses
     _knownProgramAddresses = std::map<uint32, std::string>
@@ -349,7 +349,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega48PA::ATmega48PA() : ATmegaXX8(0x0800, 0x00e0, 0x0200, 0x0100)
+  ATmega48PA::ATmega48PA() : ATmegaXX8(0x1000/2, 0x00e0, 0x0200, 0x0100)
   {
     _knownProgramAddresses = std::map<uint32, std::string>
       {
@@ -384,12 +384,174 @@ namespace AVR
   ATmega48PA::~ATmega48PA() {}
   
   ////////////////////////////////////////////////////////////////////////////////
+  // ATtiny24A/44A/84A
+  ////////////////////////////////////////////////////////////////////////////////
+
+  ATtinyX4::ATtinyX4(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize)
+    : Mcu(programSize, ioSize, dataSize, eepromSize)
+  {
+    const Instruction *instructions[]
+    {
+      &instrADD, &instrADC, &instrADIW, &instrSUB, &instrSUBI, &instrSBC, &instrSBCI, &instrSBIW, &instrAND, &instrANDI,
+      &instrOR, &instrORI, &instrEOR, &instrCOM, &instrNEG, &instrINC, &instrDEC, /*&instrMUL,*/ /*&instrMULS,*/ /*&instrMULSU,*/
+      /*&instrFMUL,*/ /*&instrFMULS,*/ /*&instrFMULSU,*/ /*&instrDES,*/
+
+      &instrRJMP, &instrIJMP, /*&instrEIJMP,*/ /*&instrJMP,*/ &instrRCALL, &instrICALL, /*&instrEICALL,*/ /*&instrCALL,*/ &instrRET,
+      &instrRETI, &instrCPSE, &instrCP, &instrCPC, &instrCPI, &instrSBRC, &instrSBRS, &instrSBIC, &instrSBIS,
+      &instrBRBS, &instrBRBC,
+
+      &instrMOV, &instrMOVW, &instrLDI, &instrLDS, &instrLDx1, &instrLDx2, &instrLDx3, &instrLDy1, &instrLDy2,
+      &instrLDy3, &instrLDy4, &instrLDz1, &instrLDz2, &instrLDz3, &instrLDz4, &instrSTS, &instrSTx1, &instrSTx2,
+      &instrSTx3, &instrSTy1, &instrSTy2, &instrSTy3, &instrSTy4, &instrSTz1, &instrSTz2, &instrSTz3, &instrSTz4,
+      &instrLPM1, &instrLPM2, &instrLPM3, /*&instrELPM1,*/ /*&instrELPM2,*/ /*&instrELPM3,*/ &instrSPM1, &instrSPM2, &instrIN,
+      &instrOUT, &instrPUSH, &instrPOP, /*&instrXCH,*/ /*&instrLAS,*/ /*&instrLAC,*/ /*&instrLAT,*/
+
+      &instrLSR, &instrROR, &instrASR, &instrSWAP, &instrBSET, &instrBCLR, &instrSBI, &instrCBI, &instrBST,
+      &instrBLD,
+
+      &instrBREAK, &instrNOP, &instrSLEEP, &instrWDR,
+    } ;
+    for (const Instruction* iInstr: instructions)
+      AddInstruction(iInstr) ;
+
+    _knownProgramAddresses = std::map<uint32, std::string>
+      {
+        { 0x00, "External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset" },
+        { 0x01, "External Interrupt Request 0" },
+        { 0x02, "Pin Change Interrupt Request 0" },
+        { 0x03, "Pin Change Interrupt Request 1" },
+        { 0x04, "Watchdog Time-out" },
+        { 0x05, "Timer/Counter1 Capture Event" },
+        { 0x06, "Timer/Counter1 Compare Match A" },
+        { 0x07, "Timer/Counter1 Compare Match B" },
+        { 0x08, "Timer/Counter1 Overflow" },
+        { 0x09, "Timer/Counter0 Compare Match A" },
+        { 0x0a, "Timer/Counter0 Compare Match B" },
+        { 0x0b, "Timer/Counter0 Overflow" },
+        { 0x0c, "Analog Comparator" },
+        { 0x0d, "ADC Conversion Complete" },
+        { 0x0e, "EEPROM Ready" },
+        { 0x0f, "USI START" },
+        { 0x10, "USI Overflow" },
+      } ;
+  }
+  ATtinyX4::~ATtinyX4()
+  {
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  ATtiny84A::ATtiny84A() : ATtinyX4(0x2000/2, 0x40, 0x200, 0x200)
+  {
+  }
+  ATtiny84A::~ATtiny84A()
+  {
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  ATtiny44A::ATtiny44A() : ATtinyX4(0x1000/2, 0x40, 0x100, 0x100)
+  {
+  }
+  ATtiny44A::~ATtiny44A()
+  {
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  ATtiny24A::ATtiny24A() : ATtinyX4(0x800/2, 0x40, 0x80, 0x80)
+  {
+  }
+  ATtiny24A::~ATtiny24A()
+  {
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // ATtiny25/V/45/V/85/V
+  ////////////////////////////////////////////////////////////////////////////////
+
+  ATtinyX5::ATtinyX5(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize)
+    : Mcu(programSize, ioSize, dataSize, eepromSize)
+  {
+    const Instruction *instructions[]
+    {
+      &instrADD, &instrADC, &instrADIW, &instrSUB, &instrSUBI, &instrSBC, &instrSBCI, &instrSBIW, &instrAND, &instrANDI,
+      &instrOR, &instrORI, &instrEOR, &instrCOM, &instrNEG, &instrINC, &instrDEC, /*&instrMUL,*/ /*&instrMULS,*/ /*&instrMULSU,*/
+      /*&instrFMUL,*/ /*&instrFMULS,*/ /*&instrFMULSU,*/ /*&instrDES,*/
+
+      &instrRJMP, &instrIJMP, /*&instrEIJMP,*/ /*&instrJMP,*/ &instrRCALL, &instrICALL, /*&instrEICALL,*/ /*&instrCALL,*/ &instrRET,
+      &instrRETI, &instrCPSE, &instrCP, &instrCPC, &instrCPI, &instrSBRC, &instrSBRS, &instrSBIC, &instrSBIS,
+      &instrBRBS, &instrBRBC,
+
+      &instrMOV, &instrMOVW, &instrLDI, &instrLDS, &instrLDx1, &instrLDx2, &instrLDx3, &instrLDy1, &instrLDy2,
+      &instrLDy3, &instrLDy4, &instrLDz1, &instrLDz2, &instrLDz3, &instrLDz4, &instrSTS, &instrSTx1, &instrSTx2,
+      &instrSTx3, &instrSTy1, &instrSTy2, &instrSTy3, &instrSTy4, &instrSTz1, &instrSTz2, &instrSTz3, &instrSTz4,
+      &instrLPM1, &instrLPM2, &instrLPM3, /*&instrELPM1,*/ /*&instrELPM2,*/ /*&instrELPM3,*/ &instrSPM1, &instrSPM2, &instrIN,
+      &instrOUT, &instrPUSH, &instrPOP, /*&instrXCH,*/ /*&instrLAS,*/ /*&instrLAC,*/ /*&instrLAT,*/
+
+      &instrLSR, &instrROR, &instrASR, &instrSWAP, &instrBSET, &instrBCLR, &instrSBI, &instrCBI, &instrBST,
+      &instrBLD,
+
+      &instrBREAK, &instrNOP, &instrSLEEP, &instrWDR,
+    } ;
+    for (const Instruction* iInstr: instructions)
+      AddInstruction(iInstr) ;
+
+    _knownProgramAddresses = std::map<uint32, std::string>
+      {
+        { 0x00, "External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset" },
+        { 0x01, "External Interrupt Request 0" },
+        { 0x02, "Pin Change Interrupt Request 0" },
+        { 0x03, "Timer/Counter1 Compare Match A" },
+        { 0x04, "Timer/Counter1 Overflow" },
+        { 0x05, "Timer/Counter0 Overflow" },
+        { 0x06, "EEPROM Ready" },
+        { 0x07, "Analog Comparator" },
+        { 0x08, "ADC Conversion Complete" },
+        { 0x09, "Timer/Counter1 Compare Match B" },
+        { 0x0a, "Timer/Counter0 Compare Match A" },
+        { 0x0b, "Timer/Counter0 Compare Match B" },
+        { 0x0c, "Watchdog Time-out" },
+        { 0x0d, "USI START" },
+        { 0x0e, "USI Overflow" },
+      } ;
+  }
+  ATtinyX5::~ATtinyX5()
+  {
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  ATtiny85::ATtiny85() : ATtinyX5(0x2000/2, 0x40, 0x200, 0x200)
+  {
+  }
+  ATtiny85::~ATtiny85()
+  {
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  ATtiny45::ATtiny45() : ATtinyX5(0x1000/2, 0x40, 0x100, 0x100)
+  {
+  }
+  ATtiny45::~ATtiny45()
+  {
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  ATtiny25::ATtiny25() : ATtinyX5(0x800/2, 0x40, 0x80, 0x80)
+  {
+  }
+  ATtiny25::~ATtiny25()
+  {
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
   // todo
   ////////////////////////////////////////////////////////////////////////////////
   /*
-    ATmega8  (0x1000, 0x0040, 0x0800, 0x0200) ;
-
-    ATtiny* ;
+    ATmega8
 
     ATxmega*
   */
