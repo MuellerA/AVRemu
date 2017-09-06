@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <algorithm>
+#include <functional>
 #include <map>
 #include <string.h>
 
@@ -86,16 +87,53 @@ int test()
 // main
 ////////////////////////////////////////////////////////////////////////////////
 
+std::map<std::string, std::function<AVR::Mcu*()> > mcuFactory
+{
+  { "ATany",         []{ return new AVR::ATany()         ; } },
+  { "ATmega48PA",    []{ return new AVR::ATmega48PA()    ; } },
+  { "ATmega88PA",    []{ return new AVR::ATmega88PA()    ; } },
+  { "ATmega168PA",   []{ return new AVR::ATmega168PA()   ; } },
+  { "ATmega328P",    []{ return new AVR::ATmega328P()    ; } },
+  { "ATtiny24A",     []{ return new AVR::ATtiny24A()     ; } },
+  { "ATtiny44A",     []{ return new AVR::ATtiny44A()     ; } },
+  { "ATtiny84A",     []{ return new AVR::ATtiny84A()     ; } },
+  { "ATtiny25",      []{ return new AVR::ATtiny25()      ; } },
+  { "ATtiny45",      []{ return new AVR::ATtiny45()      ; } },
+  { "ATtiny85",      []{ return new AVR::ATtiny85()      ; } },
+  { "ATxmega128A4U", []{ return new AVR::ATxmega128A4U() ; } },
+  { "ATxmega64A4U",  []{ return new AVR::ATxmega64A4U()  ; } },
+  { "ATxmega32A4U",  []{ return new AVR::ATxmega32A4U()  ; } },
+  { "ATxmega16A4U",  []{ return new AVR::ATxmega16A4U()  ; } },
+} ;
+
+////////////////////////////////////////////////////////////////////////////////
+
 int usage(const char *name)
 {
-  fprintf(stderr, "usage: %s -h\n", name) ;
-  fprintf(stderr, "          this help\n") ;
-  fprintf(stderr, "       %s [-mcu <mcu>] <avr-bin>\n", name) ;
-  fprintf(stderr, "          <mcu> is one of 'ATmega48PA', 'ATmega88PA', 'ATmega168PA', 'ATmega328P',\n") ;
-  fprintf(stderr, "          'ATtiny24A', 'ATtiny44A', 'ATtiny84A', 'ATtiny25', 'ATtiny45', 'ATtiny85'\n") ;
-  fprintf(stderr, "          <avr-bin> is the binary file\n") ;
+  fprintf(stderr, "usage: %s [-mcu <mcu>] <avr-bin>\n", name) ;
+  fprintf(stderr, "       %s -h\n", name) ;
+  fprintf(stderr, "use '-h' for a full list of MCUs\n") ;
   return 1 ;
 }
+
+int usageFull(const char *name)
+{
+  fprintf(stderr, "usage: %s [-mcu <mcu>] <avr-bin>\n", name) ;
+  fprintf(stderr, "       %s -h\n", name) ;
+  fprintf(stderr, "parameter:\n") ;
+  fprintf(stderr, "   -mcu <mcu>  MCU type, see below\n") ;
+  fprintf(stderr, "   <avr-bin>   binary file to be disassembled\n") ;
+  fprintf(stderr, "   -h          this help\n") ;
+  fprintf(stderr, "Supported MCU types:") ; 
+  for (auto iFactory : mcuFactory)
+  {
+    fprintf(stderr, " %s", iFactory.first.c_str()) ;
+  }
+  fprintf(stderr, "\n") ;
+  return 1 ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char *argv[])
 {
@@ -112,7 +150,7 @@ int main(int argc, char *argv[])
     if (*argv[iArg] != '-')
       break ;
     else if (!strcmp(argv[iArg], "-h"))
-      return usage(argv[0]) ;
+      return usageFull(argv[0]) ;
     else if (!strcmp(argv[iArg], "-mcu"))
     {
       if (iArg >= argc-1)
@@ -126,18 +164,11 @@ int main(int argc, char *argv[])
     return usage(argv[0]) ;
 
   AVR::Mcu *mcu ;
-  if      (!strcmp(mcuType, "ATany"      )) mcu = new AVR::ATany()       ;
-  else if (!strcmp(mcuType, "ATmega48PA" )) mcu = new AVR::ATmega48PA()  ;
-  else if (!strcmp(mcuType, "ATmega88PA" )) mcu = new AVR::ATmega88PA()  ;
-  else if (!strcmp(mcuType, "ATmega168PA")) mcu = new AVR::ATmega168PA() ;
-  else if (!strcmp(mcuType, "ATmega328P" )) mcu = new AVR::ATmega328P()  ;
-  else if (!strcmp(mcuType, "ATtiny24A"  )) mcu = new AVR::ATtiny24A()   ;
-  else if (!strcmp(mcuType, "ATtiny44A"  )) mcu = new AVR::ATtiny44A()   ;
-  else if (!strcmp(mcuType, "ATtiny84A"  )) mcu = new AVR::ATtiny84A()   ;
-  else if (!strcmp(mcuType, "ATtiny25"   )) mcu = new AVR::ATtiny25()    ;
-  else if (!strcmp(mcuType, "ATtiny45"   )) mcu = new AVR::ATtiny45()    ;
-  else if (!strcmp(mcuType, "ATtiny85"   )) mcu = new AVR::ATtiny85()    ;
-  else return usage(argv[0]) ;
+  auto iFactory = mcuFactory.find(mcuType) ;
+  if (iFactory == mcuFactory.end())
+    return usage(argv[0]) ;
+
+  mcu = iFactory->second() ;
   
   FILE *f = fopen(argv[iArg], "rb") ;
   if (!f)
@@ -173,6 +204,9 @@ int main(int argc, char *argv[])
   }
 
   fclose(f) ;
+
+  delete mcu ;
+  
   return 0 ;
 }
 

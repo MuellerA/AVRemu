@@ -67,6 +67,7 @@ namespace AVR
     Mcu(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize) ;
     Mcu() = delete ;
     Mcu& operator=(const Mcu&) = delete ;
+  public:
     virtual ~Mcu() ;
 
   public:
@@ -220,9 +221,44 @@ namespace AVR
   } ;
   
   ////////////////////////////////////////////////////////////////////////////////
-  // ATxmega xxA
+  // ATxmega AU
   ////////////////////////////////////////////////////////////////////////////////
 
+  class ATxmegaAU : public Mcu
+  {
+  protected:
+    ATxmegaAU(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize) ;
+    virtual ~ATxmegaAU() ;
+  } ;
+
+  class ATxmega128A4U : public ATxmegaAU
+  {
+  public:
+    ATxmega128A4U() ;
+    ~ATxmega128A4U() ;
+  } ;
+  
+  class ATxmega64A4U : public ATxmegaAU
+  {
+  public:
+    ATxmega64A4U() ;
+    ~ATxmega64A4U() ;
+  } ;
+  
+  class ATxmega32A4U : public ATxmegaAU
+  {
+  public:
+    ATxmega32A4U() ;
+    ~ATxmega32A4U() ;
+  } ;
+  
+  class ATxmega16A4U : public ATxmegaAU
+  {
+  public:
+    ATxmega16A4U() ;
+    ~ATxmega16A4U() ;
+  } ;
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

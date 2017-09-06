@@ -106,12 +106,12 @@ namespace AVR
   }
   inline const char* sToBSET(Command s)
   {
-    static const char *mnemonic[] = { "SEC", "SEZ", "SEC", "SEZ", "SEN", "SEV", "SES", "SEH", "SET", "SEI" } ;
+    static const char *mnemonic[] = { "SEC", "SEZ", "SEN", "SEV", "SES", "SEH", "SET", "SEI" } ;
     return mnemonic[s] ;
   }
   inline const char* sToBCLR(Command s)
   {
-    static const char *mnemonic[] = { "CLC", "CLZ", "CLC", "CLZ", "CLN", "CLV", "CLS", "CLH", "CLT", "CLI" } ;
+    static const char *mnemonic[] = { "CLC", "CLZ", "CLN", "CLV", "CLS", "CLH", "CLT", "CLI" } ;
     return mnemonic[s] ;
   }
   inline const char* sToBRBS(Command s)

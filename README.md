@@ -7,16 +7,18 @@ For now only a disassembler on Linux for
 
 Usage: 
 <pre>
-./AVRemu [-mcu &lt;mcu&gt;] &lt;avr-bin&gt;
-         &lt;mcu&gt; is one of 'ATmega48PA', 'ATmega88PA', 'ATmega168PA', 'ATmega328P',
-         'ATtiny24A', 'ATtiny44A', 'ATtiny84A', 'ATtiny25', 'ATtiny45', 'ATtiny85'
-         &lt;avr-bin&gt; is the binary file to disassemble
-./AVRemu -h
-         this help
+usage: AVRemu [-mcu &lt;mcu&gt;] &lt;avr-bin&gt;
+       AVRemu -h
+parameter:
+   -mcu &lt;mcu&gt;  MCU type, see below
+   &lt;avr-bin&gt;   binary file to be disassembled
+   -h          this help
+Supported MCU types: ATany ATmega168PA ATmega328P ATmega48PA ATmega88PA ATtiny24A ATtiny25 ATtiny44A ATtiny45 ATtiny84A ATtiny85 ATxmega128A4U ATxmega16A4U ATxmega32A4U ATxmega64A4U
 </pre>
 
 Compile:
 <pre>
+cd source
 make -k
 </pre>
 
