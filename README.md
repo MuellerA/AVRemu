@@ -4,6 +4,7 @@ For now only a disassembler on Linux for
 - ATmega48PA, ATmega88PA, ATmega168PA, ATmega328P
 - ATtiny24A, ATtiny44A, ATtiny84A
 - ATtiny25, ATtiny45, ATtiny85
+- ATxmega128A4U, ATxmega64A4U, ATxmega32A4U, ATxmega16A4U,
 
 Usage: 
 <pre>

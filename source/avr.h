@@ -34,6 +34,7 @@ namespace AVR
     // returns execution time
     virtual std::size_t Execute(Mcu &mcu, Command cmd) const = 0 ;
     virtual std::string Disasm (Mcu &mcu, Command cmd) const = 0 ;
+    virtual bool        Xref   (Mcu &mcu, Command cmd, uint32 &addr) const = 0 ;
 
     virtual Command     Pattern()     const { return _pattern     ; }
     virtual Command     Mask()        const { return _mask        ; }
@@ -64,6 +65,14 @@ namespace AVR
   class Mcu
   {
   protected:
+    struct Xref
+    {
+      uint32              _addr ;
+      std::string         _label ;
+      std::vector<uint32> _addrs ;
+    } ;
+    
+  protected:
     Mcu(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize) ;
     Mcu() = delete ;
     Mcu& operator=(const Mcu&) = delete ;
@@ -81,11 +90,13 @@ namespace AVR
     const std::vector<const Instruction*>& Instructions() const { return _instructions ; }
     const std::vector<Command>&            Program()      const { return _program      ; }
 
+    void   ClearProgram() ;
     size_t SetProgram(size_t address, const std::vector<Command> &prg) ;
     size_t SetEeprom(size_t address, const std::vector<uint8> &eeprom) ;
 
   protected:
     void AddInstruction(const Instruction *instr) ;
+    void AnalyzeXrefs() ;
 
   protected:
     std::size_t _pc ;
@@ -102,6 +113,7 @@ namespace AVR
     std::vector<uint8>         _data ;
     std::vector<uint8>         _eeprom ;
     std::map<uint32, std::string> _knownProgramAddresses ;
+    std::map<uint32, Xref>     _xrefs ;
 
     std::vector<const Instruction*> _instructions ;       // map cmd to instruction
   } ;
@@ -132,28 +144,28 @@ namespace AVR
   {
   public:
     ATmega328P() ;
-    ~ATmega328P() ;
+    virtual ~ATmega328P() ;
   } ;
   
   class ATmega168PA : public ATmegaXX8
   {
   public:
     ATmega168PA() ;
-    ~ATmega168PA() ;
+    virtual ~ATmega168PA() ;
   } ;
   
   class ATmega88PA : public ATmegaXX8
   {
   public:
     ATmega88PA() ;
-    ~ATmega88PA() ;
+    virtual ~ATmega88PA() ;
   } ;
   
   class ATmega48PA : public ATmegaXX8
   {
   public:
     ATmega48PA() ;
-    ~ATmega48PA() ;
+    virtual ~ATmega48PA() ;
   } ;
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -171,21 +183,21 @@ namespace AVR
   {
   public:
     ATtiny84A() ;
-    ~ATtiny84A() ;
+    virtual ~ATtiny84A() ;
   } ;
   
   class ATtiny44A : public ATtinyX4
   {
   public:
     ATtiny44A() ;
-    ~ATtiny44A() ;
+    virtual ~ATtiny44A() ;
   } ;
   
   class ATtiny24A : public ATtinyX4
   {
   public:
     ATtiny24A() ;
-    ~ATtiny24A() ;
+    virtual ~ATtiny24A() ;
   } ;
   
   ////////////////////////////////////////////////////////////////////////////////
@@ -203,21 +215,21 @@ namespace AVR
   {
   public:
     ATtiny85() ;
-    ~ATtiny85() ;
+    virtual ~ATtiny85() ;
   } ;
   
   class ATtiny45 : public ATtinyX5
   {
   public:
     ATtiny45() ;
-    ~ATtiny45() ;
+    virtual ~ATtiny45() ;
   } ;
   
   class ATtiny25 : public ATtinyX5
   {
   public:
     ATtiny25() ;
-    ~ATtiny25() ;
+    virtual ~ATtiny25() ;
   } ;
   
   ////////////////////////////////////////////////////////////////////////////////
@@ -235,28 +247,28 @@ namespace AVR
   {
   public:
     ATxmega128A4U() ;
-    ~ATxmega128A4U() ;
+    virtual ~ATxmega128A4U() ;
   } ;
   
   class ATxmega64A4U : public ATxmegaAU
   {
   public:
     ATxmega64A4U() ;
-    ~ATxmega64A4U() ;
+    virtual ~ATxmega64A4U() ;
   } ;
   
   class ATxmega32A4U : public ATxmegaAU
   {
   public:
     ATxmega32A4U() ;
-    ~ATxmega32A4U() ;
+    virtual ~ATxmega32A4U() ;
   } ;
   
   class ATxmega16A4U : public ATxmegaAU
   {
   public:
     ATxmega16A4U() ;
-    ~ATxmega16A4U() ;
+    virtual ~ATxmega16A4U() ;
   } ;
   
 }

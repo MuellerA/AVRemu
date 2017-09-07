@@ -50,8 +50,12 @@ namespace AVR
 
   std::size_t Mcu::Execute()
   {
+    if (_pc >= _programSize)
+    {
+      fprintf(stderr, "program counter overflow\n") ;
+      return 0 ;
+    }
     Command cmd = _program[_pc++] ;
-    _pc %= _programSize ;
 
     const Instruction *instr = _instructions[cmd] ;
 
@@ -70,31 +74,61 @@ namespace AVR
 
   std::string Mcu::Disasm()
   {
+    if (_pc >= _programSize)
+    {
+      fprintf(stderr, "program counter overflow\n") ;
+      return "" ;
+    }
+    
     size_t pc = _pc ;
     Command cmd = _program[_pc++] ;
-    _pc %= _programSize ;
 
-    auto iKnownAddr = _knownProgramAddresses.find(pc) ;
-    std::string knownAddress = (iKnownAddr != _knownProgramAddresses.end()) ? iKnownAddr->second + ":\n" : "" ;      
+    std::string label ;
+    auto iXrefs = _xrefs.find(pc) ;
+    if (iXrefs != _xrefs.end())
+    {
+      const auto &xref = iXrefs->second ;
+
+      if (xref._label.empty())
+        label.append("Xref", 4) ;
+      else
+        label.append(xref._label) ;
+
+      bool first = true ;
+      for (auto &iXref: xref._addrs)
+      {
+        if (first)
+        {
+          first = false ;
+          label.append(": ", 2) ;
+        }
+        else
+          label.append(", ", 2) ;
+        char buff[32] ;
+        sprintf(buff, "%05x", iXref) ;
+        label.append(buff) ;
+      }
+      label.append("\n", 1) ;
+    }
     
     const Instruction *instr = _instructions[cmd] ;
     if (!instr)
     {
       char buff[1024] ;
-      sprintf(buff, "%s%05lx:   %s     %04x          ???", knownAddress.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), _program[pc]) ;
+      sprintf(buff, "%s%05lx:   %s     %04x          ???", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), _program[pc]) ;
       return std::string(buff) ;
     }
 
     std::string instrDisasm = instr->Disasm(*this, cmd) ;
 
     char buff[1024] ;
-    switch ((_pc - pc) % _programSize)
+    switch (_pc - pc)
     {
     case 1:
-      sprintf(buff, "%s%05lx:   %s     %04x          ", knownAddress.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), _program[pc]) ;
+      sprintf(buff, "%s%05lx:   %s     %04x          ", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), _program[pc]) ;
       break ;
     case 2:
-      sprintf(buff, "%s%05lx:   %s%s   %04x %04x     ", knownAddress.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), Disasm_ASC(_program[pc+1]).c_str(), _program[pc], _program[pc+1]) ;
+      sprintf(buff, "%s%05lx:   %s%s   %04x %04x     ", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), Disasm_ASC(_program[pc+1]).c_str(), _program[pc], _program[pc+1]) ;
       break ;
     }
     std::string disasm(buff) ;
@@ -104,10 +138,56 @@ namespace AVR
 
   Command Mcu::ProgramNext()
   {
+    if (_pc >= _programSize)
+    {
+      fprintf(stderr, "program counter overflow\n") ;
+      return 0 ;
+    }
     Command cmd = _program[_pc++] ;
-    _pc %= _programSize ;
 
     return cmd ;
+  }
+
+  void Mcu::ClearProgram()
+  {
+    for (auto &iPrg :_program)
+      iPrg = 0 ;
+    _xrefs.clear() ;
+  }
+  
+  size_t Mcu::SetProgram(size_t startAddress, const std::vector<Command> &prg)
+  {
+    if (startAddress >= _programSize)
+      return 0 ;
+
+    size_t nCopy = prg.size() ;
+    if ((startAddress + nCopy) > _programSize)
+    {
+      fprintf(stderr, "Mcu::SetProgram(): data too big for program memory\n") ;
+      nCopy = _programSize - startAddress ;
+    }
+        
+    std::copy(prg.begin(), prg.begin()+nCopy, _program.begin()+startAddress) ;
+
+    AnalyzeXrefs() ;
+    
+    return nCopy ;
+  }
+
+  size_t Mcu::SetEeprom(size_t startAddress, const std::vector<uint8> &eeprom)
+  {
+    if (startAddress >= _eepromSize)
+      return 0 ;
+
+    size_t nCopy = eeprom.size() ;
+    if ((startAddress + nCopy) > _eepromSize)
+    {
+      fprintf(stderr, "Mcu::SetEeprom(): data too big for eeprom memory\n") ;
+      nCopy = _eepromSize - startAddress ;
+    }
+    
+    std::copy(eeprom.begin(), eeprom.begin()+nCopy, _eeprom.begin()+startAddress) ;
+    return nCopy ;
   }
 
   void Mcu::AddInstruction(const Instruction *instr)
@@ -131,38 +211,46 @@ namespace AVR
     }
   }
 
-  size_t Mcu::SetProgram(size_t startAddress, const std::vector<Command> &prg)
+  void Mcu::AnalyzeXrefs()
   {
-    if (startAddress >= _programSize)
-      return 0 ;
+    _xrefs.clear() ;
 
-    size_t nCopy = prg.size() ;
-    if ((startAddress + nCopy) > _programSize)
+    // add known addresses
+    for (auto iKnownAddr : _knownProgramAddresses)
     {
-      fprintf(stderr, "Mcu::SetProgram(): data too big for program memory\n") ;
-      nCopy = _programSize - startAddress ;
+      Xref &xref = _xrefs[iKnownAddr.first] ;
+      xref._addr  = iKnownAddr.first  ;
+      xref._label = iKnownAddr.second ;
     }
-        
-    std::copy(prg.begin(), prg.begin()+nCopy, _program.begin()+startAddress) ;
-    return nCopy ;
-  }
 
-  size_t Mcu::SetEeprom(size_t startAddress, const std::vector<uint8> &eeprom)
-  {
-    if (startAddress >= _eepromSize)
-      return 0 ;
-
-    size_t nCopy = eeprom.size() ;
-    if ((startAddress + nCopy) > _eepromSize)
+    // check branch instructions
+    uint32 pc0 = _pc ;
+    for (_pc = 0 ; _pc < _programSize ; )
     {
-      fprintf(stderr, "Mcu::SetEeprom(): data too big for eeprom memory\n") ;
-      nCopy = _eepromSize - startAddress ;
+      uint32 pc = _pc ;
+      uint32 addr ;
+      Command cmd = _program[_pc++] ;
+      
+      const Instruction *instr = _instructions[cmd] ;
+      if (instr && instr->Xref(*this, cmd, addr))
+      {
+        auto iXrefs = _xrefs.find(addr) ;
+        if (iXrefs != _xrefs.end())
+        {
+          Xref &xref = iXrefs->second ;
+          xref._addrs.push_back(pc) ;
+        }
+        else
+        {
+          Xref &xref = _xrefs[addr] ;
+          xref._addr = addr ;
+          xref._addrs.push_back(pc) ;          
+        }
+      }      
     }
-    
-    std::copy(eeprom.begin(), eeprom.begin()+nCopy, _eeprom.begin()+startAddress) ;
-    return nCopy ;
+    _pc = pc0 ;
   }
-
+  
   ////////////////////////////////////////////////////////////////////////////////
   // ATany
   ////////////////////////////////////////////////////////////////////////////////

@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 
   size_t progEnd = nCommand % mcu->Program().size() ;
   
-  while (true)
+  while (mcu->PC() < nCommand)
   {
     std::string disasm = mcu->Disasm() ;
     printf("%s\n", disasm.c_str()) ;

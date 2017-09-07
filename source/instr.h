@@ -11,15 +11,16 @@ namespace AVR
   // Instruction Classes
   ////////////////////////////////////////////////////////////////////////////////
 
-#define INSTR(name)                                             \
-  class Instr##name : public Instruction                        \
-  {                                                             \
-  public:                                                       \
-    Instr##name() ;                                             \
-    virtual ~Instr##name() ;                                    \
-    virtual std::size_t Execute(Mcu &mcu, Command cmd) const ;  \
-    virtual std::string Disasm (Mcu &mcu, Command cmd) const ;  \
-  } ;                                                           \
+#define INSTR(name)                                                          \
+  class Instr##name : public Instruction                                     \
+  {                                                                          \
+  public:                                                                    \
+    Instr##name() ;                                                          \
+    virtual ~Instr##name() ;                                                 \
+    virtual std::size_t Execute(Mcu &mcu, Command cmd) const ;               \
+    virtual std::string Disasm (Mcu &mcu, Command cmd) const ;               \
+    virtual bool        Xref   (Mcu &mcu, Command cmd, uint32 &addr) const ; \
+  } ;                                                                        \
   extern Instr##name instr##name
 
   ////////////////////////////////////////////////////////////////////////////////
