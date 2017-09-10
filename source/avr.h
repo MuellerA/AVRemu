@@ -13,6 +13,7 @@ namespace AVR
 {
   class Mcu ;
   class Instruction ;
+  class Io ;
 
   using Command = unsigned short ; // 16 bit instruction
   using int8    = signed   char  ; //  8 bit
@@ -54,14 +55,28 @@ namespace AVR
     class Register
     {
     public:
-      virtual std::string Name() const = 0 ;
+      virtual const std::string& Name() const = 0 ;
       virtual uint8  Value() const = 0 ;
       virtual uint8& Value() = 0 ;
-      virtual uint8  Init() = 0 ; // bootup value
+      virtual uint8  Init() const = 0 ; // bootup value
     } ;
     
   } ;
 
+  class IoRegisterNotImplemented : public Io::Register
+  {
+  public:
+    IoRegisterNotImplemented(const std::string &name) : _name(name), _value(0) {}
+    
+    virtual const std::string& Name() const { return _name ; }
+    virtual uint8  Value() const { return _value ; }
+    virtual uint8& Value() { return _value ; }
+    virtual uint8  Init() const { return 0 ; }
+  private:
+    std::string _name ;
+    uint8 _value ;
+  } ;
+  
   class Mcu
   {
   protected:
@@ -82,6 +97,7 @@ namespace AVR
   public:
     std::size_t Execute() ;
     std::string Disasm() ;
+    bool DataAddrName(uint32 addr, std::string &name) const ;
     Command ProgramNext() ;
 
     std::size_t  PC() const { return _pc ; }

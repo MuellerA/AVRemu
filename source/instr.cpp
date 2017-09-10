@@ -349,7 +349,10 @@ namespace AVR
     xxxxxAAxxxxxAAAA(cmd, a) ;
     xxxxxxxRRRRRxxxx(cmd, d) ;
     char buff[1024] ;
-    sprintf(buff, "%-6s r%d, 0x%02x\t\t; %s", instr.Mnemonic().c_str(), d, a, instr.Description().c_str()) ;
+    std::string ioRegName  ;
+
+    mcu.DataAddrName(a+32, ioRegName) ;
+    sprintf(buff, "%-6s r%d, %s\t\t; 0x%02x %s", instr.Mnemonic().c_str(), d, ioRegName.c_str(), a, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
   std::string Disasm_xxxxxAARRRRRAAAA(const Instruction &instr, const Mcu &mcu, Command cmd)
@@ -358,7 +361,9 @@ namespace AVR
     xxxxxAAxxxxxAAAA(cmd, a) ;
     xxxxxxxRRRRRxxxx(cmd, r) ;
     char buff[1024] ;
-    sprintf(buff, "%-6s 0x%02x, r%d\t\t; %s", instr.Mnemonic().c_str(), a, r, instr.Description().c_str()) ;
+    std::string ioRegName ;
+    mcu.DataAddrName(a+32, ioRegName) ;
+    sprintf(buff, "%-6s %s, r%d\t\t; 0x%02x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), r, a, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
 
