@@ -94,6 +94,7 @@ std::map<std::string, std::function<AVR::Mcu*()> > mcuFactory
   { "ATmega88PA",    []{ return new AVR::ATmega88PA()    ; } },
   { "ATmega168PA",   []{ return new AVR::ATmega168PA()   ; } },
   { "ATmega328P",    []{ return new AVR::ATmega328P()    ; } },
+  { "ATmega8A",      []{ return new AVR::ATmega8A()      ; } },
   { "ATtiny24A",     []{ return new AVR::ATtiny24A()     ; } },
   { "ATtiny44A",     []{ return new AVR::ATtiny44A()     ; } },
   { "ATtiny84A",     []{ return new AVR::ATtiny84A()     ; } },
