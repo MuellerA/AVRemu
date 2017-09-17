@@ -126,7 +126,7 @@ int usageFull(const char *name)
   fprintf(stderr, "   <avr-bin>   binary file to be disassembled\n") ;
   fprintf(stderr, "   -h          this help\n") ;
   fprintf(stderr, "Supported MCU types:") ; 
-  for (auto iFactory : mcuFactory)
+  for (const auto &iFactory : mcuFactory)
   {
     fprintf(stderr, " %s", iFactory.first.c_str()) ;
   }

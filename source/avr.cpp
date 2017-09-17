@@ -21,6 +21,27 @@ namespace AVR
   }
 
   ////////////////////////////////////////////////////////////////////////////////
+  // Xref
+  XrefType operator|(XrefType a, XrefType b)
+  {
+    return static_cast<XrefType>(static_cast<uint32>(a) | static_cast<uint32>(b)) ;
+  }
+  XrefType operator|=(XrefType &a, XrefType b)
+  {
+    a = static_cast<XrefType>(static_cast<uint32>(a) | static_cast<uint32>(b)) ;
+    return a ;
+  }
+  XrefType operator&(XrefType a, XrefType b)
+  {
+    return static_cast<XrefType>(static_cast<uint32>(a) & static_cast<uint32>(b)) ;
+  }
+  XrefType operator&=(XrefType &a, XrefType b)
+  {
+    a = static_cast<XrefType>(static_cast<uint32>(a) & static_cast<uint32>(b)) ;
+    return a ;
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////
   // Mcu
   Mcu::Mcu(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize)
     : _program(programSize), _io(ioSize+32), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
@@ -78,7 +99,7 @@ namespace AVR
       { 0x1e, "r30" },
       { 0x1f, "r31" },
     } ;
-    for (auto iIoReg: ioRegs)
+    for (const auto &iIoReg: ioRegs)
     {
       _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
@@ -129,13 +150,10 @@ namespace AVR
     {
       const auto &xref = iXrefs->second ;
 
-      if (xref._label.empty())
-        label.append("Xref", 4) ;
-      else
-        label.append(xref._label) ;
+      label.append(xref._label) ;
 
       bool first = true ;
-      for (auto &iXref: xref._addrs)
+      for (const auto &iXref: xref._addrs)
       {
         if (first)
         {
@@ -149,6 +167,11 @@ namespace AVR
         label.append(buff) ;
       }
       label.append("\n", 1) ;
+      if (!xref._description.empty())
+      {
+        label.append(xref._description) ;
+        label.append("\n", 1) ;
+      }
     }
     
     const Instruction *instr = _instructions[cmd] ;
@@ -184,6 +207,16 @@ namespace AVR
       return false ;
 
     name = _io[addr] ? _io[addr]->Name() : reserved ;
+    return true ;
+  }
+
+  bool Mcu::ProgAddrName(uint32 addr, std::string &name) const
+  {
+    auto iProgAddrName = _xrefs.find(addr) ;
+    if (iProgAddrName == _xrefs.end())
+      return false ;
+
+    name = iProgAddrName->second._label ;
     return true ;
   }
   
@@ -267,11 +300,13 @@ namespace AVR
     _xrefs.clear() ;
 
     // add known addresses
-    for (auto iKnownAddr : _knownProgramAddresses)
+    for (const auto &iKnownAddr : _knownProgramAddresses)
     {
-      Xref &xref = _xrefs[iKnownAddr.first] ;
-      xref._addr  = iKnownAddr.first  ;
-      xref._label = iKnownAddr.second ;
+      auto iXref = _xrefs.insert(std::pair<uint32, Xref>(iKnownAddr._addr, Xref(iKnownAddr._addr))).first ;
+      Xref &xref = iXref->second ;
+      xref._type  = XrefType::jmp ;
+      xref._label = iKnownAddr._label ;
+      xref._description = iKnownAddr._description ;
     }
 
     // check branch instructions
@@ -283,22 +318,39 @@ namespace AVR
       Command cmd = _program[_pc++] ;
       
       const Instruction *instr = _instructions[cmd] ;
-      if (instr && instr->Xref(*this, cmd, addr))
+      if (instr)
       {
-        auto iXrefs = _xrefs.find(addr) ;
-        if (iXrefs != _xrefs.end())
+        XrefType xt = instr->Xref(*this, cmd, addr) ;
+
+        if (xt != XrefType::none)
         {
+          auto iXrefs = _xrefs.find(addr) ;
+          if (iXrefs == _xrefs.end())
+            iXrefs = _xrefs.insert(std::pair<uint32, Xref>(addr, Xref(addr))).first ;
+
           Xref &xref = iXrefs->second ;
+          xref._type |= xt ;
           xref._addrs.push_back(pc) ;
-        }
-        else
-        {
-          Xref &xref = _xrefs[addr] ;
-          xref._addr = addr ;
-          xref._addrs.push_back(pc) ;          
         }
       }      
     }
+
+    // create labels
+    for (auto &iXref: _xrefs)
+    {
+      Xref &xref = iXref.second ;
+      if (!xref._label.empty())
+        continue ;
+
+      if      (static_cast<uint32>(xref._type & XrefType::call)) xref._label.append("Fct_", 4) ;
+      else if (static_cast<uint32>(xref._type & XrefType::jmp )) xref._label.append("Jmp_", 4) ;
+      else if (static_cast<uint32>(xref._type & XrefType::data)) xref._label.append("Dat_", 4) ;
+      else printf("xref type %d\n", (uint32)xref._type) ;
+      
+      char buff[32] ; sprintf(buff, "%05x", xref._addr) ;
+      xref._label.append(buff) ;
+    }
+    
     _pc = pc0 ;
   }
   

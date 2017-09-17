@@ -2,9 +2,15 @@ AVRemu
 
 For now only a disassembler on Linux for
 - ATmega48PA, ATmega88PA, ATmega168PA, ATmega328P
+- ATmega8A
 - ATtiny24A, ATtiny44A, ATtiny84A
 - ATtiny25, ATtiny45, ATtiny85
 - ATxmega128A4U, ATxmega64A4U, ATxmega32A4U, ATxmega16A4U,
+
+The disassembler shows the MCU specific I/O register and interrupt vector names. Only those AVR instructions are disassembled which are in the MCU's instruction set. (Exception is the generic ATany which supports all instructions but does not have any MCU knowlege.)
+The twopass disassembler shows direct jump/call targets.
+
+Only supports MCUs with addresses < 64k, the RAMP registers are ignored.
 
 Usage: 
 <pre>

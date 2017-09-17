@@ -35,27 +35,27 @@ namespace AVR
     for (const Instruction* iInstr: instructions)
       AddInstruction(iInstr) ;
 
-    _knownProgramAddresses = std::map<uint32, std::string>
+    _knownProgramAddresses = std::vector<Mcu::KnownProgramAddress>
       {
-        { 0x000, "External Pin, Power-on Reset, Brown-out Reset, and Watchdog Reset" },
-        { 0x001, "External Interrupt Request 0" },
-        { 0x002, "External Interrupt Request 1" },
-        { 0x003, "Timer/Counter2 Compare Match" },
-        { 0x004, "Timer/Counter2 Overflow" },
-        { 0x005, "Timer/Counter1 Capture Event" },
-        { 0x006, "Timer/Counter1 Compare Match A" },
-        { 0x007, "Timer/Counter1 Compare Match B" },
-        { 0x008, "Timer/Counter1 Overflow" },
-        { 0x009, "Timer/Counter0 Overflow" },
-        { 0x00A, "Serial Transfer Complete" },
-        { 0x00B, "USART, Rx Complete" },
-        { 0x00C, "USART Data Register Empty" },
-        { 0x00D, "USART, Tx Complete" },
-        { 0x00E, "ADC Conversion Complete" },
-        { 0x00F, "EEPROM Ready" },
-        { 0x010, "Analog Comparator" },
-        { 0x011, "Two-wire Serial Interface" },
-        { 0x012, "Store Program Memory Ready        " },
+        { 0x000, "RESET",            "External Pin, Power-on Reset, Brown-out Reset, and Watchdog Reset" },
+        { 0x001, "IRQ_INT0",         "External Interrupt Request 0" },
+        { 0x002, "IRQ_INT1",         "External Interrupt Request 1" },
+        { 0x003, "IRQ_TIMER2_COMP",  "Timer/Counter2 Compare Match" },
+        { 0x004, "IRQ_TIMER2_OVF",   "Timer/Counter2 Overflow" },
+        { 0x005, "IRQ_TIMER1_CAPT",  "Timer/Counter1 Capture Event" },
+        { 0x006, "IRQ_TIMER1_COMPA", "Timer/Counter1 Compare Match A" },
+        { 0x007, "IRQ_TIMER1_COMPB", "Timer/Counter1 Compare Match B" },
+        { 0x008, "IRQ_TIMER1_OVF",   "Timer/Counter1 Overflow" },
+        { 0x009, "IRQ_TIMER0_OVF",   "Timer/Counter0 Overflow" },
+        { 0x00A, "IRQ_SPI_STC",      "Serial Transfer Complete" },
+        { 0x00B, "IRQ_USART_RXC",    "USART, Rx Complete" },
+        { 0x00C, "IRQ_USART_UDRE",   "USART Data Register Empty" },
+        { 0x00D, "IRQ_USART_TXC",    "USART, Tx Complete" },
+        { 0x00E, "IRQ_ADC",          "ADC Conversion Complete" },
+        { 0x00F, "IRQ_EE_RDY",       "EEPROM Ready" },
+        { 0x010, "IRQ_ANA_COMP",     "Analog Comparator" },
+        { 0x011, "IRQ_TWI",          "Two-wire Serial Interface" },
+        { 0x012, "IRQ_SPM_RDY",      "Store Program Memory Ready        " },
       } ;
     
     std::vector<std::pair<uint32, std::string>> ioRegs
@@ -120,7 +120,7 @@ namespace AVR
       { 0x21, "TWSR" },
       { 0x20, "TWBR" },
     } ;
-    for (auto iIoReg: ioRegs)
+    for (const auto &iIoReg: ioRegs)
     {
       _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
     }

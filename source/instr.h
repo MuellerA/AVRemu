@@ -19,7 +19,7 @@ namespace AVR
     virtual ~Instr##name() ;                                                 \
     virtual std::size_t Execute(Mcu &mcu, Command cmd) const ;               \
     virtual std::string Disasm (Mcu &mcu, Command cmd) const ;               \
-    virtual bool        Xref   (Mcu &mcu, Command cmd, uint32 &addr) const ; \
+    virtual XrefType    Xref   (Mcu &mcu, Command cmd, uint32 &addr) const ; \
   } ;                                                                        \
   extern Instr##name instr##name
 

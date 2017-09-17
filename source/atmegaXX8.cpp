@@ -38,6 +38,7 @@ namespace AVR
 
     std::vector<std::pair<uint32, std::string>> ioRegs
     {
+      { 0xC6, "UDR0" },
       { 0xC5, "UBRR0H" },
       { 0xC4, "UBRR0L" },
       { 0xC2, "UCSR0C" },
@@ -124,7 +125,7 @@ namespace AVR
       { 0x24, "DDRB" },
       { 0x23, "PINB" },
     } ;
-    for (auto iIoReg: ioRegs)
+    for (const auto &iIoReg: ioRegs)
     {
       _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
@@ -142,41 +143,41 @@ namespace AVR
       AddInstruction(iInstr) ;
 
     // ignoring BOOTRST / IVSEL Fuses
-    _knownProgramAddresses = std::map<uint32, std::string>
+    _knownProgramAddresses = std::vector<Mcu::KnownProgramAddress>
       {
-        { 0x00, "External Pin, Power-on Reset, Brown-out Reset and Watchdog System Reset" },
-        { 0x02, "External Interrupt Request 0" },
-        { 0x04, "External Interrupt Request 1" },
-        { 0x06, "Pin Change Interrupt Request 0" },
-        { 0x08, "Pin Change Interrupt Request 1" },
-        { 0x0a, "Pin Change Interrupt Request 2" },
-        { 0x0c, "Watchdog Time-out Interrupt" },
-        { 0x0e, "Timer/Counter2 Compare Match A" },
-        { 0x10, "Timer/Counter2 Compare Match B" },
-        { 0x12, "Timer/Counter2 Overflow" },
-        { 0x14, "Timer/Counter1 Capture Event" },
-        { 0x16, "Timer/Counter1 Compare Match A" },
-        { 0x18, "Timer/Coutner1 Compare Match B" },
-        { 0x1a, "Timer/Counter1 Overflow" },
-        { 0x1c, "Timer/Counter0 Compare Match A" },
-        { 0x1e, "Timer/Counter0 Compare Match B" },
-        { 0x20, "Timer/Counter0 Overflow" },
-        { 0x22, "SPI Serial Transfer Complete" },
-        { 0x24, "USART Rx Complete" },
-        { 0x26, "USART, Data Register Empty" },
-        { 0x28, "USART, Tx Complete" },
-        { 0x2a, "ADC Conversion Complete" },
-        { 0x2c, "EEPROM Ready" },
-        { 0x2e, "Analog Comparator" },
-        { 0x30, "2-wire Serial Interface" },
-        { 0x32, "Store Program Memory Ready" },
+        { 0x00, "RESET",        "External Pin, Power-on Reset, Brown-out Reset and Watchdog System Reset" },
+        { 0x02, "IRQ_INT0",         "External Interrupt Request 0" },
+        { 0x04, "IRQ_INT1",         "External Interrupt Request 1" },
+        { 0x06, "IRQ_PCINT0",       "Pin Change Interrupt Request 0" },
+        { 0x08, "IRQ_PCINT1",       "Pin Change Interrupt Request 1" },
+        { 0x0a, "IRQ_PCINT2",       "Pin Change Interrupt Request 2" },
+        { 0x0c, "IRQ_WDT",          "Watchdog Time-out Interrupt" },
+        { 0x0e, "IRQ_TIMER2_COMPA", "Timer/Counter2 Compare Match A" },
+        { 0x10, "IRQ_TIMER2_COMPB", "Timer/Counter2 Compare Match B" },
+        { 0x12, "IRQ_TIMER2_OVF",   "Timer/Counter2 Overflow" },
+        { 0x14, "IRQ_TIMER1_CAPT",  "Timer/Counter1 Capture Event" },
+        { 0x16, "IRQ_TIMER1_COMPA", "Timer/Counter1 Compare Match A" },
+        { 0x18, "IRQ_TIMER1_COMPB", "Timer/Coutner1 Compare Match B" },
+        { 0x1a, "IRQ_TIMER1_OVF",   "Timer/Counter1 Overflow" },
+        { 0x1c, "IRQ_TIMER0_COMPA", "Timer/Counter0 Compare Match A" },
+        { 0x1e, "IRQ_TIMER0_COMPB", "Timer/Counter0 Compare Match B" },
+        { 0x20, "IRQ_TIMER0_OVF",   "Timer/Counter0 Overflow" },
+        { 0x22, "IRQ_SPI_STC",      "SPI Serial Transfer Complete" },
+        { 0x24, "IRQ_USART_RX",     "USART Rx Complete" },
+        { 0x26, "IRQ_USART_UDRE",   "USART, Data Register Empty" },
+        { 0x28, "IRQ_USART_TX",     "USART, Tx Complete" },
+        { 0x2a, "IRQ_ADC",          "ADC Conversion Complete" },
+        { 0x2c, "IRQ_EE_READY",     "EEPROM Ready" },
+        { 0x2e, "IRQ_ANALOG_COMP",  "Analog Comparator" },
+        { 0x30, "IRQ_TWI",          "2-wire Serial Interface" },
+        { 0x32, "IRQ_SPM_READY",    "Store Program Memory Ready" },
       } ;
 
     std::vector<std::pair<uint32, std::string>> ioRegs
     {
       { 0x42, "EEARH" },
     } ;
-    for (auto iIoReg: ioRegs)
+    for (const auto &iIoReg: ioRegs)
     {
       _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
@@ -192,41 +193,41 @@ namespace AVR
       AddInstruction(iInstr) ;
 
     // ignoring BOOTRST / IVSEL Fuses
-    _knownProgramAddresses = std::map<uint32, std::string>
+    _knownProgramAddresses = std::vector<Mcu::KnownProgramAddress>
       {
-        { 0x00, "External Pin, Power-on Reset, Brown-out Reset and Watchdog System Reset" },
-        { 0x02, "External Interrupt Request 0" },
-        { 0x04, "External Interrupt Request 1" },
-        { 0x06, "Pin Change Interrupt Request 0" },
-        { 0x08, "Pin Change Interrupt Request 1" },
-        { 0x0a, "Pin Change Interrupt Request 2" },
-        { 0x0c, "Watchdog Time-out Interrupt" },
-        { 0x0e, "Timer/Counter2 Compare Match A" },
-        { 0x10, "Timer/Counter2 Compare Match B" },
-        { 0x12, "Timer/Counter2 Overflow" },
-        { 0x14, "Timer/Counter1 Capture Event" },
-        { 0x16, "Timer/Counter1 Compare Match A" },
-        { 0x18, "Timer/Coutner1 Compare Match B" },
-        { 0x1a, "Timer/Counter1 Overflow" },
-        { 0x1c, "Timer/Counter0 Compare Match A" },
-        { 0x1e, "Timer/Counter0 Compare Match B" },
-        { 0x20, "Timer/Counter0 Overflow" },
-        { 0x22, "SPI Serial Transfer Complete" },
-        { 0x24, "USART Rx Complete" },
-        { 0x26, "USART, Data Register Empty" },
-        { 0x28, "USART, Tx Complete" },
-        { 0x2a, "ADC Conversion Complete" },
-        { 0x2c, "EEPROM Ready" },
-        { 0x2e, "Analog Comparator" },
-        { 0x30, "2-wire Serial Interface" },
-        { 0x32, "Store Program Memory Ready" },
+        { 0x00, "RESET",        "External Pin, Power-on Reset, Brown-out Reset and Watchdog System Reset" },
+        { 0x02, "IRQ_INT0",         "External Interrupt Request 0" },
+        { 0x04, "IRQ_INT1",         "External Interrupt Request 1" },
+        { 0x06, "IRQ_PCINT0",       "Pin Change Interrupt Request 0" },
+        { 0x08, "IRQ_PCINT1",       "Pin Change Interrupt Request 1" },
+        { 0x0a, "IRQ_PCINT2",       "Pin Change Interrupt Request 2" },
+        { 0x0c, "IRQ_WDT",          "Watchdog Time-out Interrupt" },
+        { 0x0e, "IRQ_TIMER2_COMPA", "Timer/Counter2 Compare Match A" },
+        { 0x10, "IRQ_TIMER2_COMPB", "Timer/Counter2 Compare Match B" },
+        { 0x12, "IRQ_TIMER2_OVF",   "Timer/Counter2 Overflow" },
+        { 0x14, "IRQ_TIMER1_CAPT",  "Timer/Counter1 Capture Event" },
+        { 0x16, "IRQ_TIMER1_COMPA", "Timer/Counter1 Compare Match A" },
+        { 0x18, "IRQ_TIMER1_COMPB", "Timer/Coutner1 Compare Match B" },
+        { 0x1a, "IRQ_TIMER1_OVF",   "Timer/Counter1 Overflow" },
+        { 0x1c, "IRQ_TIMER0_COMPA", "Timer/Counter0 Compare Match A" },
+        { 0x1e, "IRQ_TIMER0_COMPB", "Timer/Counter0 Compare Match B" },
+        { 0x20, "IRQ_TIMER0_OVF",   "Timer/Counter0 Overflow" },
+        { 0x22, "IRQ_SPI_STC",      "SPI Serial Transfer Complete" },
+        { 0x24, "IRQ_USART_RX",     "USART Rx Complete" },
+        { 0x26, "IRQ_USART_UDRE",   "USART, Data Register Empty" },
+        { 0x28, "IRQ_USART_TX",     "USART, Tx Complete" },
+        { 0x2a, "IRQ_ADC",          "ADC Conversion Complete" },
+        { 0x2c, "IRQ_EE_READY",     "EEPROM Ready" },
+        { 0x2e, "IRQ_ANALOG_COMP",  "Analog Comparator" },
+        { 0x30, "IRQ_TWI",          "2-wire Serial Interface" },
+        { 0x32, "IRQ_SPM_READY",    "Store Program Memory Ready" },
       } ;
 
     std::vector<std::pair<uint32, std::string>> ioRegs
     {
       { 0x42, "EEARH" },
     } ;
-    for (auto iIoReg: ioRegs)
+    for (const auto &iIoReg: ioRegs)
     {
       _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
@@ -238,41 +239,41 @@ namespace AVR
   ATmega88PA::ATmega88PA() : ATmegaXX8(0x2000/2, 0x00e0, 0x0400, 0x0200)
   {
     // ignoring BOOTRST / IVSEL Fuses
-    _knownProgramAddresses = std::map<uint32, std::string>
+    _knownProgramAddresses = std::vector<Mcu::KnownProgramAddress>
       {
-        { 0x00, "External Pin, Power-on Reset, Brown-out Reset and Watchdog System Reset" },
-        { 0x01, "External Interrupt Request 0" },
-        { 0x02, "External Interrupt Request 1" },
-        { 0x03, "Pin Change Interrupt Request 0" },
-        { 0x04, "Pin Change Interrupt Request 1" },
-        { 0x05, "Pin Change Interrupt Request 2" },
-        { 0x06, "Watchdog Time-out Interrupt" },
-        { 0x07, "Timer/Counter2 Compare Match A" },
-        { 0x08, "Timer/Counter2 Compare Match B" },
-        { 0x09, "Timer/Counter2 Overflow" },
-        { 0x0a, "Timer/Counter1 Capture Event" },
-        { 0x0b, "Timer/Counter1 Compare Match A" },
-        { 0x0c, "Timer/Coutner1 Compare Match B" },
-        { 0x0d, "Timer/Counter1 Overflow" },
-        { 0x0e, "Timer/Counter0 Compare Match A" },
-        { 0x0f, "Timer/Counter0 Compare Match B" },
-        { 0x10, "Timer/Counter0 Overflow" },
-        { 0x11, "SPI Serial Transfer Complete" },
-        { 0x12, "USART Rx Complete" },
-        { 0x13, "USART, Data Register Empty" },
-        { 0x14, "USART, Tx Complete" },
-        { 0x15, "ADC Conversion Complete" },
-        { 0x16, "EEPROM Ready" },
-        { 0x17, "Analog Comparator" },
-        { 0x18, "2-wire Serial Interface" },
-        { 0x19, "Store Program Memory Ready" },
+        { 0x00, "RESET",        "External Pin, Power-on Reset, Brown-out Reset and Watchdog System Reset" },
+        { 0x01, "IRQ_INT0",         "External Interrupt Request 0" },
+        { 0x02, "IRQ_INT1",         "External Interrupt Request 1" },
+        { 0x03, "IRQ_PCINT0",       "Pin Change Interrupt Request 0" },
+        { 0x04, "IRQ_PCINT1",       "Pin Change Interrupt Request 1" },
+        { 0x05, "IRQ_PCINT2",       "Pin Change Interrupt Request 2" },
+        { 0x06, "IRQ_WDT",          "Watchdog Time-out Interrupt" },
+        { 0x07, "IRQ_TIMER2_COMPA", "Timer/Counter2 Compare Match A" },
+        { 0x08, "IRQ_TIMER2_COMPB", "Timer/Counter2 Compare Match B" },
+        { 0x09, "IRQ_TIMER2_OVF",   "Timer/Counter2 Overflow" },
+        { 0x0a, "IRQ_TIMER1_CAPT",  "Timer/Counter1 Capture Event" },
+        { 0x0b, "IRQ_TIMER1_COMPA", "Timer/Counter1 Compare Match A" },
+        { 0x0c, "IRQ_TIMER1_COMPB", "Timer/Coutner1 Compare Match B" },
+        { 0x0d, "IRQ_TIMER1_OVF",   "Timer/Counter1 Overflow" },
+        { 0x0e, "IRQ_TIMER0_COMPA", "Timer/Counter0 Compare Match A" },
+        { 0x0f, "IRQ_TIMER0_COMPB", "Timer/Counter0 Compare Match B" },
+        { 0x10, "IRQ_TIMER0_OVF",   "Timer/Counter0 Overflow" },
+        { 0x11, "IRQ_SPI_STC",      "SPI Serial Transfer Complete" },
+        { 0x12, "IRQ_USART_RX",     "USART Rx Complete" },
+        { 0x13, "IRQ_USART_UDRE",   "USART, Data Register Empty" },
+        { 0x14, "IRQ_USART_TX",     "USART, Tx Complete" },
+        { 0x15, "IRQ_ADC",          "ADC Conversion Complete" },
+        { 0x16, "IRQ_EE_READY",     "EEPROM Ready" },
+        { 0x17, "IRQ_ANALOG_COMP",  "Analog Comparator" },
+        { 0x18, "IRQ_TWI",          "2-wire Serial Interface" },
+        { 0x19, "IRQ_SPM_READY",    "Store Program Memory Ready" },
       } ;
 
     std::vector<std::pair<uint32, std::string>> ioRegs
     {
       { 0x42, "EEARH" },
     } ;
-    for (auto iIoReg: ioRegs)
+    for (const auto &iIoReg: ioRegs)
     {
       _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
@@ -283,34 +284,34 @@ namespace AVR
   
   ATmega48PA::ATmega48PA() : ATmegaXX8(0x1000/2, 0x00e0, 0x0200, 0x0100)
   {
-    _knownProgramAddresses = std::map<uint32, std::string>
+    _knownProgramAddresses = std::vector<Mcu::KnownProgramAddress>
       {
-        { 0x00, "External Pin, Power-on Reset, Brown-out Reset and Watchdog System Reset" },
-        { 0x01, "External Interrupt Request 0" },
-        { 0x02, "External Interrupt Request 1" },
-        { 0x03, "Pin Change Interrupt Request 0" },
-        { 0x04, "Pin Change Interrupt Request 1" },
-        { 0x05, "Pin Change Interrupt Request 2" },
-        { 0x06, "Watchdog Time-out Interrupt" },
-        { 0x07, "Timer/Counter2 Compare Match A" },
-        { 0x08, "Timer/Counter2 Compare Match B" },
-        { 0x09, "Timer/Counter2 Overflow" },
-        { 0x0a, "Timer/Counter1 Capture Event" },
-        { 0x0b, "Timer/Counter1 Compare Match A" },
-        { 0x0c, "Timer/Coutner1 Compare Match B" },
-        { 0x0d, "Timer/Counter1 Overflow" },
-        { 0x0e, "Timer/Counter0 Compare Match A" },
-        { 0x0f, "Timer/Counter0 Compare Match B" },
-        { 0x10, "Timer/Counter0 Overflow" },
-        { 0x11, "SPI Serial Transfer Complete" },
-        { 0x12, "USART Rx Complete" },
-        { 0x13, "USART, Data Register Empty" },
-        { 0x14, "USART, Tx Complete" },
-        { 0x15, "ADC Conversion Complete" },
-        { 0x16, "EEPROM Ready" },
-        { 0x17, "Analog Comparator" },
-        { 0x18, "2-wire Serial Interface" },
-        { 0x19, "Store Program Memory Ready" },
+        { 0x00, "RESET",        "External Pin, Power-on Reset, Brown-out Reset and Watchdog System Reset" },
+        { 0x01, "IRQ_INT0",         "External Interrupt Request 0" },
+        { 0x02, "IRQ_INT1",         "External Interrupt Request 1" },
+        { 0x03, "IRQ_PCINT0",       "Pin Change Interrupt Request 0" },
+        { 0x04, "IRQ_PCINT1",       "Pin Change Interrupt Request 1" },
+        { 0x05, "IRQ_PCINT2",       "Pin Change Interrupt Request 2" },
+        { 0x06, "IRQ_WDT",          "Watchdog Time-out Interrupt" },
+        { 0x07, "IRQ_TIMER2_COMPA", "Timer/Counter2 Compare Match A" },
+        { 0x08, "IRQ_TIMER2_COMPB", "Timer/Counter2 Compare Match B" },
+        { 0x09, "IRQ_TIMER2_OVF",   "Timer/Counter2 Overflow" },
+        { 0x0a, "IRQ_TIMER1_CAPT",  "Timer/Counter1 Capture Event" },
+        { 0x0b, "IRQ_TIMER1_COMPA", "Timer/Counter1 Compare Match A" },
+        { 0x0c, "IRQ_TIMER1_COMPB", "Timer/Coutner1 Compare Match B" },
+        { 0x0d, "IRQ_TIMER1_OVF",   "Timer/Counter1 Overflow" },
+        { 0x0e, "IRQ_TIMER0_COMPA", "Timer/Counter0 Compare Match A" },
+        { 0x0f, "IRQ_TIMER0_COMPB", "Timer/Counter0 Compare Match B" },
+        { 0x10, "IRQ_TIMER0_OVF",   "Timer/Counter0 Overflow" },
+        { 0x11, "IRQ_SPI_STC",      "SPI Serial Transfer Complete" },
+        { 0x12, "IRQ_USART_RX",     "USART Rx Complete" },
+        { 0x13, "IRQ_USART_UDRE",   "USART, Data Register Empty" },
+        { 0x14, "IRQ_USART_TX",     "USART, Tx Complete" },
+        { 0x15, "IRQ_ADC",          "ADC Conversion Complete" },
+        { 0x16, "IRQ_EE_READY",     "EEPROM Ready" },
+        { 0x17, "IRQ_ANALOG_COMP",  "Analog Comparator" },
+        { 0x18, "IRQ_TWI",          "2-wire Serial Interface" },
+        { 0x19, "IRQ_SPM_READY",    "Store Program Memory Ready" },
       } ;
   }
   ATmega48PA::~ATmega48PA()

@@ -23,6 +23,18 @@ namespace AVR
   using int32   = signed   int   ; // 32 bit
   using uint32  = unsigned int   ; // 32 bit
 
+  enum class XrefType
+  {
+    none = 0,
+    jmp  = 1,
+    call = 2,
+    data = 4,
+  } ;
+  XrefType operator|(XrefType a, XrefType b) ;
+  XrefType operator|=(XrefType &a, XrefType b) ;
+  XrefType operator&(XrefType a, XrefType b) ;
+  XrefType operator&=(XrefType &a, XrefType b) ;
+  
   class Instruction
   {
   protected:
@@ -35,7 +47,7 @@ namespace AVR
     // returns execution time
     virtual std::size_t Execute(Mcu &mcu, Command cmd) const = 0 ;
     virtual std::string Disasm (Mcu &mcu, Command cmd) const = 0 ;
-    virtual bool        Xref   (Mcu &mcu, Command cmd, uint32 &addr) const = 0 ;
+    virtual XrefType    Xref   (Mcu &mcu, Command cmd, uint32 &addr) const = 0 ;
 
     virtual Command     Pattern()     const { return _pattern     ; }
     virtual Command     Mask()        const { return _mask        ; }
@@ -82,9 +94,20 @@ namespace AVR
   protected:
     struct Xref
     {
+      Xref(uint32 addr) : _addr(addr), _type(XrefType::none) {}
+      
       uint32              _addr ;
+      XrefType            _type ;
       std::string         _label ;
+      std::string         _description ;
       std::vector<uint32> _addrs ;
+    } ;
+    
+    struct KnownProgramAddress
+    {
+      uint32      _addr ;
+      std::string _label ;
+      std::string _description ;
     } ;
     
   protected:
@@ -98,6 +121,7 @@ namespace AVR
     std::size_t Execute() ;
     std::string Disasm() ;
     bool DataAddrName(uint32 addr, std::string &name) const ;
+    bool ProgAddrName(uint32 addr, std::string &name) const ;
     Command ProgramNext() ;
 
     std::size_t  PC() const { return _pc ; }
@@ -128,7 +152,7 @@ namespace AVR
     std::vector<Io::Register*> _io ;
     std::vector<uint8>         _data ;
     std::vector<uint8>         _eeprom ;
-    std::map<uint32, std::string> _knownProgramAddresses ;
+    std::vector<KnownProgramAddress> _knownProgramAddresses ;
     std::map<uint32, Xref>     _xrefs ;
 
     std::vector<const Instruction*> _instructions ;       // map cmd to instruction

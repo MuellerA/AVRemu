@@ -134,11 +134,6 @@ namespace AVR
     sprintf(buff, "%-6s\t\t; %s", instr.Mnemonic().c_str(), instr.Description().c_str()) ;
     return std::string(buff) ;
   }
-  bool Xref_xxxxxxxxxxxxxxxx(Mcu &mcu, uint32 &addr)
-  {
-    addr = mcu.PC() + 1 ;
-    return true ;
-  }
 
   std::string Disasm_xxxxxxRDDDDDRRRR(const Instruction &instr, Command cmd)
   {
@@ -212,16 +207,20 @@ namespace AVR
   {
     Command k ;
     xxxxKKKKKKKKKKKK(cmd, k) ;
+    uint32 addr = (uint32)(mcu.PC()) + (int16)k ;
     char buff[1024] ;
-    sprintf(buff, "%-6s %d\t\t; 0x%05x %s", instr.Mnemonic().c_str(), (int16)k, (uint32)(mcu.PC()) + (int16)k, instr.Description().c_str()) ;
+    std::string label ;
+    if (mcu.ProgAddrName(addr, label))
+      sprintf(buff, "%-6s %s\t\t; %d 0x%05x %s", instr.Mnemonic().c_str(), label.c_str(), (int16)k, addr, instr.Description().c_str()) ;
+    else
+      sprintf(buff, "%-6s %d\t\t; 0x%05x %s", instr.Mnemonic().c_str(), (int16)k, addr, instr.Description().c_str()) ;      
     return std::string(buff) ;
   }
-  bool Xref_xxxxKKKKKKKKKKKK(const Instruction &instr, const Mcu &mcu, Command cmd, uint32 &addr)
+  void Xref_xxxxKKKKKKKKKKKK(const Instruction &instr, const Mcu &mcu, Command cmd, uint32 &addr)
   {
     Command k ;
     xxxxKKKKKKKKKKKK(cmd, k) ;
     addr = (uint32)(mcu.PC()) + (int16)k ;
-    return true ;
   }
 
   std::string Disasm_xxxxxxxKKKKKxxxKk16(const Instruction &instr, Mcu &mcu, Command cmd)
@@ -230,15 +229,18 @@ namespace AVR
     xxxxxxxKKKKKxxxK(cmd, k) ;
     uint32 addr = (((uint32)k) << 16) + mcu.ProgramNext() ;
     char buff[1024] ;
-    sprintf(buff, "%-6s 0x%05x\t\t; %s", instr.Mnemonic().c_str(), addr, instr.Description().c_str()) ;
+    std::string label ;
+    if (mcu.ProgAddrName(addr, label))
+      sprintf(buff, "%-6s %s\t\t; 0x%05x %s", instr.Mnemonic().c_str(), label.c_str(), addr, instr.Description().c_str()) ;
+    else
+      sprintf(buff, "%-6s 0x%05x\t\t; %s", instr.Mnemonic().c_str(), addr, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
-  bool Xref_xxxxxxxKKKKKxxxKk16(const Instruction &instr, Mcu &mcu, Command cmd, uint32 &addr)
+  void Xref_xxxxxxxKKKKKxxxKk16(const Instruction &instr, Mcu &mcu, Command cmd, uint32 &addr)
   {
     Command k ;
     xxxxxxxKKKKKxxxK(cmd, k) ;
     addr = (((uint32)k) << 16) + mcu.ProgramNext() ;
-    return true ;
   }
   
   std::string Disasm_xxxxxxxRRRRRxBBB(const Instruction &instr, Command cmd)
@@ -256,9 +258,10 @@ namespace AVR
     Command a, b ;
     xxxxxxxxAAAAAxxx(cmd, a) ;
     xxxxxxxxxxxxxBBB(cmd, b) ;
-    mcu.PC() ; // todo disasm io register name
+    std::string ioRegName ;
+    mcu.DataAddrName(a+0x20, ioRegName) ;
     char buff[1024] ;
-    sprintf(buff, "%-6s 0x%02x, %d\t\t; %s", instr.Mnemonic().c_str(), a, b, instr.Description().c_str()) ;
+    sprintf(buff, "%-6s %s, %d\t\t; 0x%02x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), b, a, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
 
@@ -267,8 +270,13 @@ namespace AVR
     Command k, s ;
     xxxxxxKKKKKKKxxx(cmd, k) ;
     xxxxxxxxxxxxxSSS(cmd, s) ;
+    uint32 addr = (uint32)(mcu.PC()) + (int16)k ;
     char buff[1024] ;
-    sprintf(buff, "%-6s %d\t\t; 0x%05x %s", sToBRBS(s), (int16)k, (uint32)(mcu.PC()) + (int16)k, instr.Description().c_str()) ;
+    std::string label ;
+    if (mcu.ProgAddrName(addr, label))
+      sprintf(buff, "%-6s %s\t\t; %d 0x%05x %s", sToBRBS(s), label.c_str(), (int16)k, addr, instr.Description().c_str()) ;
+    else
+      sprintf(buff, "%-6s %d\t\t; 0x%05x %s", sToBRBS(s), (int16)k, addr, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
   std::string Disasm_xxxxxxKKKKKKKSSS_BRBC(const Instruction &instr, const Mcu &mcu, Command cmd)
@@ -276,16 +284,20 @@ namespace AVR
     Command k, s ;
     xxxxxxKKKKKKKxxx(cmd, k) ;
     xxxxxxxxxxxxxSSS(cmd, s) ;
+    uint32 addr = (uint32)(mcu.PC()) + (int16)k ;
     char buff[1024] ;
-    sprintf(buff, "%-6s %d\t\t; 0x%05x %s", sToBRBC(s), (int16)k, (uint32)(mcu.PC()) + (int16)k, instr.Description().c_str()) ;
+    std::string label ;
+    if (mcu.ProgAddrName(addr, label))
+      sprintf(buff, "%-6s %s\t\t; %d 0x%05x %s", sToBRBC(s), label.c_str(), (int16)k, addr, instr.Description().c_str()) ;
+    else
+      sprintf(buff, "%-6s %d\t\t; 0x%05x %s", sToBRBC(s), (int16)k, addr, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
-  bool Xref_xxxxxxKKKKKKKxxx(const Instruction &instr, const Mcu &mcu, Command cmd, uint32 &addr)
+  void Xref_xxxxxxKKKKKKKxxx(const Instruction &instr, const Mcu &mcu, Command cmd, uint32 &addr)
   {
     Command k ;
     xxxxxxKKKKKKKxxx(cmd, k) ;
     addr = (uint32)(mcu.PC()) + (int16)k ;
-    return true ;
   }
   
   std::string Disasm_xxxxxxKKKKKKKxxx(const Instruction &instr, const Mcu &mcu, Command cmd)
@@ -330,7 +342,11 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, d) ;
     uint32 addr = mcu.ProgramNext() ;
     char buff[1024] ;
-    sprintf(buff, "%-6s r%d, 0x%04x\t\t; %s", instr.Mnemonic().c_str(), d, addr, instr.Description().c_str()) ;
+    std::string ioRegName ;
+    if (mcu.DataAddrName(addr, ioRegName))
+      sprintf(buff, "%-6s r%d, %s\t\t; 0x%04x %s", instr.Mnemonic().c_str(), d, ioRegName.c_str(), addr, instr.Description().c_str()) ;
+    else
+      sprintf(buff, "%-6s r%d, 0x%04x\t\t; %s", instr.Mnemonic().c_str(), d, addr, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
   std::string Disasm_xxxxxxxRRRRRxxxxk16(const Instruction &instr, Mcu &mcu, Command cmd)
@@ -339,7 +355,11 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, r) ;
     uint32 addr = mcu.ProgramNext() ;
     char buff[1024] ;
-    sprintf(buff, "%-6s 0x%04x, r%d\t\t; %s", instr.Mnemonic().c_str(), addr, r, instr.Description().c_str()) ;
+    std::string ioRegName ;
+    if (mcu.DataAddrName(addr, ioRegName))
+      sprintf(buff, "%-6s %s, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), r, addr, instr.Description().c_str()) ;
+    else
+      sprintf(buff, "%-6s 0x%04x, r%d\t\t; %s", instr.Mnemonic().c_str(), addr, r, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
 
@@ -350,8 +370,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, d) ;
     char buff[1024] ;
     std::string ioRegName  ;
-
-    mcu.DataAddrName(a+32, ioRegName) ;
+    mcu.DataAddrName(a+0x20, ioRegName) ;
     sprintf(buff, "%-6s r%d, %s\t\t; 0x%02x %s", instr.Mnemonic().c_str(), d, ioRegName.c_str(), a, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
@@ -362,7 +381,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, r) ;
     char buff[1024] ;
     std::string ioRegName ;
-    mcu.DataAddrName(a+32, ioRegName) ;
+    mcu.DataAddrName(a+0x20, ioRegName) ;
     sprintf(buff, "%-6s %s, r%d\t\t; 0x%02x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), r, a, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
@@ -421,9 +440,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrADD::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrADD::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -444,9 +463,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrADC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrADC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -467,9 +486,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxKKDDKKKK(*this, cmd) ;
   }
-  bool InstrADIW::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrADIW::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -490,9 +509,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrSUB::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSUB::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -513,9 +532,9 @@ namespace AVR
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  bool InstrSUBI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSUBI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -536,9 +555,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrSBC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -559,9 +578,9 @@ namespace AVR
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  bool InstrSBCI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBCI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -582,9 +601,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxKKDDKKKK(*this, cmd) ;
   }
-  bool InstrSBIW::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBIW::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -605,9 +624,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrAND::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrAND::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -628,9 +647,9 @@ namespace AVR
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  bool InstrANDI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrANDI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -651,9 +670,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrOR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrOR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -674,9 +693,9 @@ namespace AVR
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  bool InstrORI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrORI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -697,9 +716,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrEOR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrEOR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -720,9 +739,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrCOM::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCOM::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -743,9 +762,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrNEG::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrNEG::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -766,9 +785,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrINC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrINC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -789,9 +808,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrDEC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrDEC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -812,9 +831,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrMUL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrMUL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -835,9 +854,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxDDDDRRRR(*this, cmd) ;
   }
-  bool InstrMULS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrMULS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -858,9 +877,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxDDDxRRR(*this, cmd) ;
   }
-  bool InstrMULSU::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrMULSU::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -881,9 +900,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxDDDxRRR(*this, cmd) ;
   }
-  bool InstrFMUL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrFMUL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -904,9 +923,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxDDDxRRR(*this, cmd) ;
   }
-  bool InstrFMULS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrFMULS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -927,9 +946,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxDDDxRRR(*this, cmd) ;
   }
-  bool InstrFMULSU::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrFMULSU::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -950,9 +969,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxKKKKxxxx(*this, cmd) ;
   }
-  bool InstrDES::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrDES::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -973,9 +992,10 @@ namespace AVR
   {
     return Disasm_xxxxKKKKKKKKKKKK(*this, mcu, cmd) ;
   }
-  bool InstrRJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrRJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return Xref_xxxxKKKKKKKKKKKK(*this, mcu, cmd, addr) ;
+    Xref_xxxxKKKKKKKKKKKK(*this, mcu, cmd, addr) ;
+    return XrefType::jmp ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -996,9 +1016,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrIJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrIJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ; // todo information
+    return XrefType::none ; // todo information
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1019,9 +1039,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrEIJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrEIJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ; // todo information
+    return XrefType::none ; // todo information
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1042,9 +1062,10 @@ namespace AVR
   {
     return Disasm_xxxxxxxKKKKKxxxKk16(*this, mcu, cmd) ;
   }
-  bool InstrJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return Xref_xxxxxxxKKKKKxxxKk16(*this, mcu, cmd, addr) ;
+    Xref_xxxxxxxKKKKKxxxKk16(*this, mcu, cmd, addr) ;
+    return XrefType::jmp ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1065,9 +1086,10 @@ namespace AVR
   {
     return Disasm_xxxxKKKKKKKKKKKK(*this, mcu, cmd) ;
   }
-  bool InstrRCALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrRCALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return Xref_xxxxKKKKKKKKKKKK(*this, mcu, cmd, addr) ;
+    Xref_xxxxKKKKKKKKKKKK(*this, mcu, cmd, addr) ;
+    return XrefType::call ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1088,9 +1110,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrICALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrICALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ; // todo information
+    return XrefType::none ; // todo information
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1111,9 +1133,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrEICALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrEICALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ; // todo information
+    return XrefType::none ; // todo information
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1134,9 +1156,10 @@ namespace AVR
   {
     return Disasm_xxxxxxxKKKKKxxxKk16(*this, mcu, cmd) ;
   }
-  bool InstrCALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return Xref_xxxxxxxKKKKKxxxKk16(*this, mcu, cmd, addr) ;
+    Xref_xxxxxxxKKKKKxxxKk16(*this, mcu, cmd, addr) ;
+    return XrefType::call ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1157,9 +1180,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrRET::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrRET::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1180,9 +1203,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrRETI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrRETI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1203,9 +1226,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrCPSE::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCPSE::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return Xref_xxxxxxxxxxxxxxxx(mcu, addr) ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1226,9 +1249,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrCP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1249,9 +1272,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrCPC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCPC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1272,9 +1295,9 @@ namespace AVR
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  bool InstrCPI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCPI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1295,9 +1318,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxBBB(*this, cmd) ;
   }
-  bool InstrSBRC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBRC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return Xref_xxxxxxxxxxxxxxxx(mcu, addr) ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1318,9 +1341,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxBBB(*this, cmd) ;
   }
-  bool InstrSBRS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBRS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return Xref_xxxxxxxxxxxxxxxx(mcu, addr) ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1341,9 +1364,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxAAAAABBB(*this, mcu, cmd) ;
   }
-  bool InstrSBIC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBIC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return Xref_xxxxxxxxxxxxxxxx(mcu, addr) ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1364,9 +1387,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxAAAAABBB(*this, mcu, cmd) ;
   }
-  bool InstrSBIS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBIS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return Xref_xxxxxxxxxxxxxxxx(mcu, addr) ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1387,9 +1410,10 @@ namespace AVR
   {
     return Disasm_xxxxxxKKKKKKKSSS_BRBS(*this, mcu, cmd) ;
   }
-  bool InstrBRBS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBRBS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return Xref_xxxxxxKKKKKKKxxx(*this, mcu, cmd, addr) ;
+    Xref_xxxxxxKKKKKKKxxx(*this, mcu, cmd, addr) ;
+    return XrefType::jmp ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1410,9 +1434,10 @@ namespace AVR
   {
     return Disasm_xxxxxxKKKKKKKSSS_BRBC(*this, mcu, cmd) ;
   }
-  bool InstrBRBC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBRBC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return Xref_xxxxxxKKKKKKKxxx(*this, mcu, cmd, addr) ;
+    Xref_xxxxxxKKKKKKKxxx(*this, mcu, cmd, addr) ;
+    return XrefType::jmp ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1433,9 +1458,9 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  bool InstrMOV::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrMOV::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1456,9 +1481,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxDDDDRRRR(*this, cmd) ;
   }
-  bool InstrMOVW::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrMOVW::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1479,9 +1504,9 @@ namespace AVR
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  bool InstrLDI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1502,9 +1527,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxxk16(*this, mcu, cmd) ;
   }
-  bool InstrLDS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1525,9 +1550,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "X") ;
   }
-  bool InstrLDx1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDx1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1548,9 +1573,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "X+") ;
   }
-  bool InstrLDx2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDx2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1571,9 +1596,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "-X") ;
   }
-  bool InstrLDx3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDx3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1594,9 +1619,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Y") ;
   }
-  bool InstrLDy1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDy1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1617,9 +1642,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Y+") ;
   }
-  bool InstrLDy2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDy2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1640,9 +1665,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "-Y") ;
   }
-  bool InstrLDy3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDy3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1663,9 +1688,9 @@ namespace AVR
   {
     return Disasm_xxQxQQxDDDDDxQQQ(*this, mcu, cmd, "Y") ;
   }
-  bool InstrLDy4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDy4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1686,9 +1711,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z") ;
   }
-  bool InstrLDz1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDz1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1709,9 +1734,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z+") ;
   }
-  bool InstrLDz2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDz2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1732,9 +1757,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "-Z") ;
   }
-  bool InstrLDz3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDz3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1755,9 +1780,9 @@ namespace AVR
   {
     return Disasm_xxQxQQxDDDDDxQQQ(*this, mcu, cmd, "Z") ;
   }
-  bool InstrLDz4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDz4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1778,9 +1803,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxxk16(*this, mcu, cmd) ;
   }
-  bool InstrSTS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1801,9 +1826,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "X") ;
   }
-  bool InstrSTx1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTx1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1824,9 +1849,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "X+") ;
   }
-  bool InstrSTx2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTx2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1847,9 +1872,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "-X") ;
   }
-  bool InstrSTx3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTx3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1870,9 +1895,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "Y") ;
   }
-  bool InstrSTy1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTy1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1893,9 +1918,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "Y+") ;
   }
-  bool InstrSTy2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTy2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1916,9 +1941,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "-Y") ;
   }
-  bool InstrSTy3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTy3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1939,9 +1964,9 @@ namespace AVR
   {
     return Disasm_xxQxQQxRRRRRxQQQ(*this, mcu, cmd, "Y") ;
   }
-  bool InstrSTy4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTy4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1962,9 +1987,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "Z") ;
   }
-  bool InstrSTz1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTz1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -1985,9 +2010,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "Z+") ;
   }
-  bool InstrSTz2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTz2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2008,9 +2033,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "-Z") ;
   }
-  bool InstrSTz3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTz3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2031,9 +2056,9 @@ namespace AVR
   {
     return Disasm_xxQxQQxRRRRRxQQQ(*this, mcu, cmd, "Z") ;
   }
-  bool InstrSTz4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTz4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2054,9 +2079,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrLPM1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLPM1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2077,9 +2102,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z") ;
   }
-  bool InstrLPM2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLPM2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2100,9 +2125,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z+") ;
   }
-  bool InstrLPM3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLPM3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2123,9 +2148,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrELPM1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrELPM1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2146,9 +2171,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z") ;
   }
-  bool InstrELPM2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrELPM2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2169,9 +2194,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z+") ;
   }
-  bool InstrELPM3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrELPM3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2192,9 +2217,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrSPM1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSPM1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ; // todo information
+    return XrefType::none ; // todo information
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2215,9 +2240,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrSPM2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSPM2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ; // todo information
+    return XrefType::none ; // todo information
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2238,9 +2263,9 @@ namespace AVR
   {
     return Disasm_xxxxxAADDDDDAAAA(*this, mcu, cmd) ;
   }
-  bool InstrIN::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrIN::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2261,9 +2286,9 @@ namespace AVR
   {
     return Disasm_xxxxxAARRRRRAAAA(*this, mcu, cmd) ;
   }
-  bool InstrOUT::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrOUT::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2284,9 +2309,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrPUSH::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrPUSH::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2307,9 +2332,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrPOP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrPOP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2330,9 +2355,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrXCH::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrXCH::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2353,9 +2378,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrLAS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLAS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2376,9 +2401,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrLAC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLAC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2399,9 +2424,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrLAT::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLAT::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2422,9 +2447,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrLSR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLSR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2445,9 +2470,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrROR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrROR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2468,9 +2493,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrASR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrASR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2491,9 +2516,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  bool InstrSWAP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSWAP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2514,9 +2539,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxSSSxxxx_BSET(*this, cmd) ;
   }
-  bool InstrBSET::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBSET::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2537,9 +2562,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxSSSxxxx_BCLR(*this, cmd) ;
   }
-  bool InstrBCLR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBCLR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2560,9 +2585,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxAAAAABBB(*this, mcu, cmd) ;
   }
-  bool InstrSBI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2583,9 +2608,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxAAAAABBB(*this, mcu, cmd) ;
   }
-  bool InstrCBI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCBI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2606,9 +2631,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxBBB(*this, cmd) ;
   }
-  bool InstrBST::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBST::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2629,9 +2654,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxBBB(*this, cmd) ;
   }
-  bool InstrBLD::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBLD::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2652,9 +2677,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrBREAK::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBREAK::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2675,9 +2700,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrNOP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrNOP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2698,9 +2723,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrSLEEP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSLEEP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -2721,9 +2746,9 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  bool InstrWDR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrWDR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
-    return false ;
+    return XrefType::none ;
   }
 
   ////////////////////////////////////////////////////////////////////////////////

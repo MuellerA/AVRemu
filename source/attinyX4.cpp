@@ -36,25 +36,25 @@ namespace AVR
     for (const Instruction* iInstr: instructions)
       AddInstruction(iInstr) ;
 
-    _knownProgramAddresses = std::map<uint32, std::string>
+    _knownProgramAddresses = std::vector<Mcu::KnownProgramAddress>
       {
-        { 0x00, "External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset" },
-        { 0x01, "External Interrupt Request 0" },
-        { 0x02, "Pin Change Interrupt Request 0" },
-        { 0x03, "Pin Change Interrupt Request 1" },
-        { 0x04, "Watchdog Time-out" },
-        { 0x05, "Timer/Counter1 Capture Event" },
-        { 0x06, "Timer/Counter1 Compare Match A" },
-        { 0x07, "Timer/Counter1 Compare Match B" },
-        { 0x08, "Timer/Counter1 Overflow" },
-        { 0x09, "Timer/Counter0 Compare Match A" },
-        { 0x0a, "Timer/Counter0 Compare Match B" },
-        { 0x0b, "Timer/Counter0 Overflow" },
-        { 0x0c, "Analog Comparator" },
-        { 0x0d, "ADC Conversion Complete" },
-        { 0x0e, "EEPROM Ready" },
-        { 0x0f, "USI START" },
-        { 0x10, "USI Overflow" },
+        { 0x00, "RESET",      "External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset" },
+        { 0x01, "IRQ_INT0",       "External Interrupt Request 0" },
+        { 0x02, "IRQ_PCINT0",     "Pin Change Interrupt Request 0" },
+        { 0x03, "IRQ_PCINT1",     "Pin Change Interrupt Request 1" },
+        { 0x04, "IRQ_WDT",        "Watchdog Time-out" },
+        { 0x05, "IRQ_TIM1_CAPT",  "Timer/Counter1 Capture Event" },
+        { 0x06, "IRQ_TIM1_COMPA", "Timer/Counter1 Compare Match A" },
+        { 0x07, "IRQ_TIM1_COMPB", "Timer/Counter1 Compare Match B" },
+        { 0x08, "IRQ_TIM1_OVF",   "Timer/Counter1 Overflow" },
+        { 0x09, "IRQ_TIM0_COMPA", "Timer/Counter0 Compare Match A" },
+        { 0x0a, "IRQ_TIM0_COMPB", "Timer/Counter0 Compare Match B" },
+        { 0x0b, "IRQ_TIM0_OVF",   "Timer/Counter0 Overflow" },
+        { 0x0c, "IRQ_ANA_COMP",   "Analog Comparator" },
+        { 0x0d, "IRQ_ADC",        "ADC Conversion Complete" },
+        { 0x0e, "IRQ_EE_RDY",     "EEPROM Ready" },
+        { 0x0f, "IRQ_USI_STR",    "USI START" },
+        { 0x10, "IRQ_USI_OVF",    "USI Overflow" },
       } ;
 
     std::vector<std::pair<uint32, std::string>> ioRegs
@@ -121,7 +121,7 @@ namespace AVR
       { 0x21, "DIDR0" },
       { 0x20, "PRR" },
     } ;
-    for (auto iIoReg: ioRegs)
+    for (const auto &iIoReg: ioRegs)
     {
       _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
