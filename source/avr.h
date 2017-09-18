@@ -45,7 +45,8 @@ namespace AVR
 
   public:
     // returns execution time
-    virtual std::size_t Execute(Mcu &mcu, Command cmd) const = 0 ;
+    virtual uint8       Ticks  (Mcu &mcu, Command cmd) const = 0 ; // clock cycles needed for instruction
+    virtual void        Execute(Mcu &mcu, Command cmd) const = 0 ; // execute next instruction
     virtual std::string Disasm (Mcu &mcu, Command cmd) const = 0 ;
     virtual XrefType    Xref   (Mcu &mcu, Command cmd, uint32 &addr) const = 0 ;
 
@@ -118,7 +119,7 @@ namespace AVR
     virtual ~Mcu() ;
 
   public:
-    std::size_t Execute() ;
+    void Execute() ;
     std::string Disasm() ;
     bool DataAddrName(uint32 addr, std::string &name) const ;
     bool ProgAddrName(uint32 addr, std::string &name) const ;
@@ -127,6 +128,18 @@ namespace AVR
     std::size_t  PC() const { return _pc ; }
     std::size_t& PC()       { return _pc ; }
 
+    uint8  Reg(uint32 reg) const ;
+    void   Reg(uint32 reg, uint8 value) ;
+    uint16 RegW(uint32 reg) const ;
+    void   RegW(uint32 reg, uint16 value) ;
+    uint8  Io(uint32 io) const ;
+    void   Io(uint32 io, uint8 value) ;
+    uint8  Data(uint32 addr) const ;
+    void   Data(uint32 addr, uint8 value) ;
+    
+    void PushPC() ;
+    void PopPC() ;
+    
     const std::vector<const Instruction*>& Instructions() const { return _instructions ; }
     const std::vector<Command>&            Program()      const { return _program      ; }
 
@@ -149,7 +162,11 @@ namespace AVR
     std::size_t _eepromSize ;
 
     std::vector<Command>       _program ;
+    uint8                      _reg[0x20] ;
     std::vector<Io::Register*> _io ;
+    Io::Register*&             _spl ;
+    Io::Register*&             _sph ;
+    Io::Register*&             _sreg ;
     std::vector<uint8>         _data ;
     std::vector<uint8>         _eeprom ;
     std::vector<KnownProgramAddress> _knownProgramAddresses ;

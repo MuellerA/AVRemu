@@ -44,13 +44,13 @@ namespace AVR
   ////////////////////////////////////////////////////////////////////////////////
   // Mcu
   Mcu::Mcu(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize)
-    : _program(programSize), _io(ioSize+32), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
+    : _program(programSize), _io(ioSize), _spl(_io[0x3d]), _sph(_io[0x3e]), _sreg(_io[0x3f]), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
   {
     _pc = 0 ;
 
     _programSize = programSize ;
 
-    _regSize  = 32 ;
+    _regSize  = 0x20 ;
     _regStart = 0 ;
     _regEnd   = _regStart + _regSize - 1 ;
 
@@ -63,64 +63,33 @@ namespace AVR
     _dataEnd   = _dataStart + _dataSize - 1 ;
 
     _eepromSize = eepromSize ;
-
-    std::vector<std::pair<uint32, std::string>> ioRegs
-    {
-      { 0x00, "r0" },
-      { 0x01, "r1" },
-      { 0x02, "r2" },
-      { 0x03, "r3" },
-      { 0x04, "r4" },
-      { 0x05, "r5" },
-      { 0x06, "r6" },
-      { 0x07, "r7" },
-      { 0x08, "r8" },
-      { 0x09, "r9" },
-      { 0x0a, "r10" },
-      { 0x0b, "r11" },
-      { 0x0c, "r12" },
-      { 0x0d, "r13" },
-      { 0x0e, "r14" },
-      { 0x0f, "r15" },
-      { 0x10, "r16" },
-      { 0x11, "r17" },
-      { 0x12, "r18" },
-      { 0x13, "r19" },
-      { 0x14, "r20" },
-      { 0x15, "r21" },
-      { 0x16, "r22" },
-      { 0x17, "r23" },
-      { 0x18, "r24" },
-      { 0x19, "r25" },
-      { 0x1a, "r26" },
-      { 0x1b, "r27" },
-      { 0x1c, "r28" },
-      { 0x1d, "r29" },
-      { 0x1e, "r30" },
-      { 0x1f, "r31" },
-    } ;
-    for (const auto &iIoReg: ioRegs)
-    {
-      _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
-    }
   }
 
   Mcu::~Mcu()
   {
   }
 
-  std::size_t Mcu::Execute()
+  void Mcu::Execute()
   {
     if (_pc >= _programSize)
     {
       fprintf(stderr, "program counter overflow\n") ;
-      return 0 ;
+      _pc = 0 ;
+      return ;
     }
+    
     Command cmd = _program[_pc++] ;
-
     const Instruction *instr = _instructions[cmd] ;
 
-    return instr ? instr->Execute(*this, cmd) : 0 ;
+    if (!instr)
+    {
+      fprintf(stderr, "illegal instruction\n") ;
+      _pc = 0 ;
+      return ;
+    }
+
+    // todo Ticks
+    instr->Execute(*this, cmd) ;
   }
 
   std::string Disasm_ASC(Command cmd)
@@ -162,9 +131,17 @@ namespace AVR
         }
         else
           label.append(", ", 2) ;
-        char buff[32] ;
-        sprintf(buff, "%05x", iXref) ;
-        label.append(buff) ;
+        std::string xrefName ;
+        if (ProgAddrName(iXref, xrefName))
+        {
+          label.append(xrefName) ;
+        }
+        else
+        {
+          char buff[32] ;
+          sprintf(buff, "%05x", iXref) ;
+          label.append(buff) ;
+        }
       }
       label.append("\n", 1) ;
       if (!xref._description.empty())
@@ -230,6 +207,84 @@ namespace AVR
     Command cmd = _program[_pc++] ;
 
     return cmd ;
+  }
+
+  uint8  Mcu::Reg(uint32 reg) const
+  {
+    return _reg[reg] ;
+  }
+  void   Mcu::Reg(uint32 reg, uint8 value)
+  {
+    _reg[reg] = value ;
+  }
+  uint16 Mcu::RegW(uint32 reg) const
+  {
+    return *(uint16*)(_reg + reg) ;
+  }
+  void   Mcu::RegW(uint32 reg, uint16 value)
+  {
+    *(uint16*)(_reg + reg) = value ;
+  }
+  uint8  Mcu::Io(uint32 io) const
+  {
+    // todo
+    return 0xff ;
+  }
+  void   Mcu::Io(uint32 io, uint8 value)
+  {
+    // todo
+  }
+
+  uint8  Mcu::Data(uint32 addr) const
+  {
+    if ((_regStart <= addr) && (addr <= _regEnd))
+    {
+      return Reg(addr) ;
+    }
+    if ((_ioStart <= addr) && (addr <= _ioEnd))
+    {
+      return Io(addr - _ioStart) ;
+    }
+    else if ((_dataStart <= addr) && (addr <= _dataEnd))
+    {
+      return _data[addr - _dataStart] ;
+    }
+
+    fprintf(stderr, "program counter overflow\n") ;
+    const_cast<Mcu*>(this)->_pc = 0 ;
+    return 0xff ;
+  }
+  
+  void Mcu::Data(uint32 addr, uint8 value)
+  {
+    if ((_regStart <= addr) && (addr <= _regEnd))
+    {
+      Reg(addr, value) ;
+      return ;
+    }
+    else if ((_ioStart <= addr) && (addr <= _ioEnd))
+    {
+      Io(addr - _ioStart, value) ;
+      return ;
+    }
+    else if ((_dataStart <= addr) && (addr <= _dataEnd))
+    {
+      _data[addr - _dataStart] = value ;
+      return ;
+    }
+
+    fprintf(stderr, "program counter overflow\n") ;
+    _pc = 0 ;
+  }
+  
+  void Mcu::PushPC()
+  {
+    // todo
+  }
+  
+  void Mcu::PopPC()
+  {
+    // todo
   }
 
   void Mcu::ClearProgram()
@@ -343,7 +398,7 @@ namespace AVR
         continue ;
 
       if      (static_cast<uint32>(xref._type & XrefType::call)) xref._label.append("Fct_", 4) ;
-      else if (static_cast<uint32>(xref._type & XrefType::jmp )) xref._label.append("Jmp_", 4) ;
+      else if (static_cast<uint32>(xref._type & XrefType::jmp )) xref._label.append("Lbl_", 4) ;
       else if (static_cast<uint32>(xref._type & XrefType::data)) xref._label.append("Dat_", 4) ;
       else printf("xref type %d\n", (uint32)xref._type) ;
       

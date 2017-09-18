@@ -17,7 +17,8 @@ namespace AVR
   public:                                                                    \
     Instr##name() ;                                                          \
     virtual ~Instr##name() ;                                                 \
-    virtual std::size_t Execute(Mcu &mcu, Command cmd) const ;               \
+    virtual uint8       Ticks  (Mcu &mcu, Command cmd) const ;               \
+    virtual void        Execute(Mcu &mcu, Command cmd) const ;               \
     virtual std::string Disasm (Mcu &mcu, Command cmd) const ;               \
     virtual XrefType    Xref   (Mcu &mcu, Command cmd, uint32 &addr) const ; \
   } ;                                                                        \

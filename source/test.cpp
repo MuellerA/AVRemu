@@ -23,32 +23,29 @@ int main()
   prog.reserve(0x20000) ;
 
   {
-    for (auto *instr : avr.Instructions())
+    for (unsigned int iCmd = 0 ; iCmd < 0x10000 ; ++iCmd)
     {
-      if (instr)
-      {
-        bool is2word = false ;
-
-        is2word |= instr->Pattern() == 0b1001010000001100 ; // JMP
-        is2word |= instr->Pattern() == 0b1001010000001110 ; // JMP
-        is2word |= instr->Pattern() == 0b1001000000000000 ; // LDS
-        is2word |= instr->Pattern() == 0b1001001000000000 ; // STS
-
-        AVR::Command min = instr->Pattern() & instr->Mask() ;
-        prog.push_back(min) ;
-        if (is2word) prog.push_back(0x0000) ;
-
-        AVR::Command max = instr->Pattern() + ~instr->Mask() ;
-        prog.push_back(max) ;
-        if (is2word) prog.push_back(0xffff) ;
-      }
+      prog.push_back(iCmd) ;
+ 
+      if (((iCmd & AVR::instrJMP .Mask()) == AVR::instrJMP.Pattern()) ||
+                  ((iCmd & AVR::instrCALL.Mask()) == AVR::instrCALL.Pattern()) ||
+                  ((iCmd & AVR::instrLDS .Mask()) == AVR::instrLDS.Pattern()) ||
+                  ((iCmd & AVR::instrSTS .Mask()) == AVR::instrSTS.Pattern()))
+                prog.push_back(0x8888) ;
     }
-
+ 
     avr.PC() = 0 ;
     size_t nCommand = avr.SetProgram(0, prog) ;
     printf("prog size: %ld\n", prog.size()) ;
-
-    for (size_t iCommand = 0 ; iCommand < nCommand ; ++iCommand)
+ 
+   FILE *fo = fopen("all.bin", "wb") ;
+    if (fo)
+    {
+      fwrite(prog.data(), prog.size(), sizeof(AVR::Command), fo) ;
+      fclose(fo) ;
+    }
+   
+    while (avr.PC() < nCommand)
     {
       std::string disasm = avr.Disasm() ;
       printf("%s\n", disasm.c_str()) ;

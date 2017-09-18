@@ -40,7 +40,11 @@ namespace AVR
   {
     r = ((cmd & 0b0000000011110000) >> 3) ; ;
   }
-  inline void xxxxxxxxxxxxRRRR(Command cmd, Command &r)
+  inline void xxxxxxxxxxxxRRRR1(Command cmd, Command &r)
+  {
+    r = ((cmd & 0b0000000000001111)) + 16 ;
+  }
+  inline void xxxxxxxxxxxxRRRR2(Command cmd, Command &r)
   {
     r = ((cmd & 0b0000000000001111) << 1) ;
   }
@@ -174,11 +178,21 @@ namespace AVR
     return std::string(buff) ;
   }
 
-  std::string Disasm_xxxxxxxxDDDDRRRR(const Instruction &instr, Command cmd)
+  std::string Disasm_xxxxxxxxDDDDRRRR_MOVW(const Instruction &instr, Command cmd)
   {
     Command r, d ;
     xxxxxxxxRRRRxxxx2(cmd, d) ;
-    xxxxxxxxxxxxRRRR(cmd, r) ;
+    xxxxxxxxxxxxRRRR2(cmd, r) ;
+    char buff[1024] ;
+    sprintf(buff, "%-6s r%d, r%d\t\t; %s", instr.Mnemonic().c_str(), d, r, instr.Description().c_str()) ;
+    return std::string(buff) ;
+  }
+
+  std::string Disasm_xxxxxxxxDDDDRRRR_MULS(const Instruction &instr, Command cmd)
+  {
+    Command r, d ;
+    xxxxxxxxRRRRxxxx1(cmd, d) ;
+    xxxxxxxxxxxxRRRR1(cmd, r) ;
     char buff[1024] ;
     sprintf(buff, "%-6s r%d, r%d\t\t; %s", instr.Mnemonic().c_str(), d, r, instr.Description().c_str()) ;
     return std::string(buff) ;
@@ -432,9 +446,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrADD::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrADD::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrADD::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrADD::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -455,9 +473,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrADC::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrADC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrADC::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrADC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -478,9 +500,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrADIW::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrADIW::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ;
+  }
+  void InstrADIW::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrADIW::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -501,9 +527,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSUB::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSUB::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrSUB::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSUB::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -524,9 +554,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSUBI::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSUBI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrSUBI::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSUBI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -547,9 +581,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSBC::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSBC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrSBC::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSBC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -570,9 +608,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSBCI::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSBCI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrSBCI::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSBCI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -593,9 +635,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSBIW::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSBIW::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ;
+  }
+  void InstrSBIW::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSBIW::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -616,9 +662,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrAND::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrAND::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrAND::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrAND::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -639,9 +689,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrANDI::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrANDI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrANDI::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrANDI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -662,9 +716,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrOR::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrOR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrOR::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrOR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -685,9 +743,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrORI::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrORI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrORI::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrORI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -708,9 +770,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrEOR::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrEOR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrEOR::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrEOR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -731,9 +797,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrCOM::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrCOM::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrCOM::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrCOM::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -754,9 +824,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrNEG::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrNEG::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrNEG::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrNEG::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -777,9 +851,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrINC::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrINC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrINC::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrINC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -800,9 +878,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrDEC::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrDEC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrDEC::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrDEC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -823,9 +905,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrMUL::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrMUL::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ;
+  }
+  void InstrMUL::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrMUL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -846,13 +932,17 @@ namespace AVR
   {
   }
 
-  std::size_t InstrMULS::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrMULS::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ;
+  }
+  void InstrMULS::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrMULS::Disasm(Mcu &mcu, Command cmd) const
   {
-    return Disasm_xxxxxxxxDDDDRRRR(*this, cmd) ;
+    return Disasm_xxxxxxxxDDDDRRRR_MULS(*this, cmd) ;
   }
   XrefType InstrMULS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
@@ -869,9 +959,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrMULSU::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrMULSU::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ;
+  }
+  void InstrMULSU::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrMULSU::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -892,9 +986,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrFMUL::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrFMUL::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ;
+  }
+  void InstrFMUL::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrFMUL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -915,9 +1013,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrFMULS::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrFMULS::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ;
+  }
+  void InstrFMULS::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrFMULS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -938,9 +1040,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrFMULSU::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrFMULSU::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ;
+  }
+  void InstrFMULSU::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrFMULSU::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -961,9 +1067,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrDES::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrDES::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrDES::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrDES::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -984,9 +1094,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrRJMP::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrRJMP::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ;
+  }
+  void InstrRJMP::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrRJMP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1008,9 +1122,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrIJMP::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrIJMP::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ;
+  }
+  void InstrIJMP::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrIJMP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1031,9 +1149,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrEIJMP::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrEIJMP::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ;
+  }
+  void InstrEIJMP::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrEIJMP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1054,9 +1176,15 @@ namespace AVR
   {
   }
 
-  std::size_t InstrJMP::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrJMP::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 3 ;
+  }
+  void InstrJMP::Execute(Mcu &mcu, Command cmd) const
+  {
+    Command k ;
+    xxxxxxxKKKKKxxxK(cmd, k) ;
+    mcu.PC() = (((uint32)k) << 16) + mcu.ProgramNext() ;
   }
   std::string InstrJMP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1078,9 +1206,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrRCALL::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrRCALL::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 3 ; // todo
+  }
+  void InstrRCALL::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrRCALL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1102,9 +1234,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrICALL::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrICALL::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 3 ; // todo
+  }
+  void InstrICALL::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrICALL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1125,9 +1261,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrEICALL::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrEICALL::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 4 ; // todo
+  }
+  void InstrEICALL::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrEICALL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1148,9 +1288,16 @@ namespace AVR
   {
   }
 
-  std::size_t InstrCALL::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrCALL::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 4 ; // todo
+  }
+  void InstrCALL::Execute(Mcu &mcu, Command cmd) const
+  {
+    mcu.PushPC() ;
+    Command k ;
+    xxxxxxxKKKKKxxxK(cmd, k) ;
+    mcu.PC() = (((uint32)k) << 16) + mcu.ProgramNext() ;
   }
   std::string InstrCALL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1172,9 +1319,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrRET::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrRET::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 4 ; // todo
+  }
+  void InstrRET::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrRET::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1195,9 +1346,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrRETI::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrRETI::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 4 ; // todo
+  }
+  void InstrRETI::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrRETI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1218,9 +1373,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrCPSE::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrCPSE::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrCPSE::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrCPSE::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1241,9 +1400,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrCP::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrCP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrCP::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrCP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1264,9 +1427,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrCPC::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrCPC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrCPC::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrCPC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1287,9 +1454,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrCPI::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrCPI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrCPI::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrCPI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1310,9 +1481,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSBRC::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSBRC::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrSBRC::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSBRC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1333,9 +1508,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSBRS::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSBRS::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrSBRS::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSBRS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1356,9 +1535,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSBIC::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSBIC::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrSBIC::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSBIC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1379,9 +1562,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSBIS::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSBIS::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrSBIS::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSBIS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1402,9 +1589,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrBRBS::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrBRBS::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrBRBS::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrBRBS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1426,9 +1617,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrBRBC::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrBRBC::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrBRBC::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrBRBC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1450,9 +1645,16 @@ namespace AVR
   {
   }
 
-  std::size_t InstrMOV::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrMOV::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrMOV::Execute(Mcu &mcu, Command cmd) const
+  {
+    Command r, d ;
+    xxxxxxRxxxxxRRRR(cmd, r) ;
+    xxxxxxxRRRRRxxxx(cmd, d) ;
+    mcu.Reg(d, mcu.Reg(r)) ;
   }
   std::string InstrMOV::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1473,13 +1675,17 @@ namespace AVR
   {
   }
 
-  std::size_t InstrMOVW::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrMOVW::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
+  void InstrMOVW::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
+  }
   std::string InstrMOVW::Disasm(Mcu &mcu, Command cmd) const
   {
-    return Disasm_xxxxxxxxDDDDRRRR(*this, cmd) ;
+    return Disasm_xxxxxxxxDDDDRRRR_MOVW(*this, cmd) ;
   }
   XrefType InstrMOVW::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
   {
@@ -1496,9 +1702,16 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDI::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrLDI::Execute(Mcu &mcu, Command cmd) const
+  {
+    Command k, d ;
+    xxxxKKKKxxxxKKKK(cmd, k) ;
+    xxxxxxxxRRRRxxxx1(cmd, d) ;
+    mcu.Reg(d, (uint8)k) ;
   }
   std::string InstrLDI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1519,9 +1732,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDS::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDS::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrLDS::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1542,9 +1759,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDx1::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDx1::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrLDx1::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDx1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1565,9 +1786,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDx2::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDx2::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrLDx2::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDx2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1588,9 +1813,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDx3::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDx3::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrLDx3::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDx3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1611,9 +1840,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDy1::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDy1::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrLDy1::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDy1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1634,9 +1867,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDy2::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDy2::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrLDy2::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDy2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1657,9 +1894,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDy3::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDy3::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrLDy3::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDy3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1680,9 +1921,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDy4::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDy4::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrLDy4::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDy4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1703,9 +1948,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDz1::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDz1::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrLDz1::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDz1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1726,9 +1975,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDz2::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDz2::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrLDz2::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDz2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1749,9 +2002,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDz3::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDz3::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrLDz3::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDz3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1772,9 +2029,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLDz4::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLDz4::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrLDz4::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLDz4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1795,9 +2056,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTS::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTS::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrSTS::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1818,9 +2083,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTx1::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTx1::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrSTx1::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTx1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1841,9 +2110,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTx2::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTx2::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrSTx2::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTx2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1864,9 +2137,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTx3::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTx3::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrSTx3::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTx3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1887,9 +2164,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTy1::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTy1::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrSTy1::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTy1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1910,9 +2191,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTy2::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTy2::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrSTy2::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTy2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1933,9 +2218,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTy3::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTy3::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrSTy3::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTy3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1956,9 +2245,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTy4::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTy4::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrSTy4::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTy4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1979,9 +2272,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTz1::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTz1::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrSTz1::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTz1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2002,9 +2299,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTz2::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTz2::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrSTz2::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTz2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2025,9 +2326,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTz3::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTz3::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrSTz3::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTz3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2048,9 +2353,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSTz4::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSTz4::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrSTz4::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSTz4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2071,9 +2380,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLPM1::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLPM1::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 3 ;
+  }
+  void InstrLPM1::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLPM1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2094,9 +2407,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLPM2::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLPM2::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 3 ;
+  }
+  void InstrLPM2::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLPM2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2117,9 +2434,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLPM3::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLPM3::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 3 ;
+  }
+  void InstrLPM3::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLPM3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2140,9 +2461,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrELPM1::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrELPM1::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 3 ;
+  }
+  void InstrELPM1::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrELPM1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2163,9 +2488,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrELPM2::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrELPM2::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 3 ;
+  }
+  void InstrELPM2::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrELPM2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2186,9 +2515,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrELPM3::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrELPM3::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 3 ;
+  }
+  void InstrELPM3::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrELPM3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2209,9 +2542,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSPM1::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSPM1::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 3 ; // todo
+  }
+  void InstrSPM1::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSPM1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2232,9 +2569,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSPM2::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSPM2::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 3 ; // todo
+  }
+  void InstrSPM2::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSPM2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2255,9 +2596,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrIN::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrIN::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrIN::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrIN::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2278,9 +2623,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrOUT::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrOUT::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrOUT::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrOUT::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2301,9 +2650,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrPUSH::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrPUSH::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrPUSH::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrPUSH::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2324,9 +2677,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrPOP::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrPOP::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 2 ; // todo
+  }
+  void InstrPOP::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrPOP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2339,7 +2696,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // XCH
-  InstrXCH::InstrXCH() : Instruction(0b1001001000000100, 0b1111111000001111, "XCH", "Exchange Indirect Register and Data Space")
+  InstrXCH::InstrXCH() : Instruction(0b1001001000000100, 0b1111111000001111, "XCH Z,", "Exchange Indirect Register and Data Space")
   {
   }
 
@@ -2347,9 +2704,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrXCH::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrXCH::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrXCH::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrXCH::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2362,7 +2723,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LAS
-  InstrLAS::InstrLAS() : Instruction(0b1001001000000101, 0b1111111000001111, "LAS", "Load and Set Indirect Register and Data Space")
+  InstrLAS::InstrLAS() : Instruction(0b1001001000000101, 0b1111111000001111, "LAS Z,", "Load and Set Indirect Register and Data Space")
   {
   }
 
@@ -2370,9 +2731,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLAS::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLAS::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrLAS::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLAS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2385,7 +2750,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LAC
-  InstrLAC::InstrLAC() : Instruction(0b1001001000000110, 0b1111111000001111, "LAC", "Load and Clear Indirect Register and Data Space")
+  InstrLAC::InstrLAC() : Instruction(0b1001001000000110, 0b1111111000001111, "LAC Z,", "Load and Clear Indirect Register and Data Space")
   {
   }
 
@@ -2393,9 +2758,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLAC::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLAC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrLAC::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLAC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2408,7 +2777,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LAT
-  InstrLAT::InstrLAT() : Instruction(0b1001001000000111, 0b1111111000001111, "LAT", "Load and Toggle Indirect Register and Data Space")
+  InstrLAT::InstrLAT() : Instruction(0b1001001000000111, 0b1111111000001111, "LAT Z,", "Load and Toggle Indirect Register and Data Space")
   {
   }
 
@@ -2416,9 +2785,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLAT::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLAT::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrLAT::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLAT::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2439,9 +2812,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrLSR::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrLSR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrLSR::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrLSR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2462,9 +2839,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrROR::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrROR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrROR::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrROR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2485,9 +2866,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrASR::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrASR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrASR::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrASR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2508,9 +2893,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSWAP::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSWAP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrSWAP::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSWAP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2531,9 +2920,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrBSET::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrBSET::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrBSET::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrBSET::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2554,9 +2947,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrBCLR::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrBCLR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrBCLR::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrBCLR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2577,9 +2974,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSBI::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSBI::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrSBI::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSBI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2600,9 +3001,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrCBI::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrCBI::Ticks(Mcu &mcu, Command cmd) const
   {
-    return 1 ;
+    return 1 ; // todo
+  }
+  void InstrCBI::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrCBI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2623,9 +3028,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrBST::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrBST::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrBST::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrBST::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2646,9 +3055,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrBLD::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrBLD::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrBLD::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrBLD::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2669,9 +3082,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrBREAK::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrBREAK::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrBREAK::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrBREAK::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2692,9 +3109,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrNOP::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrNOP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrNOP::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrNOP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2715,9 +3136,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrSLEEP::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrSLEEP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrSLEEP::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrSLEEP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2738,9 +3163,13 @@ namespace AVR
   {
   }
 
-  std::size_t InstrWDR::Execute(Mcu &mcu, Command cmd) const
+  uint8 InstrWDR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
+  }
+  void InstrWDR::Execute(Mcu &mcu, Command cmd) const
+  {
+    // todo
   }
   std::string InstrWDR::Disasm(Mcu &mcu, Command cmd) const
   {
