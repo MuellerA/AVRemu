@@ -69,8 +69,8 @@ namespace AVR
     {
     public:
       virtual const std::string& Name() const = 0 ;
-      virtual uint8  Value() const = 0 ;
-      virtual uint8& Value() = 0 ;
+      virtual uint8  operator()() const = 0 ;
+      virtual uint8& operator()() = 0 ;
       virtual uint8  Init() const = 0 ; // bootup value
     } ;
     
@@ -82,13 +82,31 @@ namespace AVR
     IoRegisterNotImplemented(const std::string &name) : _name(name), _value(0) {}
     
     virtual const std::string& Name() const { return _name ; }
-    virtual uint8  Value() const { return _value ; }
-    virtual uint8& Value() { return _value ; }
+    virtual uint8  operator()() const { return _value ; }
+    virtual uint8& operator()()       { return _value ; }
     virtual uint8  Init() const { return 0 ; }
   private:
     std::string _name ;
     uint8 _value ;
   } ;
+
+  enum class SREG
+  {
+    C = 0,
+    Z = 1,
+    N = 2,
+    V = 3,
+    S = 4,
+    H = 5,
+    T = 6,
+    I = 7      
+  } ;
+
+  inline bool  operator| (uint8 r, SREG b) { r  = (1 << (uint8)b) ; return r ; }
+  inline bool  operator& (uint8 r, SREG b) { r  = (1 << (uint8)b) ; return r ; }
+  
+  inline uint8 operator|=(uint8 r, SREG b) { r |= (1 << (uint8)b) ; return r ; }
+  inline uint8 operator&=(uint8 r, SREG b) { r &= (1 << (uint8)b) ; return r ; }
   
   class Mcu
   {
@@ -136,9 +154,20 @@ namespace AVR
     void   Io(uint32 io, uint8 value) ;
     uint8  Data(uint32 addr) const ;
     void   Data(uint32 addr, uint8 value) ;
+
+    uint8  SREG() const { return (*_sreg)() ; }
+    uint8& SREG()       { return (*_sreg)() ; }
+    uint8  SPL()  const { return (*_spl)()  ; }
+    uint8& SPL()        { return (*_spl)()  ; }
+    uint8  SPH()  const { return (*_sph)()  ; }
+    uint8& SPH()        { return (*_sph)()  ; }
     
     void PushPC() ;
     void PopPC() ;
+
+    void Break() ; // call BREAK handlers
+    void Sleep() ;
+    void WDR() ;
     
     const std::vector<const Instruction*>& Instructions() const { return _instructions ; }
     const std::vector<Command>&            Program()      const { return _program      ; }

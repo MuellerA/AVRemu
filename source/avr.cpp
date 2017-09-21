@@ -287,6 +287,21 @@ namespace AVR
     // todo
   }
 
+  void Mcu::Break()
+  {
+    // todo
+  }
+
+  void Mcu::Sleep()
+  {
+    // todo
+  }
+
+  void Mcu::WDR()
+  {
+    // todo
+  }
+  
   void Mcu::ClearProgram()
   {
     for (auto &iPrg :_program)
