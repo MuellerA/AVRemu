@@ -40,7 +40,7 @@ namespace AVR
     a = static_cast<XrefType>(static_cast<uint32>(a) & static_cast<uint32>(b)) ;
     return a ;
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////
   // Mcu
   Mcu::Mcu(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize)
@@ -77,7 +77,7 @@ namespace AVR
       _pc = 0 ;
       return ;
     }
-    
+
     Command cmd = _program[_pc++] ;
     const Instruction *instr = _instructions[cmd] ;
 
@@ -90,6 +90,28 @@ namespace AVR
 
     // todo Ticks
     instr->Execute(*this, cmd) ;
+  }
+
+  void Mcu::Skip()
+  {
+    if (_pc >= _programSize)
+    {
+      fprintf(stderr, "program counter overflow\n") ;
+      _pc = 0 ;
+      return ;
+    }
+
+    Command cmd = _program[_pc++] ;
+    const Instruction *instr = _instructions[cmd] ;
+
+    if (!instr)
+    {
+      fprintf(stderr, "illegal instruction\n") ;
+      _pc = 0 ;
+      return ;
+    }
+
+    instr->Skip(*this, cmd) ;
   }
 
   std::string Disasm_ASC(Command cmd)
@@ -109,7 +131,7 @@ namespace AVR
       fprintf(stderr, "program counter overflow\n") ;
       return "" ;
     }
-    
+
     size_t pc = _pc ;
     Command cmd = _program[_pc++] ;
 
@@ -150,7 +172,7 @@ namespace AVR
         label.append("\n", 1) ;
       }
     }
-    
+
     const Instruction *instr = _instructions[cmd] ;
     if (!instr)
     {
@@ -196,7 +218,7 @@ namespace AVR
     name = iProgAddrName->second._label ;
     return true ;
   }
-  
+
   Command Mcu::ProgramNext()
   {
     if (_pc >= _programSize)
@@ -254,7 +276,7 @@ namespace AVR
     const_cast<Mcu*>(this)->_pc = 0 ;
     return 0xff ;
   }
-  
+
   void Mcu::Data(uint32 addr, uint8 value)
   {
     if ((_regStart <= addr) && (addr <= _regEnd))
@@ -276,12 +298,23 @@ namespace AVR
     fprintf(stderr, "program counter overflow\n") ;
     _pc = 0 ;
   }
-  
+
+  void  Mcu::Push(uint8 value)
+  {
+    // todo
+  }
+
+  uint8 Mcu::Pop()
+  {
+    // todo
+    return 0 ;
+  }
+
   void Mcu::PushPC()
   {
     // todo
   }
-  
+
   void Mcu::PopPC()
   {
     // todo
@@ -301,14 +334,19 @@ namespace AVR
   {
     // todo
   }
-  
+
+  void Mcu::NotImplemented(const Instruction&)
+  {
+    // todo
+  }
+
   void Mcu::ClearProgram()
   {
     for (auto &iPrg :_program)
       iPrg = 0 ;
     _xrefs.clear() ;
   }
-  
+
   size_t Mcu::SetProgram(size_t startAddress, const std::vector<Command> &prg)
   {
     if (startAddress >= _programSize)
@@ -320,11 +358,11 @@ namespace AVR
       fprintf(stderr, "Mcu::SetProgram(): data too big for program memory\n") ;
       nCopy = _programSize - startAddress ;
     }
-        
+
     std::copy(prg.begin(), prg.begin()+nCopy, _program.begin()+startAddress) ;
 
     AnalyzeXrefs() ;
-    
+
     return nCopy ;
   }
 
@@ -339,7 +377,7 @@ namespace AVR
       fprintf(stderr, "Mcu::SetEeprom(): data too big for eeprom memory\n") ;
       nCopy = _eepromSize - startAddress ;
     }
-    
+
     std::copy(eeprom.begin(), eeprom.begin()+nCopy, _eeprom.begin()+startAddress) ;
     return nCopy ;
   }
@@ -386,7 +424,7 @@ namespace AVR
       uint32 pc = _pc ;
       uint32 addr ;
       Command cmd = _program[_pc++] ;
-      
+
       const Instruction *instr = _instructions[cmd] ;
       if (instr)
       {
@@ -402,7 +440,7 @@ namespace AVR
           xref._type |= xt ;
           xref._addrs.push_back(pc) ;
         }
-      }      
+      }
     }
 
     // create labels
@@ -416,14 +454,14 @@ namespace AVR
       else if (static_cast<uint32>(xref._type & XrefType::jmp )) xref._label.append("Lbl_", 4) ;
       else if (static_cast<uint32>(xref._type & XrefType::data)) xref._label.append("Dat_", 4) ;
       else printf("xref type %d\n", (uint32)xref._type) ;
-      
+
       char buff[32] ; sprintf(buff, "%05x", xref._addr) ;
       xref._label.append(buff) ;
     }
-    
+
     _pc = pc0 ;
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////
   // ATany
   ////////////////////////////////////////////////////////////////////////////////

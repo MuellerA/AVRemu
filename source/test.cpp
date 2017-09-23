@@ -26,25 +26,25 @@ int main()
     for (unsigned int iCmd = 0 ; iCmd < 0x10000 ; ++iCmd)
     {
       prog.push_back(iCmd) ;
- 
-      if (((iCmd & AVR::instrJMP .Mask()) == AVR::instrJMP.Pattern()) ||
-                  ((iCmd & AVR::instrCALL.Mask()) == AVR::instrCALL.Pattern()) ||
-                  ((iCmd & AVR::instrLDS .Mask()) == AVR::instrLDS.Pattern()) ||
-                  ((iCmd & AVR::instrSTS .Mask()) == AVR::instrSTS.Pattern()))
-                prog.push_back(0x8888) ;
+
+      if (((iCmd & AVR::instrJMP .Mask()) == AVR::instrJMP .Pattern()) ||
+          ((iCmd & AVR::instrCALL.Mask()) == AVR::instrCALL.Pattern()) ||
+          ((iCmd & AVR::instrLDS .Mask()) == AVR::instrLDS .Pattern()) ||
+          ((iCmd & AVR::instrSTS .Mask()) == AVR::instrSTS .Pattern()))
+        prog.push_back(0x8888) ;
     }
- 
+
     avr.PC() = 0 ;
     size_t nCommand = avr.SetProgram(0, prog) ;
     printf("prog size: %ld\n", prog.size()) ;
- 
+
    FILE *fo = fopen("all.bin", "wb") ;
     if (fo)
     {
       fwrite(prog.data(), prog.size(), sizeof(AVR::Command), fo) ;
       fclose(fo) ;
     }
-   
+
     while (avr.PC() < nCommand)
     {
       std::string disasm = avr.Disasm() ;

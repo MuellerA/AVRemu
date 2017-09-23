@@ -18,6 +18,7 @@ namespace AVR
     Instr##name() ;                                                          \
     virtual ~Instr##name() ;                                                 \
     virtual uint8       Ticks  (Mcu &mcu, Command cmd) const ;               \
+    virtual void        Skip   (Mcu &mcu, Command cmd) const ;               \
     virtual void        Execute(Mcu &mcu, Command cmd) const ;               \
     virtual std::string Disasm (Mcu &mcu, Command cmd) const ;               \
     virtual XrefType    Xref   (Mcu &mcu, Command cmd, uint32 &addr) const ; \
@@ -48,8 +49,8 @@ namespace AVR
   INSTR(INC) ;
   INSTR(DEC) ;
   //INSTR(TST) ; => AND r, r
-  //INSTR(CLR) => EOR r, r
-  //INSTR(SER) => LDI r, 0xff
+  //INSTR(CLR) ; => EOR r, r
+  //INSTR(SER) ; => LDI r, 0xff
   INSTR(MUL) ;
   INSTR(MULS) ;
   INSTR(MULSU) ;
@@ -109,6 +110,7 @@ namespace AVR
   INSTR(MOVW) ;
   INSTR(LDI) ;
   INSTR(LDS) ;
+  //INSTR(LDS16) ; not implemented
   INSTR(LDx1) ;
   INSTR(LDx2) ;
   INSTR(LDx3) ;
@@ -121,6 +123,7 @@ namespace AVR
   INSTR(LDz3) ;
   INSTR(LDz4) ;
   INSTR(STS) ;
+  //INSTR(STS16) ; not implemented
   INSTR(STx1) ;
   INSTR(STx2) ;
   INSTR(STx3) ;
