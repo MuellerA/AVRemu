@@ -9,8 +9,8 @@
 namespace AVR
 {
 
-  ATtinyX4::ATtinyX4(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize)
-    : Mcu(programSize, ioSize, dataSize, eepromSize)
+  ATtinyX4::ATtinyX4(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize)
+    : Mcu(programSize, 0x40, 0x60, dataSize, eepromSize)
   {
     const Instruction *instructions[]
     {
@@ -59,9 +59,6 @@ namespace AVR
 
     std::vector<std::pair<uint32, std::string>> ioRegs
     {
-      { 0x5F, "SREG" },
-      { 0x5E, "SPH" },
-      { 0x5D, "SPL" },
       { 0x5C, "OCR0B" },
       { 0x5B, "GIMSK" },
       { 0x5A, "GIFR" },
@@ -123,9 +120,11 @@ namespace AVR
     } ;
     for (const auto &iIoReg: ioRegs)
     {
-      _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
+      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
-
+    _io[0x3f] = new IoSREG::SREG(_sreg) ;
+    _io[0x3e] = new IoSP::SPH(_sp) ;
+    _io[0x3d] = new IoSP::SPL(_sp) ;
   }
   ATtinyX4::~ATtinyX4()
   {
@@ -133,7 +132,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATtiny84A::ATtiny84A() : ATtinyX4(0x2000/2, 0x40, 0x200, 0x200)
+  ATtiny84A::ATtiny84A() : ATtinyX4(0x2000/2, 0x200, 0x200)
   {
   }
   ATtiny84A::~ATtiny84A()
@@ -142,7 +141,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATtiny44A::ATtiny44A() : ATtinyX4(0x1000/2, 0x40, 0x100, 0x100)
+  ATtiny44A::ATtiny44A() : ATtinyX4(0x1000/2, 0x100, 0x100)
   {
   }
   ATtiny44A::~ATtiny44A()
@@ -151,7 +150,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATtiny24A::ATtiny24A() : ATtinyX4(0x800/2, 0x40, 0x80, 0x80)
+  ATtiny24A::ATtiny24A() : ATtinyX4(0x800/2, 0x80, 0x80)
   {
   }
   ATtiny24A::~ATtiny24A()

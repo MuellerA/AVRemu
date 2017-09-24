@@ -119,11 +119,13 @@ int usage(const char *name)
 
 int usageFull(const char *name)
 {
-  fprintf(stderr, "usage: %s [-mcu <mcu>] <avr-bin>\n", name) ;
+  fprintf(stderr, "usage: %s [-d] [-x] [-m <mcu>] <avr-bin>\n", name) ;
   fprintf(stderr, "       %s -h\n", name) ;
   fprintf(stderr, "parameter:\n") ;
-  fprintf(stderr, "   -mcu <mcu>  MCU type, see below\n") ;
-  fprintf(stderr, "   <avr-bin>   binary file to be disassembled\n") ;
+  fprintf(stderr, "   -m <mcu>    MCU type, see below\n") ;
+  fprintf(stderr, "   -d          disassemble file\n") ;
+  fprintf(stderr, "   -x          execute file\n") ;
+  fprintf(stderr, "   <avr-bin>   binary file to be disassembled / executed\n") ;
   fprintf(stderr, "   -h          this help\n") ;
   fprintf(stderr, "Supported MCU types:") ; 
   for (const auto &iFactory : mcuFactory)
@@ -145,6 +147,8 @@ int main(int argc, char *argv[])
   }
 
   int iArg ;
+  bool disasm = false ;
+  bool execute = false ;
   const char *mcuType = "ATany" ;
   for (iArg = 1 ; iArg < argc ; ++iArg)
   {
@@ -152,7 +156,11 @@ int main(int argc, char *argv[])
       break ;
     else if (!strcmp(argv[iArg], "-h"))
       return usageFull(argv[0]) ;
-    else if (!strcmp(argv[iArg], "-mcu"))
+    else if (!strcmp(argv[iArg], "-d"))
+      disasm = true ;
+    else if (!strcmp(argv[iArg], "-x"))
+      execute = true ;
+    else if (!strcmp(argv[iArg], "-m"))
     {
       if (iArg >= argc-1)
         return usage(argv[0]) ;
@@ -170,16 +178,15 @@ int main(int argc, char *argv[])
     return usage(argv[0]) ;
 
   mcu = iFactory->second() ;
-  
+  std::vector<AVR::Command> prog ;
+  prog.reserve(0x20000) ;
+
   FILE *f = fopen(argv[iArg], "rb") ;
   if (!f)
   {
     fprintf(stderr, "read file \"%s\" failed\n", argv[1]) ;
     return 1 ;
   }
-
-  std::vector<AVR::Command> prog ;
-  prog.reserve(0x20000) ;
 
   while (true)
   {
@@ -189,22 +196,30 @@ int main(int argc, char *argv[])
       break ;
     prog.insert(prog.end(), cmds, cmds + nCmd) ;
   }
+  fclose(f) ;
+
   mcu->PC() = 0 ;
   size_t nCommand = mcu->SetProgram(0, prog) ;
   printf("prog size:   %ld\n", prog.size()) ;
   printf("loaded size: %ld\n", nCommand) ;
 
   size_t progEnd = nCommand % mcu->Program().size() ;
-  
-  while (mcu->PC() < nCommand)
-  {
-    std::string disasm = mcu->Disasm() ;
-    printf("%s\n", disasm.c_str()) ;
-    if (mcu->PC() == progEnd)
-      break ;
-  }
 
-  fclose(f) ;
+  if (disasm || !execute)
+  {
+    while (mcu->PC() < nCommand)
+    {
+      std::string disasm = mcu->Disasm() ;
+      printf("%s\n", disasm.c_str()) ;
+      if (mcu->PC() == progEnd)
+        break ;
+    }
+  }
+  if (execute)
+  {
+    for (size_t i = 0 ; i < 0x1000 ; ++i)
+      mcu->Execute() ;
+  }
 
   delete mcu ;
   

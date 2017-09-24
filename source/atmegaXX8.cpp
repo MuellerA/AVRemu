@@ -9,8 +9,8 @@
 namespace AVR
 {
 
-  ATmegaXX8::ATmegaXX8(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize)
-    : Mcu(programSize, ioSize, dataSize, eepromSize)
+  ATmegaXX8::ATmegaXX8(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize)
+    : Mcu(programSize, 0xe0, 0x100, dataSize, eepromSize)
   {
     const Instruction *instructions[]
     {
@@ -86,9 +86,6 @@ namespace AVR
       { 0x64, "PRR" },
       { 0x61, "CLKPR" },
       { 0x60, "WDTCSR" },
-      { 0x5F, "SREG" },
-      { 0x5E, "SPH" },
-      { 0x5D, "SPL" },
       { 0x57, "SPMCSR" },
       { 0x55, "MCUCR" },
       { 0x54, "MCUSR" },
@@ -127,8 +124,11 @@ namespace AVR
     } ;
     for (const auto &iIoReg: ioRegs)
     {
-      _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
+      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
+    _io[0x3f] = new IoSREG::SREG(_sreg) ;
+    _io[0x3e] = new IoSP::SPH(_sp) ;
+    _io[0x3d] = new IoSP::SPL(_sp) ;
   }
   ATmegaXX8::~ATmegaXX8()
   {
@@ -136,7 +136,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega328P::ATmega328P() : ATmegaXX8(0x8000/2, 0x00e0, 0x0800, 0x0400)
+  ATmega328P::ATmega328P() : ATmegaXX8(0x8000/2, 0x0800, 0x0400)
   {
     const Instruction *instructions[] { &instrJMP, &instrCALL, } ;
     for (const Instruction* iInstr: instructions)
@@ -179,14 +179,14 @@ namespace AVR
     } ;
     for (const auto &iIoReg: ioRegs)
     {
-      _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
+      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
   }
   ATmega328P::~ATmega328P() {}
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega168PA::ATmega168PA() : ATmegaXX8(0x4000/2, 0x00e0, 0x0400, 0x0200)
+  ATmega168PA::ATmega168PA() : ATmegaXX8(0x4000/2, 0x0400, 0x0200)
   {
     const Instruction *instructions[] { &instrJMP, &instrCALL, } ;
     for (const Instruction* iInstr: instructions)
@@ -229,14 +229,14 @@ namespace AVR
     } ;
     for (const auto &iIoReg: ioRegs)
     {
-      _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
+      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
   }
   ATmega168PA::~ATmega168PA() {}
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega88PA::ATmega88PA() : ATmegaXX8(0x2000/2, 0x00e0, 0x0400, 0x0200)
+  ATmega88PA::ATmega88PA() : ATmegaXX8(0x2000/2, 0x0400, 0x0200)
   {
     // ignoring BOOTRST / IVSEL Fuses
     _knownProgramAddresses = std::vector<Mcu::KnownProgramAddress>
@@ -275,14 +275,14 @@ namespace AVR
     } ;
     for (const auto &iIoReg: ioRegs)
     {
-      _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
+      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
   }
   ATmega88PA::~ATmega88PA() {}
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega48PA::ATmega48PA() : ATmegaXX8(0x1000/2, 0x00e0, 0x0200, 0x0100)
+  ATmega48PA::ATmega48PA() : ATmegaXX8(0x1000/2, 0x0200, 0x0100)
   {
     _knownProgramAddresses = std::vector<Mcu::KnownProgramAddress>
       {

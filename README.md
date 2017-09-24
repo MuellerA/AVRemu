@@ -14,11 +14,13 @@ Only supports MCUs with addresses < 64k, the RAMP registers are ignored.
 
 Usage: 
 <pre>
-usage: AVRemu [-mcu &lt;mcu&gt;] &lt;avr-bin&gt;
-       AVRemu -h
+usage: ./AVRemu [-d] [-x] [-m <mcu>] <avr-bin>
+       ./AVRemu -h
 parameter:
-   -mcu &lt;mcu&gt;  MCU type, see below
-   &lt;avr-bin&gt;   binary file to be disassembled
+   -m <mcu>    MCU type, see below
+   -d          disassemble file
+   -x          execute file
+   <avr-bin>   binary file to be disassembled
    -h          this help
 Supported MCU types: ATany ATmega168PA ATmega328P ATmega48PA ATmega88PA ATmega8A ATtiny24A ATtiny25 ATtiny44A ATtiny45 ATtiny84A ATtiny85 ATxmega128A4U ATxmega16A4U ATxmega32A4U ATxmega64A4U
 </pre>

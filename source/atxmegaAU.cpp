@@ -8,8 +8,8 @@
 
 namespace AVR
 {
-  ATxmegaAU::ATxmegaAU(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize)
-    : Mcu(programSize, ioSize, dataSize, eepromSize)
+  ATxmegaAU::ATxmegaAU(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize)
+    : Mcu(programSize, 0x1000, 0x2000, dataSize, eepromSize)
   {
     const Instruction *instructions[]
     {
@@ -127,9 +127,21 @@ namespace AVR
   {
   }
 
+  void ATxmegaAU::PushPC()
+  {
+    Push(_pc >> 16) ;
+    Push(_pc >>  8) ;
+    Push(_pc >>  0) ;
+  }
+
+  void ATxmegaAU::PopPC()
+  {
+    _pc = (Pop() << 0) | (Pop() << 8) | (Pop() << 16) ;
+  }
+  
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATxmega128A4U::ATxmega128A4U() : ATxmegaAU(0x20000/2, 0x1000, 0x2000, 0x800)
+  ATxmega128A4U::ATxmega128A4U() : ATxmegaAU(0x20000/2, 0x2000, 0x800)
   {
   }
   ATxmega128A4U::~ATxmega128A4U()
@@ -138,7 +150,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATxmega64A4U::ATxmega64A4U() : ATxmegaAU(0x10000/2, 0x1000, 0x1000, 0x800)
+  ATxmega64A4U::ATxmega64A4U() : ATxmegaAU(0x10000/2, 0x1000, 0x800)
   {
   }
   ATxmega64A4U::~ATxmega64A4U()
@@ -147,7 +159,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATxmega32A4U::ATxmega32A4U() : ATxmegaAU(0x8000/2, 0x1000, 0x1000, 0x400)
+  ATxmega32A4U::ATxmega32A4U() : ATxmegaAU(0x8000/2, 0x1000, 0x400)
   {
   }
   ATxmega32A4U::~ATxmega32A4U()
@@ -156,7 +168,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATxmega16A4U::ATxmega16A4U() : ATxmegaAU(0x4000/2, 0x1000, 0x800, 0x400)
+  ATxmega16A4U::ATxmega16A4U() : ATxmegaAU(0x4000/2, 0x800, 0x400)
   {
   }
   ATxmega16A4U::~ATxmega16A4U()

@@ -273,7 +273,7 @@ namespace AVR
     xxxxxxxxAAAAAxxx(cmd, a) ;
     xxxxxxxxxxxxxBBB(cmd, b) ;
     std::string ioRegName ;
-    mcu.DataAddrName(a+0x20, ioRegName) ;
+    mcu.DataAddrName(a, ioRegName) ;
     char buff[1024] ;
     sprintf(buff, "%-6s %s, %d\t\t; 0x%02x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), b, a, instr.Description().c_str()) ;
     return std::string(buff) ;
@@ -384,7 +384,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, d) ;
     char buff[1024] ;
     std::string ioRegName  ;
-    mcu.DataAddrName(a+0x20, ioRegName) ;
+    mcu.DataAddrName(a, ioRegName) ;
     sprintf(buff, "%-6s r%d, %s\t\t; 0x%02x %s", instr.Mnemonic().c_str(), d, ioRegName.c_str(), a, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
@@ -395,7 +395,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, r) ;
     char buff[1024] ;
     std::string ioRegName ;
-    mcu.DataAddrName(a+0x20, ioRegName) ;
+    mcu.DataAddrName(a, ioRegName) ;
     sprintf(buff, "%-6s %s, r%d\t\t; 0x%02x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), r, a, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
@@ -475,7 +475,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rHC & 0x80)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -528,7 +528,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rHC & 0x80)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -576,7 +576,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (~r & rd & 0x8000)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.RegW(nd, r) ;
     mcu.SREG() = sreg ;
@@ -629,7 +629,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rHC && 0x80)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -679,7 +679,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rHC & 0x80)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -732,7 +732,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rHC && 0x80)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -782,7 +782,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rHC & 0x80)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -830,7 +830,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (r & ~rd & 0x8000)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.RegW(nd, r) ;
     mcu.SREG() = sreg ;
@@ -875,7 +875,7 @@ namespace AVR
       sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -919,7 +919,7 @@ namespace AVR
       sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -964,7 +964,7 @@ namespace AVR
       sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -1008,7 +1008,7 @@ namespace AVR
       sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -1053,7 +1053,7 @@ namespace AVR
       sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -1097,7 +1097,7 @@ namespace AVR
     if (r == 0x00)
       sreg |= SREG::Z ;
     sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -1147,7 +1147,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (r != 0x00)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -1180,7 +1180,7 @@ namespace AVR
   }
   void InstrINC::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, nd ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
     uint8 sreg = mcu.SREG() & 0b11100001 ;
@@ -1192,7 +1192,7 @@ namespace AVR
       sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -1225,7 +1225,7 @@ namespace AVR
   }
   void InstrDEC::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, nd ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
     uint8 sreg = mcu.SREG() & 0b11100001 ;
@@ -1237,10 +1237,10 @@ namespace AVR
       sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
-    mcu.SREG()  = sreg ;
+    mcu.SREG() = sreg ;
   }
   std::string InstrDEC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1855,7 +1855,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rHC && 0x80)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.SREG()  = sreg ;
   }
@@ -1907,7 +1907,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rHC && 0x80)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.SREG()  = sreg ;
   }
@@ -1956,7 +1956,7 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rHC & 0x80)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.SREG()  = sreg ;
   }
@@ -2337,7 +2337,10 @@ namespace AVR
   }
   void InstrLDx1::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLDx1
+    Command nd, x ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    x = mcu.RegW(26) ;
+    mcu.Reg(nd, mcu.Data(x)) ;
   }
   std::string InstrLDx1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2367,7 +2370,11 @@ namespace AVR
   }
   void InstrLDx2::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLDx2
+    Command nd, x ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    x = mcu.RegW(26) ;
+    mcu.Reg(nd, mcu.Data(x++)) ;
+    mcu.RegW(26, x) ;
   }
   std::string InstrLDx2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2397,7 +2404,11 @@ namespace AVR
   }
   void InstrLDx3::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLDx3
+    Command nd, x ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    x = mcu.RegW(26) ;
+    mcu.Reg(nd, mcu.Data(--x)) ;
+    mcu.RegW(26, x) ;
   }
   std::string InstrLDx3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2427,7 +2438,10 @@ namespace AVR
   }
   void InstrLDy1::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLDy1
+    Command nd, y ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    y = mcu.RegW(28) ;
+    mcu.Reg(nd, mcu.Data(y)) ;
   }
   std::string InstrLDy1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2457,7 +2471,11 @@ namespace AVR
   }
   void InstrLDy2::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLDy2
+    Command nd, y ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    y = mcu.RegW(28) ;
+    mcu.Reg(nd, mcu.Data(y++)) ;
+    mcu.RegW(28, y) ;
   }
   std::string InstrLDy2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2487,7 +2505,11 @@ namespace AVR
   }
   void InstrLDy3::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLDy3
+    Command nd, y ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    y = mcu.RegW(28) ;
+    mcu.Reg(nd, mcu.Data(--y)) ;
+    mcu.RegW(28, y) ;
   }
   std::string InstrLDy3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2517,7 +2539,11 @@ namespace AVR
   }
   void InstrLDy4::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLDy4
+    Command nd, q, y ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    xxQxQQxxxxxxxQQQ(cmd, q) ;
+    y = mcu.RegW(28) ;
+    mcu.Reg(nd, mcu.Data(y+q)) ;
   }
   std::string InstrLDy4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2547,7 +2573,10 @@ namespace AVR
   }
   void InstrLDz1::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLDz1
+    Command nd, z ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    z = mcu.RegW(30) ;
+    mcu.Reg(nd, mcu.Data(z)) ;
   }
   std::string InstrLDz1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2577,7 +2606,11 @@ namespace AVR
   }
   void InstrLDz2::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLDz2
+    Command nd, z ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    z = mcu.RegW(30) ;
+    mcu.Reg(nd, mcu.Data(z++)) ;
+    mcu.RegW(30, z) ;
   }
   std::string InstrLDz2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2607,7 +2640,11 @@ namespace AVR
   }
   void InstrLDz3::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLDz3
+    Command nd, z ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    z = mcu.RegW(30) ;
+    mcu.Reg(nd, mcu.Data(--z)) ;
+    mcu.RegW(30, z) ;
   }
   std::string InstrLDz3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2637,7 +2674,11 @@ namespace AVR
   }
   void InstrLDz4::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLDz4
+    Command nd, q, z ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    xxQxQQxxxxxxxQQQ(cmd, q) ;
+    z = mcu.RegW(30) ;
+    mcu.Reg(nd, mcu.Data(z+q)) ;
   }
   std::string InstrLDz4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2701,7 +2742,10 @@ namespace AVR
   }
   void InstrSTx1::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrSTx1
+    Command nr, x ;
+    xxxxxxxRRRRRxxxx(cmd, nr) ;
+    x = mcu.RegW(26) ;
+    mcu.Data(x, mcu.Reg(nr)) ;
   }
   std::string InstrSTx1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2731,7 +2775,11 @@ namespace AVR
   }
   void InstrSTx2::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrSTx2
+    Command nr, x ;
+    xxxxxxxRRRRRxxxx(cmd, nr) ;
+    x = mcu.RegW(26) ;
+    mcu.Data(x++, mcu.Reg(nr)) ;
+    mcu.RegW(26, x) ;
   }
   std::string InstrSTx2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2761,7 +2809,11 @@ namespace AVR
   }
   void InstrSTx3::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrSTx3
+    Command nr, x ;
+    xxxxxxxRRRRRxxxx(cmd, nr) ;
+    x = mcu.RegW(26) ;
+    mcu.Data(--x, mcu.Reg(nr)) ;
+    mcu.RegW(26, x) ;
   }
   std::string InstrSTx3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2791,7 +2843,10 @@ namespace AVR
   }
   void InstrSTy1::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrSTy1
+    Command nr, y ;
+    xxxxxxxRRRRRxxxx(cmd, nr) ;
+    y = mcu.RegW(28) ;
+    mcu.Data(y, mcu.Reg(nr)) ;
   }
   std::string InstrSTy1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2821,7 +2876,11 @@ namespace AVR
   }
   void InstrSTy2::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrSTy2
+    Command nr, y ;
+    xxxxxxxRRRRRxxxx(cmd, nr) ;
+    y = mcu.RegW(28) ;
+    mcu.Data(y++, mcu.Reg(nr)) ;
+    mcu.RegW(28, y) ;
   }
   std::string InstrSTy2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2851,7 +2910,11 @@ namespace AVR
   }
   void InstrSTy3::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrSTy3
+    Command nr, y ;
+    xxxxxxxRRRRRxxxx(cmd, nr) ;
+    y = mcu.RegW(28) ;
+    mcu.Data(--y, mcu.Reg(nr)) ;
+    mcu.RegW(28, y) ;
   }
   std::string InstrSTy3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2881,7 +2944,11 @@ namespace AVR
   }
   void InstrSTy4::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrSTy4
+    Command nr, q, y ;
+    xxxxxxxRRRRRxxxx(cmd, nr) ;
+    xxQxQQxxxxxxxQQQ(cmd, q) ;
+    y = mcu.RegW(28) ;
+    mcu.Data(y+q, mcu.Reg(nr)) ;
   }
   std::string InstrSTy4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2911,7 +2978,10 @@ namespace AVR
   }
   void InstrSTz1::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrSTz1
+    Command nr, z ;
+    xxxxxxxRRRRRxxxx(cmd, nr) ;
+    z = mcu.RegW(30) ;
+    mcu.Data(z, mcu.Reg(nr)) ;
   }
   std::string InstrSTz1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2941,7 +3011,11 @@ namespace AVR
   }
   void InstrSTz2::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrSTz2
+    Command nr, z ;
+    xxxxxxxRRRRRxxxx(cmd, nr) ;
+    z = mcu.RegW(30) ;
+    mcu.Data(z++, mcu.Reg(nr)) ;
+    mcu.RegW(30, z) ;
   }
   std::string InstrSTz2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2971,7 +3045,11 @@ namespace AVR
   }
   void InstrSTz3::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrSTz3
+    Command nr, z ;
+    xxxxxxxRRRRRxxxx(cmd, nr) ;
+    z = mcu.RegW(30) ;
+    mcu.Data(--z, mcu.Reg(nr)) ;
+    mcu.RegW(30, z) ;
   }
   std::string InstrSTz3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3001,7 +3079,11 @@ namespace AVR
   }
   void InstrSTz4::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrSTz4
+    Command nr, q, z ;
+    xxxxxxxRRRRRxxxx(cmd, nr) ;
+    xxQxQQxxxxxxxQQQ(cmd, q) ;
+    z = mcu.RegW(30) ;
+    mcu.Data(z+q, mcu.Reg(nr)) ;
   }
   std::string InstrSTz4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3031,7 +3113,12 @@ namespace AVR
   }
   void InstrLPM1::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLPM1
+    Command z, p ;
+    z = mcu.RegW(30) ;
+    p = mcu.Prog(z>>1) ;
+    if (z&1)
+      p >>= 8 ;
+    mcu.Reg(0, (uint8)p) ;
   }
   std::string InstrLPM1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3061,7 +3148,13 @@ namespace AVR
   }
   void InstrLPM2::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLPM2
+    Command z, nd, p ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    z = mcu.RegW(30) ;
+    p = mcu.Prog(z>>1) ;
+    if (z&1)
+      p >>= 8 ;
+    mcu.Reg(nd, (uint8)p) ;
   }
   std::string InstrLPM2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3091,7 +3184,14 @@ namespace AVR
   }
   void InstrLPM3::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLPM3
+    Command z, nd, p ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    z = mcu.RegW(30) ;
+    p = mcu.Prog(z>>1) ;
+    if (z&1)
+      p >>= 8 ;
+    mcu.Reg(nd, (uint8)p) ;
+    mcu.RegW(30, z+1) ;
   }
   std::string InstrLPM3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3369,9 +3469,9 @@ namespace AVR
   }
   void InstrPOP::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, nd ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    mcu.Reg(nr, mcu.Pop()) ;
+    mcu.Reg(nd, mcu.Pop()) ;
   }
   std::string InstrPOP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3531,9 +3631,9 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rd & 0x01)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::C))
+    if ((sreg && SREG::N) ^ (sreg && SREG::C))
       sreg |= SREG::V ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -3572,7 +3672,7 @@ namespace AVR
     uint8 sreg = mcu.SREG() & 0b11100000 ;
     uint8 rd = mcu.Reg(nd) ;
     uint8 r = rd >> 1 ;
-    if (sreg & SREG::C)
+    if (sreg && SREG::C)
       r |= 0x80 ;
     if (r & 0x80)
       sreg |= SREG::N ;
@@ -3580,9 +3680,9 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rd & 0x01)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::C))
+    if ((sreg && SREG::N) ^ (sreg && SREG::C))
       sreg |= SREG::V ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -3627,9 +3727,9 @@ namespace AVR
       sreg |= SREG::Z ;
     if (rd & 0x01)
       sreg |= SREG::C ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::C))
+    if ((sreg && SREG::N) ^ (sreg && SREG::C))
       sreg |= SREG::V ;
-    if ((sreg & SREG::N) ^ (sreg & SREG::V))
+    if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SREG()  = sreg ;
@@ -3875,7 +3975,7 @@ namespace AVR
     xxxxxxxxxxxxxBBB(cmd, b) ;
 
     uint8 d = mcu.Reg(nd) & ~(1<<b) ;
-    if (mcu.SREG() & SREG::T)
+    if (mcu.SREG() && SREG::T)
       d |= 1<<b ;
     mcu.Reg(nd, d) ;
   }

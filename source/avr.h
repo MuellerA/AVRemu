@@ -103,11 +103,9 @@ namespace AVR
     I = 7
   } ;
 
-  inline bool  operator| (uint8 r, SREG b) { r  = (1 << (uint8)b) ; return r ; }
-  inline bool  operator& (uint8 r, SREG b) { r  = (1 << (uint8)b) ; return r ; }
+  inline uint8 operator|=(uint8 &r, SREG b) { r |= (1 << (uint8)b) ; return r ; }
 
-  inline uint8 operator|=(uint8 r, SREG b) { r |= (1 << (uint8)b) ; return r ; }
-  inline uint8 operator&=(uint8 r, SREG b) { r &= (1 << (uint8)b) ; return r ; }
+  inline bool  operator&& (uint8 r, SREG b) { return (r & (1<<(uint8)b)) == (1<<(uint8)b) ; }
 
   class Mcu
   {
@@ -130,8 +128,77 @@ namespace AVR
       std::string _description ;
     } ;
 
+    class IoSP : public Io
+    {
+    public:
+      class SPH : public Io::Register
+      {
+      public:
+        SPH(IoSP &sp) : _sp(sp), _name("SPH") {}
+        virtual const std::string& Name() const { return _name ; }
+        virtual uint8  operator()() const { return _sp.Hi() ; }
+        virtual uint8& operator()()       { return _sp.Hi() ; }
+        virtual uint8  Init() const       { return _sp.Init() >> 8 ; }
+      private:
+        IoSP &_sp ;
+        std::string _name ;
+      } ;
+      class SPL : public Io::Register
+      {
+      public:
+        SPL(IoSP &sp) : _sp(sp), _name("SPL") {}
+        virtual const std::string& Name() const { return _name ; }
+        virtual uint8  operator()() const { return _sp.Lo() ; }
+        virtual uint8& operator()()       { return _sp.Lo() ; }
+        virtual uint8  Init() const       { return _sp.Init() >> 0 ; }
+      private:
+        IoSP &_sp ;
+        std::string _name ;
+      } ;
+
+      IoSP(uint16 init) : _u16(init), _init(init) {}
+      uint16  operator()() const { return _u16 ; }
+      uint16& operator()()       { return _u16 ; }
+      uint8  Hi()   const  { return _u8[1] ; }
+      uint8& Hi()          { return _u8[1] ; }
+      uint8  Lo()   const  { return _u8[0] ; }
+      uint8& Lo()          { return _u8[0] ; }
+      uint16 Init() const  { return _init ; }
+    private:
+      union
+      {
+        uint16 _u16 ;
+        uint8  _u8[2] ;
+      } ;
+      uint16 _init ;
+    } ;
+
+    class IoSREG : public Io
+    {
+    public:
+      class SREG : public Io::Register
+      {
+      public:
+        SREG(IoSREG &sreg) : _sreg(sreg), _name("SREG") {}
+        virtual const std::string& Name() const { return _name ; }
+        virtual uint8  operator()() const { return _sreg() ; }
+        virtual uint8& operator()()       { return _sreg() ; }
+        virtual uint8  Init() const       { return 0x00 ; }
+      private:
+        IoSREG &_sreg ;
+        std::string _name ;
+      } ;
+
+      IoSREG() : _sreg(0x00) {}
+      uint8  operator()() const { return _sreg ; }
+      uint8& operator()()       { return _sreg ; }
+
+    private:
+      uint8 _sreg ;
+    } ;
+    
   protected:
-    Mcu(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize) ;
+    Mcu(std::size_t programSize, std::size_t ioSize, std::size_t dataStart, std::size_t dataSize, std::size_t eepromSize) ;
     Mcu() = delete ;
     Mcu& operator=(const Mcu&) = delete ;
   public:
@@ -148,6 +215,8 @@ namespace AVR
     std::size_t  PC() const { return _pc ; }
     std::size_t& PC()       { return _pc ; }
 
+    uint32 Ticks() { return _ticks ; }
+    
     uint8  Reg(uint32 reg) const ;
     void   Reg(uint32 reg, uint8 value) ;
     uint16 RegW(uint32 reg) const ;
@@ -156,18 +225,19 @@ namespace AVR
     void   Io(uint32 io, uint8 value) ;
     uint8  Data(uint32 addr) const ;
     void   Data(uint32 addr, uint8 value) ;
-
-    uint8  SREG() const { return (*_sreg)() ; }
-    uint8& SREG()       { return (*_sreg)() ; }
-    uint8  SPL()  const { return (*_spl)()  ; }
-    uint8& SPL()        { return (*_spl)()  ; }
-    uint8  SPH()  const { return (*_sph)()  ; }
-    uint8& SPH()        { return (*_sph)()  ; }
+    uint16 Prog(uint32 addr) const ;
+    
+    uint8  SREG() const { return _sreg()  ; }
+    uint8& SREG()       { return _sreg()  ; }
+    uint8  SPL()  const { return _sp.Lo() ; }
+    uint8& SPL()        { return _sp.Lo() ; }
+    uint8  SPH()  const { return _sp.Hi() ; }
+    uint8& SPH()        { return _sp.Hi() ; }
 
     void  Push(uint8 value) ;
     uint8 Pop() ;
-    void  PushPC() ;
-    void  PopPC() ;
+    virtual void  PushPC() ;
+    virtual void  PopPC() ;
 
     void  Break() ; // call BREAK handlers
     void  Sleep() ;
@@ -181,13 +251,20 @@ namespace AVR
     size_t SetProgram(size_t address, const std::vector<Command> &prg) ;
     size_t SetEeprom(size_t address, const std::vector<uint8> &eeprom) ;
 
+    virtual bool PcIs22bit()     { return false ; }
+    virtual bool IsXmega()       { return false ; }
+    virtual bool IsTinyReduced() { return false ; }
+    
   protected:
     void AddInstruction(const Instruction *instr) ;
     void AnalyzeXrefs() ;
 
   protected:
     std::size_t _pc ;
-
+    IoSP        _sp ;
+    IoSREG      _sreg ;
+    uint32      _ticks ;
+    
     std::size_t _programSize ;
 
     std::size_t _regSize, _regStart, _regEnd ;
@@ -198,9 +275,6 @@ namespace AVR
     std::vector<Command>       _program ;
     uint8                      _reg[0x20] ;
     std::vector<Io::Register*> _io ;
-    Io::Register*&             _spl ;
-    Io::Register*&             _sph ;
-    Io::Register*&             _sreg ;
     std::vector<uint8>         _data ;
     std::vector<uint8>         _eeprom ;
     std::vector<KnownProgramAddress> _knownProgramAddresses ;
@@ -227,7 +301,7 @@ namespace AVR
   class ATmegaXX8 : public Mcu
   {
   protected:
-    ATmegaXX8(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize) ;
+    ATmegaXX8(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
     virtual ~ATmegaXX8() ;
   } ;
 
@@ -277,7 +351,7 @@ namespace AVR
   class ATtinyX4 : public Mcu
   {
   protected:
-    ATtinyX4(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize) ;
+    ATtinyX4(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
     virtual ~ATtinyX4() ;
   } ;
 
@@ -309,7 +383,7 @@ namespace AVR
   class ATtinyX5 : public Mcu
   {
   protected:
-    ATtinyX5(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize) ;
+    ATtinyX5(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
     virtual ~ATtinyX5() ;
   } ;
 
@@ -341,8 +415,14 @@ namespace AVR
   class ATxmegaAU : public Mcu
   {
   protected:
-    ATxmegaAU(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize) ;
+    ATxmegaAU(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
     virtual ~ATxmegaAU() ;
+
+    virtual void  PushPC() ;
+    virtual void  PopPC() ;
+
+    virtual bool PcIs22bit()     { return false ; }
+    virtual bool IsXmega()       { return false ; }
   } ;
 
   class ATxmega128A4U : public ATxmegaAU

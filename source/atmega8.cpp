@@ -9,7 +9,7 @@
 namespace AVR
 {
 
-  ATmega8A::ATmega8A() : Mcu(0x2000/2, 0x00e0, 0x0400, 0x0200)
+  ATmega8A::ATmega8A() : Mcu(0x2000/2, 0x0040, 0x0060, 0x0400, 0x0200)
   {
     const Instruction *instructions[]
     {
@@ -60,9 +60,6 @@ namespace AVR
     
     std::vector<std::pair<uint32, std::string>> ioRegs
     {
-      { 0x5F, "SREG" },
-      { 0x5E, "SPH" },
-      { 0x5D, "SPL" },
       { 0x5A, "GIFR" },
       { 0x59, "TIMSK" },
       { 0x58, "TIFR" },
@@ -122,8 +119,11 @@ namespace AVR
     } ;
     for (const auto &iIoReg: ioRegs)
     {
-      _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
+      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
+    _io[0x3f] = new IoSREG::SREG(_sreg) ;
+    _io[0x3e] = new IoSP::SPH(_sp) ;
+    _io[0x3d] = new IoSP::SPL(_sp) ;
   }
 
   ATmega8A::~ATmega8A()

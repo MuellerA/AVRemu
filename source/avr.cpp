@@ -43,11 +43,9 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // Mcu
-  Mcu::Mcu(std::size_t programSize, std::size_t ioSize, std::size_t dataSize, std::size_t eepromSize)
-    : _program(programSize), _io(ioSize), _spl(_io[0x3d]), _sph(_io[0x3e]), _sreg(_io[0x3f]), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
+  Mcu::Mcu(std::size_t programSize, std::size_t ioSize, std::size_t dataStart, std::size_t dataSize, std::size_t eepromSize)
+    : _pc(0), _sp(dataStart+dataSize-1), _program(programSize), _io(ioSize), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
   {
-    _pc = 0 ;
-
     _programSize = programSize ;
 
     _regSize  = 0x20 ;
@@ -59,9 +57,9 @@ namespace AVR
     _ioEnd   = _ioStart + _ioSize - 1 ;
 
     _dataSize  = dataSize ;
-    _dataStart = _ioEnd + 1 ;
+    _dataStart = dataStart ;
     _dataEnd   = _dataStart + _dataSize - 1 ;
-
+    
     _eepromSize = eepromSize ;
   }
 
@@ -71,6 +69,8 @@ namespace AVR
 
   void Mcu::Execute()
   {
+    _ticks += 1 ;
+    
     if (_pc >= _programSize)
     {
       fprintf(stderr, "program counter overflow\n") ;
@@ -78,9 +78,10 @@ namespace AVR
       return ;
     }
 
+    printf("%05lx:", _pc) ;
     Command cmd = _program[_pc++] ;
     const Instruction *instr = _instructions[cmd] ;
-
+    
     if (!instr)
     {
       fprintf(stderr, "illegal instruction\n") ;
@@ -88,8 +89,40 @@ namespace AVR
       return ;
     }
 
+    {
+      uint32 pc = _pc ;
+      _pc-- ;
+      printf(" %s\n", instr->Disasm(*this, cmd).c_str()) ;
+      _pc = pc ;
+    }
+    
     // todo Ticks
     instr->Execute(*this, cmd) ;
+
+    uint8 sreg = _sreg() ;
+    printf("       %c%c%c%c%c%c%c%c ",
+           (sreg&&SREG::I) ? 'I' : '_',
+           (sreg&&SREG::T) ? 'T' : '_',
+           (sreg&&SREG::H) ? 'H' : '_',
+           (sreg&&SREG::S) ? 'S' : '_',
+           (sreg&&SREG::V) ? 'V' : '_',
+           (sreg&&SREG::N) ? 'N' : '_',
+           (sreg&&SREG::Z) ? 'Z' : '_',
+           (sreg&&SREG::C) ? 'C' : '_') ;
+    
+    for (size_t iR =  0 ; iR < 8 ; ++iR)
+      printf(" %02x", _reg[iR]) ;
+    printf("\n                ") ;
+    for (size_t iR =  8 ; iR < 16 ; ++iR)
+      printf(" %02x", _reg[iR]) ;
+    printf("\n                ") ;
+    for (size_t iR = 16 ; iR < 24 ; ++iR)
+      printf(" %02x", _reg[iR]) ;
+    printf("\n                ") ;
+    for (size_t iR = 24 ; iR < 32 ; ++iR)
+      printf(" %02x", _reg[iR]) ;
+
+    printf("\n") ;
   }
 
   void Mcu::Skip()
@@ -249,12 +282,23 @@ namespace AVR
   }
   uint8  Mcu::Io(uint32 io) const
   {
-    // todo
-    return 0xff ;
+    Io::Register *ioReg = _io[io] ;
+    if (!ioReg)
+    {
+      fprintf(stderr, "illegal IO Register access\n") ;
+      return 0xff ;
+    }
+    return (*ioReg)() ;
   }
   void   Mcu::Io(uint32 io, uint8 value)
   {
-    // todo
+    Io::Register *ioReg = _io[io] ;
+    if (!ioReg)
+    {
+      fprintf(stderr, "illegal IO Register access\n") ;
+      return ;
+    }
+    (*ioReg)() = value ;
   }
 
   uint8  Mcu::Data(uint32 addr) const
@@ -299,25 +343,49 @@ namespace AVR
     _pc = 0 ;
   }
 
+  uint16  Mcu::Prog(uint32 addr) const
+  {
+    if (addr >= _programSize)
+    {
+      fprintf(stderr, "invalid program address\n") ;
+      return 0xffff ;
+    }
+    return _program[addr] ;
+  }
+  
   void  Mcu::Push(uint8 value)
   {
-    // todo
+    uint16 sp = _sp() ;
+    if ((sp < _dataStart) || (_dataEnd < sp))
+    {
+      fprintf(stderr, "stack underflow\n") ;
+      return ;
+    }
+    _data[sp] = value ;
+    _sp() = sp - 1 ;
   }
 
   uint8 Mcu::Pop()
   {
-    // todo
-    return 0 ;
+    uint16 sp = _sp() + 1 ;
+    if ((sp < _dataStart) || (_dataEnd < sp))
+    {
+      fprintf(stderr, "stack overflow\n") ;
+      return 0xff ;
+    }
+    _sp() = sp ;
+    return _data[sp] ;
   }
 
   void Mcu::PushPC()
   {
-    // todo
+    Push(_pc >> 8) ;
+    Push(_pc >> 0) ;
   }
 
   void Mcu::PopPC()
   {
-    // todo
+    _pc = (Pop() << 0) | (Pop() << 8) ;
   }
 
   void Mcu::Break()
@@ -466,7 +534,7 @@ namespace AVR
   // ATany
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATany::ATany() : Mcu(0x40000, 0x1000, 0x1000, 0x1000)
+  ATany::ATany() : Mcu(0x40000, 0x1000, 0x1000, 0x1000, 0x1000)
   {
     const Instruction *instructions[]
     {
