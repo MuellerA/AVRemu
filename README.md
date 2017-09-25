@@ -14,7 +14,7 @@ Only supports MCUs with addresses < 64k, the RAMP registers are ignored.
 
 Usage: 
 <pre>
-usage: ./AVRemu [-d] [-x] [-m &lt;<mcu&gt;] &lt;avr-bin&gt;
+usage: ./AVRemu [-d] [-x] [-m &lt;mcu&gt;] &lt;avr-bin&gt;
        ./AVRemu -h
 parameter:
    -m &lt;mcu&gt;    MCU type, see below

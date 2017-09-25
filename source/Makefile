@@ -1,20 +1,21 @@
-CXXFLAGS = -g -std=c++11 -Wall
+CXXFLAGS = -O2 -std=c++11 -Wall
+
+LibObj = avr.o instr.o atmegaXX8.o atmega8.o attinyX5.o attinyX4.o atxmegaAU.o
+EmuObj = main.o $(LibObj)
+TstObj = test.o $(LibObj)
+AllObj = main.o test.o $(LibObj)
+
+.PHONY:	ALL Clean
 
 ALL:	AVRemu AVRtest
 
 Clean:
-	rm -f *.o AVRemu
+	rm -f $(AllObj) AVRemu AVRtest
 
-avr.o: avr.h
+$(AllObj): avr.h instr.h
 
-atmegaXX8.o atmega8.o attinyX5.o attinyX4.o atxmegaAU.o: avr.h instr.h
+AVRemu:	$(EmuObj)
+	g++ -o AVRemu $(EmuObj)
 
-instr.o: instr.cpp avr.h instr.h
-
-test.o main.o:	avr.h instr.h
-
-AVRemu:	avr.o instr.o main.o atmegaXX8.o atmega8.o attinyX5.o attinyX4.o atxmegaAU.o
-	g++ avr.o instr.o main.o atmegaXX8.o atmega8.o attinyX5.o attinyX4.o atxmegaAU.o -o AVRemu
-
-AVRtest:	avr.o instr.o test.o atmegaXX8.o atmega8.o attinyX5.o attinyX4.o atxmegaAU.o
-	g++ avr.o instr.o test.o atmegaXX8.o atmega8.o attinyX5.o attinyX4.o atxmegaAU.o -o AVRtest
+AVRtest: $(TstObj)
+	g++ -o AVRtest $(TstObj)
