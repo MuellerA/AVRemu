@@ -46,7 +46,7 @@ int test()
 
     avr.PC() = 0 ;
     size_t nCommand = avr.SetProgram(0, prog) ;
-    printf("prog size: %ld\n", prog.size()) ;
+    printf("prog size: %zd\n", prog.size()) ;
 
     for (size_t iCommand = 0 ; iCommand < nCommand ; ++iCommand)
     {
@@ -71,7 +71,7 @@ int test()
     }
     avr.PC() = 0 ;
     size_t nCommand = avr.SetProgram(0, prog) ;
-    printf("prog size: %ld\n", prog.size()) ;
+    printf("prog size: %zd\n", prog.size()) ;
 
     for (size_t iCommand = 0 ; iCommand < nCommand ; ++iCommand)
     {
@@ -200,8 +200,8 @@ int main(int argc, char *argv[])
 
   mcu->PC() = 0 ;
   size_t nCommand = mcu->SetProgram(0, prog) ;
-  printf("prog size:   %ld\n", prog.size()) ;
-  printf("loaded size: %ld\n", nCommand) ;
+  printf("prog size:   %zd\n", prog.size()) ;
+  printf("loaded size: %zd\n", nCommand) ;
 
   size_t progEnd = nCommand % mcu->Program().size() ;
 
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
   }
   if (execute)
   {
-    for (size_t i = 0 ; i < 0x1000 ; ++i)
+    for (size_t i = 0 ; i < 0x100000 ; ++i)
       mcu->Execute() ;
   }
 

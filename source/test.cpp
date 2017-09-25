@@ -36,7 +36,7 @@ int main()
 
     avr.PC() = 0 ;
     size_t nCommand = avr.SetProgram(0, prog) ;
-    printf("prog size: %ld\n", prog.size()) ;
+    printf("prog size: %zd\n", prog.size()) ;
 
    FILE *fo = fopen("all.bin", "wb") ;
     if (fo)
@@ -68,7 +68,7 @@ int main()
     }
     avr.PC() = 0 ;
     size_t nCommand = avr.SetProgram(0, prog) ;
-    printf("prog size: %ld\n", prog.size()) ;
+    printf("prog size: %zd\n", prog.size()) ;
 
     for (size_t iCommand = 0 ; iCommand < nCommand ; ++iCommand)
     {

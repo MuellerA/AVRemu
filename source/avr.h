@@ -104,7 +104,8 @@ namespace AVR
   } ;
 
   inline uint8 operator|=(uint8 &r, SREG b) { r |= (1 << (uint8)b) ; return r ; }
-
+  inline uint8 operator& (uint8  r, SREG b) { return r & (1 << (uint8)b) ; }
+  
   inline bool  operator&& (uint8 r, SREG b) { return (r & (1<<(uint8)b)) == (1<<(uint8)b) ; }
 
   class Mcu

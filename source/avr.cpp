@@ -78,7 +78,7 @@ namespace AVR
       return ;
     }
 
-    printf("%05lx:", _pc) ;
+    printf("%05zx:", _pc) ;
     Command cmd = _program[_pc++] ;
     const Instruction *instr = _instructions[cmd] ;
     
@@ -91,7 +91,6 @@ namespace AVR
 
     {
       uint32 pc = _pc ;
-      _pc-- ;
       printf(" %s\n", instr->Disasm(*this, cmd).c_str()) ;
       _pc = pc ;
     }
@@ -101,14 +100,14 @@ namespace AVR
 
     uint8 sreg = _sreg() ;
     printf("       %c%c%c%c%c%c%c%c ",
-           (sreg&&SREG::I) ? 'I' : '_',
-           (sreg&&SREG::T) ? 'T' : '_',
-           (sreg&&SREG::H) ? 'H' : '_',
-           (sreg&&SREG::S) ? 'S' : '_',
-           (sreg&&SREG::V) ? 'V' : '_',
-           (sreg&&SREG::N) ? 'N' : '_',
-           (sreg&&SREG::Z) ? 'Z' : '_',
-           (sreg&&SREG::C) ? 'C' : '_') ;
+           (sreg && AVR::SREG::I) ? 'I' : '_',
+           (sreg && AVR::SREG::T) ? 'T' : '_',
+           (sreg && AVR::SREG::H) ? 'H' : '_',
+           (sreg && AVR::SREG::S) ? 'S' : '_',
+           (sreg && AVR::SREG::V) ? 'V' : '_',
+           (sreg && AVR::SREG::N) ? 'N' : '_',
+           (sreg && AVR::SREG::Z) ? 'Z' : '_',
+           (sreg && AVR::SREG::C) ? 'C' : '_') ;
     
     for (size_t iR =  0 ; iR < 8 ; ++iR)
       printf(" %02x", _reg[iR]) ;
@@ -210,7 +209,7 @@ namespace AVR
     if (!instr)
     {
       char buff[1024] ;
-      sprintf(buff, "%s%05lx:   %s     %04x          ???", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), _program[pc]) ;
+      sprintf(buff, "%s%05zx:   %s     %04x          ???", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), _program[pc]) ;
       return std::string(buff) ;
     }
 
@@ -220,10 +219,10 @@ namespace AVR
     switch (_pc - pc)
     {
     case 1:
-      sprintf(buff, "%s%05lx:   %s     %04x          ", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), _program[pc]) ;
+      sprintf(buff, "%s%05zx:   %s     %04x          ", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), _program[pc]) ;
       break ;
     case 2:
-      sprintf(buff, "%s%05lx:   %s%s   %04x %04x     ", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), Disasm_ASC(_program[pc+1]).c_str(), _program[pc], _program[pc+1]) ;
+      sprintf(buff, "%s%05zx:   %s%s   %04x %04x     ", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), Disasm_ASC(_program[pc+1]).c_str(), _program[pc], _program[pc+1]) ;
       break ;
     }
     std::string disasm(buff) ;

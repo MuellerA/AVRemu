@@ -7,6 +7,8 @@
 
 #include "instr.h"
 
+#pragma GCC diagnostic ignored "-Wparentheses"
+
 namespace AVR
 {
   ////////////////////////////////////////////////////////////////////////////////
@@ -512,10 +514,11 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.SREG() & 0b11000000 ;
+    uint8 sreg0 = mcu.SREG() ;
+    uint8 sreg = sreg0 & 0b11000000 ;
     uint8 rr = mcu.Reg(nr) ;
     uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd + rr + (sreg & (uint8)SREG::C) ;
+    uint8 r = rd + rr + (sreg0 & SREG::C) ;
     uint8 rHC = rd & rr | rr & ~r | ~r & rd ;
     uint8 rV  = rd & rr & ~r | ~rd & ~rr & r ;
     if (rHC & 0x08)
@@ -716,10 +719,11 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.SREG() & 0b11000000 ;
+    uint8 sreg0 = mcu.SREG() ;
+    uint8 sreg = sreg0 & 0b11000000 ;
     uint8 rr = mcu.Reg(nr) ;
     uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd - rr - (sreg & (uint8)SREG::C) ;
+    uint8 r = rd - rr - (sreg0 & SREG::C) ;
     uint8 rHC = ~rd & rr | rr & r | r & ~rd ;
     uint8 rV  = rd & ~rr & ~r | ~rd & rr & r ;
     if (rHC & 0x08)
@@ -769,9 +773,10 @@ namespace AVR
     xxxxKKKKxxxxKKKK(cmd, k) ;
     xxxxxxxxRRRRxxxx1(cmd, nd) ;
 
-    uint8 sreg = mcu.SREG() & 0b11000000 ;
+    uint8 sreg0 = mcu.SREG() ;
+    uint8 sreg = sreg0 & 0b11000000 ;
     uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd - k - (sreg & (uint8)SREG::C);
+    uint8 r = rd - k - (sreg0 & SREG::C);
     uint8 rHC = ~rd & k | k & r | r & ~rd ;
     uint8 rV  = rd & ~k & ~r | ~rd & k & r ;
     if (rHC & 0x08)
@@ -1576,7 +1581,8 @@ namespace AVR
   {
     Command k ;
     xxxxxxxKKKKKxxxK(cmd, k) ;
-    mcu.PC() = (((uint32)k) << 16) + mcu.ProgramNext() ;
+    uint32 addr = (((uint32)k) << 16) + mcu.ProgramNext() ;
+    mcu.PC() = addr ;
   }
   std::string InstrJMP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1607,9 +1613,9 @@ namespace AVR
   }
   void InstrRCALL::Execute(Mcu &mcu, Command cmd) const
   {
-    mcu.PushPC() ;
     Command k ;
     xxxxKKKKKKKKKKKK(cmd, k) ;
+    mcu.PushPC() ;
     mcu.PC() = mcu.PC() + (int16)k ;
   }
   std::string InstrRCALL::Disasm(Mcu &mcu, Command cmd) const
@@ -1703,10 +1709,11 @@ namespace AVR
   }
   void InstrCALL::Execute(Mcu &mcu, Command cmd) const
   {
-    mcu.PushPC() ;
     Command k ;
     xxxxxxxKKKKKxxxK(cmd, k) ;
-    mcu.PC() = (((uint32)k) << 16) + mcu.ProgramNext() ;
+    uint32 addr = (((uint32)k) << 16) + mcu.ProgramNext() ;
+    mcu.PushPC() ;
+    mcu.PC() = addr ;
   }
   std::string InstrCALL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1891,10 +1898,11 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.SREG() & 0b11000000 ;
+    uint8 sreg0 = mcu.SREG() ;
+    uint8 sreg = sreg0 & 0b11000000 ;
     uint8 rr = mcu.Reg(nr) ;
     uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd - rr - (sreg & (uint8)SREG::C) ;
+    uint8 r = rd - rr - (sreg0 & SREG::C) ;
     uint8 rHC = ~rd & rr | rr & r | r & ~rd ;
     uint8 rV  = rd & ~rr & ~r | ~rd & rr & r ;
     if (rHC & 0x08)
@@ -3501,7 +3509,14 @@ namespace AVR
   }
   void InstrXCH::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrXCH
+    Command nd ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+
+    uint8 rd = mcu.Reg(nd) ;
+    uint16 z = mcu.RegW(30) ;
+    uint8 r = mcu.Data(z) ;
+    mcu.Data(z, rd) ;
+    mcu.Reg(nd, r) ;
   }
   std::string InstrXCH::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3531,7 +3546,14 @@ namespace AVR
   }
   void InstrLAS::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLAS
+    Command nd ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+
+    uint8 rd = mcu.Reg(nd) ;
+    uint16 z = mcu.RegW(30) ;
+    uint8 r = mcu.Data(z) ;
+    mcu.Data(z, rd | z) ;
+    mcu.Reg(nd, r) ;
   }
   std::string InstrLAS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3561,7 +3583,14 @@ namespace AVR
   }
   void InstrLAC::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLAC
+    Command nd ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+
+    uint8 rd = mcu.Reg(nd) ;
+    uint16 z = mcu.RegW(30) ;
+    uint8 r = mcu.Data(z) ;
+    mcu.Data(z, ~rd & r) ;
+    mcu.Reg(nd, r) ;
   }
   std::string InstrLAC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3591,7 +3620,14 @@ namespace AVR
   }
   void InstrLAT::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrLAT
+    Command nd ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+
+    uint8 rd = mcu.Reg(nd) ;
+    uint16 z = mcu.RegW(30) ;
+    uint8 r = mcu.Data(z) ;
+    mcu.Data(z, rd ^ r) ;
+    mcu.Reg(nd, r) ;
   }
   std::string InstrLAT::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3669,10 +3705,11 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.SREG() & 0b11100000 ;
+    uint8 sreg0 = mcu.SREG() ;
+    uint8 sreg = sreg0 & 0b11100000 ;
     uint8 rd = mcu.Reg(nd) ;
     uint8 r = rd >> 1 ;
-    if (sreg && SREG::C)
+    if (sreg0 && SREG::C)
       r |= 0x80 ;
     if (r & 0x80)
       sreg |= SREG::N ;
