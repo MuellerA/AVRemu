@@ -208,6 +208,7 @@ namespace AVR
   public:
     void Execute() ;
     void Skip() ;
+    void Status() ;
     std::string Disasm() ;
     bool DataAddrName(uint32 addr, std::string &name) const ;
     bool ProgAddrName(uint32 addr, std::string &name) const ;
@@ -218,15 +219,16 @@ namespace AVR
 
     uint32 Ticks() { return _ticks ; }
     
-    uint8  Reg(uint32 reg) const ;
-    void   Reg(uint32 reg, uint8 value) ;
-    uint16 RegW(uint32 reg) const ;
-    void   RegW(uint32 reg, uint16 value) ;
-    uint8  Io(uint32 io) const ;
-    void   Io(uint32 io, uint8 value) ;
-    uint8  Data(uint32 addr) const ;
-    void   Data(uint32 addr, uint8 value) ;
-    uint16 Prog(uint32 addr) const ;
+    uint8   Reg(uint32 reg) const ;
+    void    Reg(uint32 reg, uint8 value) ;
+    uint16  RegW(uint32 reg) const ;
+    void    RegW(uint32 reg, uint16 value) ;
+    uint8   Io(uint32 io) const ;
+    void    Io(uint32 io, uint8 value) ;
+    uint8   Data(uint32 addr) const ;
+    void    Data(uint32 addr, uint8 value) ;
+    Command Prog(uint32 addr) const ;
+    void    Prog(uint32 addr, uint16 Command) ;
     
     uint8  SREG() const { return _sreg()  ; }
     uint8& SREG()       { return _sreg()  ; }

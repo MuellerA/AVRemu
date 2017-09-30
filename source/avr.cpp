@@ -97,7 +97,10 @@ namespace AVR
     
     // todo Ticks
     instr->Execute(*this, cmd) ;
+  }
 
+  void Mcu::Status()
+  {    
     uint8 sreg = _sreg() ;
     printf("       %c%c%c%c%c%c%c%c ",
            (sreg && AVR::SREG::I) ? 'I' : '_',
@@ -111,7 +114,9 @@ namespace AVR
     
     for (size_t iR =  0 ; iR < 8 ; ++iR)
       printf(" %02x", _reg[iR]) ;
-    printf("\n                ") ;
+
+    printf("\n       SP: %04x ", _sp()) ;
+
     for (size_t iR =  8 ; iR < 16 ; ++iR)
       printf(" %02x", _reg[iR]) ;
     printf("\n                ") ;
@@ -342,7 +347,7 @@ namespace AVR
     _pc = 0 ;
   }
 
-  uint16  Mcu::Prog(uint32 addr) const
+  Command  Mcu::Prog(uint32 addr) const
   {
     if (addr >= _programSize)
     {
@@ -350,6 +355,16 @@ namespace AVR
       return 0xffff ;
     }
     return _program[addr] ;
+  }
+  
+  void Mcu::Prog(uint32 addr, Command cmd)
+  {
+    if (addr >= _programSize)
+    {
+      fprintf(stderr, "invalid program address\n") ;
+      return ;
+    }
+    _program[addr] = cmd ;
   }
   
   void  Mcu::Push(uint8 value)

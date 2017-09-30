@@ -1,6 +1,6 @@
 AVRemu
 
-For now only a disassembler on Linux for
+Disassembler / Emulator on Linux for
 - ATmega48PA, ATmega88PA, ATmega168PA, ATmega328P
 - ATmega8A
 - ATtiny24A, ATtiny44A, ATtiny84A

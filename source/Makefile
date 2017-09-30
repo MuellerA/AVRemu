@@ -1,9 +1,9 @@
 CXXFLAGS = -O2 -std=c++11 -Wall
 
 LibObj = avr.o instr.o atmegaXX8.o atmega8.o attinyX5.o attinyX4.o atxmegaAU.o
-EmuObj = main.o $(LibObj)
+EmuObj = main.o execute.o $(LibObj)
 TstObj = test.o $(LibObj)
-AllObj = main.o test.o $(LibObj)
+AllObj = main.o execute.o test.o $(LibObj)
 
 .PHONY:	ALL Clean
 
