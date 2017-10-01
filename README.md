@@ -7,7 +7,7 @@ Disassembler / Emulator on Linux for
 - ATtiny25, ATtiny45, ATtiny85
 - ATxmega128A4U, ATxmega64A4U, ATxmega32A4U, ATxmega16A4U,
 
-The disassembler shows the MCU specific I/O register and interrupt vector names. Only those AVR instructions are disassembled which are in the MCU's instruction set. (Exception is the generic ATany which supports all instructions but does not have any MCU knowlege.)
+The disassembler shows the MCU specific I/O register and interrupt vector names. Only those AVR instructions are used which are in the MCU's instruction set. (Exception is the generic ATany which supports all instructions but does not have any MCU knowlege.)
 The twopass disassembler shows direct jump/call targets.
 
 Only supports MCUs with addresses < 64k, the RAMP registers are ignored.

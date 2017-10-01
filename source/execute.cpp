@@ -77,7 +77,7 @@ bool CommandStep::Execute(AVR::Mcu &mcu)
 class CommandAssign : public Command
 {
 public:
-  CommandAssign() : Command(R"XXX(\s*([rdp])\s*(0x[0-9a-fA-F]+|[0-9]+)\s*=\s*(0x[0-9a-fA-F]+|[0-9]+))XXX") { }
+  CommandAssign() : Command(R"XXX(\s*([rdp])\s*(0x[0-9a-fA-F]+|[0-9]+)\s*=\s*(0x[0-9a-fA-F]+|[0-9]+)\s*)XXX") { }
   ~CommandAssign() { }
 
   virtual strings Help() const ;
@@ -135,6 +135,65 @@ bool CommandAssign::Execute(AVR::Mcu &mcu)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// CommandQuit
+////////////////////////////////////////////////////////////////////////////////
+class CommandQuit : public Command
+{
+public:
+  CommandQuit(bool &quit) : Command(R"XXX(\s*q\s*)XXX"), _quit(quit) { }
+  ~CommandQuit() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+
+private:
+  bool &_quit ;
+} ;
+
+strings CommandQuit::Help() const
+{
+  return strings { "q               -- quit"} ;
+}
+bool CommandQuit::Execute(AVR::Mcu &mcu)
+{
+  _quit = true ;
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandRepeat
+////////////////////////////////////////////////////////////////////////////////
+class CommandRepeat : public Command
+{
+public:
+  CommandRepeat(Command *&lastCommand) : Command(R"XXX(\s*)XXX"), _lastCommand(lastCommand), _lastCommand0(nullptr) { }
+  ~CommandRepeat() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+
+private:
+  Command *&_lastCommand ;
+  Command *_lastCommand0 ;
+} ;
+
+strings CommandRepeat::Help() const
+{
+  return strings { "<empty line>    -- repeat last command"} ;
+}
+bool CommandRepeat::Execute(AVR::Mcu &mcu)
+{
+  if ((_lastCommand == this) && _lastCommand0)
+    return _lastCommand0->Execute(mcu) ;
+  if (_lastCommand)
+  {
+    _lastCommand0 = _lastCommand ;
+    return _lastCommand0->Execute(mcu) ;
+  }
+  return false ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // CommandHelp
 ////////////////////////////////////////////////////////////////////////////////
 class CommandHelp : public Command
@@ -162,32 +221,6 @@ bool CommandHelp::Execute(AVR::Mcu &mcu)
       std::cout << help << std::endl ;
   }
 
-  return true ;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// CommandQuit
-////////////////////////////////////////////////////////////////////////////////
-class CommandQuit : public Command
-{
-public:
-  CommandQuit(bool &quit) : Command(R"XXX(\s*q\**)XXX"), _quit(quit) { }
-  ~CommandQuit() { }
-
-  virtual strings Help() const ;
-  virtual bool    Execute(AVR::Mcu &mcu) ;
-
-private:
-  bool &_quit ;
-} ;
-
-strings CommandQuit::Help() const
-{
-  return strings { "q               -- quit"} ;
-}
-bool CommandQuit::Execute(AVR::Mcu &mcu)
-{
-  _quit = true ;
   return true ;
 }
 
@@ -221,12 +254,14 @@ bool CommandUnknown::Execute(AVR::Mcu &mcu)
 void Execute(AVR::Mcu &mcu)
 {
   bool quit = false ;
+  Command *lastCommand = nullptr ;
   
   std::vector<Command*> commands =
     {
       new CommandStep(),
       new CommandAssign(),
       new CommandQuit(quit),
+      new CommandRepeat(lastCommand),
       new CommandHelp(commands),
       new CommandUnknown(), // last!
     } ;
@@ -234,26 +269,26 @@ void Execute(AVR::Mcu &mcu)
   std::cout << "type \"?\" for help" << std::endl ;
   
   std::string cmd ;
-  Command *lastCommand = nullptr ;
   
   while (!quit)
   {
     std::getline(std::cin, cmd) ;
-    if (!cmd.empty())
+
+    for (Command *command : commands)
     {
-      for (Command *command : commands)
+      if (command->Match(cmd))
       {
-        if (command->Match(cmd))
-        {
+        if (command->Execute(mcu))
           lastCommand = command ;
-          command->Execute(mcu) ;
-          break ;
-        }
+        else
+          lastCommand = nullptr ;
+        break ;
       }
     }
-    else if (lastCommand)
-      lastCommand->Execute(mcu) ;
   }
+
+  for (auto command : commands)
+    delete command ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
