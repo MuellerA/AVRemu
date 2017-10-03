@@ -38,7 +38,7 @@ namespace AVR
   class Instruction
   {
   protected:
-    Instruction(Command pattern, Command mask, const std::string &mnemonic, const std::string &description) ;
+    Instruction(Command pattern, Command mask, const std::string &mnemonic, const std::string &description, bool isTwoWord, bool isCall) ;
     Instruction() = delete ;
     Instruction& operator=(const Instruction&) = delete ;
     virtual ~Instruction() ;
@@ -55,12 +55,16 @@ namespace AVR
     virtual Command     Mask()        const { return _mask        ; }
     virtual std::string Mnemonic()    const { return _mnemonic    ; }
     virtual std::string Description() const { return _description ; }
-
+    virtual bool        IsTwoWord()   const { return _isTwoWord   ; }
+    virtual bool        IsCall()      const { return _isCall      ; }
+    
   protected:
-    Command _pattern ;
-    Command _mask    ;
+    Command     _pattern ;
+    Command     _mask    ;
     std::string _mnemonic ;
     std::string _description ;
+    bool        _isTwoWord ;
+    bool        _isCall ;
   } ;
 
   class Io
@@ -110,10 +114,13 @@ namespace AVR
 
   class Mcu
   {
-  protected:
+  public:
     struct Xref
     {
-      Xref(uint32 addr) : _addr(addr), _type(XrefType::none) {}
+      Xref(uint32 addr)
+        : _addr(addr), _type(XrefType::none) {}
+      Xref(uint32 addr, XrefType type, const std::string &label, const std::string &description)
+        : _addr(addr), _type(type), _label(label), _description(description) {}
 
       uint32              _addr ;
       XrefType            _type ;
@@ -122,6 +129,7 @@ namespace AVR
       std::vector<uint32> _addrs ;
     } ;
 
+  protected:
     struct KnownProgramAddress
     {
       uint32      _addr ;
@@ -229,6 +237,7 @@ namespace AVR
     void    Data(uint32 addr, uint8 value) ;
     Command Prog(uint32 addr) const ;
     void    Prog(uint32 addr, uint16 Command) ;
+    const Instruction* Instr(uint32 addr) const ;
     
     uint8  SREG() const { return _sreg()  ; }
     uint8& SREG()       { return _sreg()  ; }
@@ -254,6 +263,12 @@ namespace AVR
     size_t SetProgram(size_t address, const std::vector<Command> &prg) ;
     size_t SetEeprom(size_t address, const std::vector<uint8> &eeprom) ;
 
+    const Xref* XrefByAddr(uint32 addr) ;
+    const Xref* XrefByLabel(const std::string &label) ;
+    const std::vector<Xref*>&           Xrefs() { return _xrefs ; }
+    const std::map<uint32, Xref*>&      XrefByAddr() { return _xrefByAddr ; }
+    const std::map<std::string, Xref*>& XrefByLabel() { return _xrefByLabel ; }
+    
     virtual bool PcIs22bit()     { return false ; }
     virtual bool IsXmega()       { return false ; }
     virtual bool IsTinyReduced() { return false ; }
@@ -275,13 +290,15 @@ namespace AVR
     std::size_t _dataSize, _dataStart, _dataEnd ;
     std::size_t _eepromSize ;
 
-    std::vector<Command>       _program ;
-    uint8                      _reg[0x20] ;
-    std::vector<Io::Register*> _io ;
-    std::vector<uint8>         _data ;
-    std::vector<uint8>         _eeprom ;
+    std::vector<Command>         _program ;
+    uint8                        _reg[0x20] ;
+    std::vector<Io::Register*>   _io ;
+    std::vector<uint8>           _data ;
+    std::vector<uint8>           _eeprom ;
     std::vector<KnownProgramAddress> _knownProgramAddresses ;
-    std::map<uint32, Xref>     _xrefs ;
+    std::vector<Xref*>           _xrefs ;
+    std::map<uint32, Xref*>      _xrefByAddr ;
+    std::map<std::string, Xref*> _xrefByLabel ;
 
     std::vector<const Instruction*> _instructions ;       // map cmd to instruction
   } ;

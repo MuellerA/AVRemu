@@ -440,7 +440,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // ADD
-  InstrADD::InstrADD() : Instruction(0b0000110000000000, 0b1111110000000000, "ADD", "Add without Carry")
+  InstrADD::InstrADD() : Instruction(0b0000110000000000, 0b1111110000000000, "ADD", "Add without Carry", false, false)
   {
   }
 
@@ -493,7 +493,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // ADC
-  InstrADC::InstrADC() : Instruction(0b0001110000000000, 0b1111110000000000, "ADC", "Add with Carry")
+  InstrADC::InstrADC() : Instruction(0b0001110000000000, 0b1111110000000000, "ADC", "Add with Carry", false, false)
   {
   }
 
@@ -547,7 +547,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // ADIW
-  InstrADIW::InstrADIW() : Instruction(0b1001011000000000, 0b1111111100000000, "ADIW", "Add Immediate to Word")
+  InstrADIW::InstrADIW() : Instruction(0b1001011000000000, 0b1111111100000000, "ADIW", "Add Immediate to Word", false, false)
   {
   }
 
@@ -595,7 +595,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SUB
-  InstrSUB::InstrSUB() : Instruction(0b0001100000000000, 0b1111110000000000, "SUB", "Subtract without Carry")
+  InstrSUB::InstrSUB() : Instruction(0b0001100000000000, 0b1111110000000000, "SUB", "Subtract without Carry", false, false)
   {
   }
 
@@ -648,7 +648,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SUBI
-  InstrSUBI::InstrSUBI() : Instruction(0b0101000000000000, 0b1111000000000000, "SUBI", "Subtract Immediate")
+  InstrSUBI::InstrSUBI() : Instruction(0b0101000000000000, 0b1111000000000000, "SUBI", "Subtract Immediate", false, false)
   {
   }
 
@@ -698,7 +698,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SBC
-  InstrSBC::InstrSBC() : Instruction(0b0000100000000000, 0b1111110000000000, "SBC", "Subtract with Carry")
+  InstrSBC::InstrSBC() : Instruction(0b0000100000000000, 0b1111110000000000, "SBC", "Subtract with Carry", false, false)
   {
   }
 
@@ -752,7 +752,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SBCI
-  InstrSBCI::InstrSBCI() : Instruction(0b0100000000000000, 0b1111000000000000, "SBCI", "Subtract Immediate with Carry")
+  InstrSBCI::InstrSBCI() : Instruction(0b0100000000000000, 0b1111000000000000, "SBCI", "Subtract Immediate with Carry", false, false)
   {
   }
 
@@ -803,7 +803,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SBIW
-  InstrSBIW::InstrSBIW() : Instruction(0b1001011100000000, 0b1111111100000000, "SBIW", "Subtract Immediate from Word")
+  InstrSBIW::InstrSBIW() : Instruction(0b1001011100000000, 0b1111111100000000, "SBIW", "Subtract Immediate from Word", false, false)
   {
   }
 
@@ -851,7 +851,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // AND
-  InstrAND::InstrAND() : Instruction(0b0010000000000000, 0b1111110000000000, "AND", "Logical AND")
+  InstrAND::InstrAND() : Instruction(0b0010000000000000, 0b1111110000000000, "AND", "Logical AND", false, false)
   {
   }
 
@@ -896,7 +896,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // ANDI
-  InstrANDI::InstrANDI() : Instruction(0b0111000000000000, 0b1111000000000000, "ANDI", "Logical AND with Immediate")
+  InstrANDI::InstrANDI() : Instruction(0b0111000000000000, 0b1111000000000000, "ANDI", "Logical AND with Immediate", false, false)
   {
   }
 
@@ -940,7 +940,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // OR
-  InstrOR::InstrOR() : Instruction(0b0010100000000000, 0b1111110000000000, "OR", "Logical OR")
+  InstrOR::InstrOR() : Instruction(0b0010100000000000, 0b1111110000000000, "OR", "Logical OR", false, false)
   {
   }
 
@@ -985,7 +985,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // ORI
-  InstrORI::InstrORI() : Instruction(0b0110000000000000, 0b1111000000000000, "ORI", "Logical OR with Immediate")
+  InstrORI::InstrORI() : Instruction(0b0110000000000000, 0b1111000000000000, "ORI", "Logical OR with Immediate", false, false)
   {
   }
 
@@ -1029,7 +1029,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // EOR
-  InstrEOR::InstrEOR() : Instruction(0b0010010000000000, 0b1111110000000000, "EOR", "Exclusive OR")
+  InstrEOR::InstrEOR() : Instruction(0b0010010000000000, 0b1111110000000000, "EOR", "Exclusive OR", false, false)
   {
   }
 
@@ -1074,7 +1074,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // COM
-  InstrCOM::InstrCOM() : Instruction(0b1001010000000000, 0b1111111000001111, "COM", "One's Complement")
+  InstrCOM::InstrCOM() : Instruction(0b1001010000000000, 0b1111111000001111, "COM", "One's Complement", false, false)
   {
   }
 
@@ -1118,7 +1118,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // NEG
-  InstrNEG::InstrNEG() : Instruction(0b1001010000000001, 0b1111111000001111, "NEG", "Two's Complement")
+  InstrNEG::InstrNEG() : Instruction(0b1001010000000001, 0b1111111000001111, "NEG", "Two's Complement", false, false)
   {
   }
 
@@ -1168,7 +1168,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // INC
-  InstrINC::InstrINC() : Instruction(0b1001010000000011, 0b1111111000001111, "INC", "Increment")
+  InstrINC::InstrINC() : Instruction(0b1001010000000011, 0b1111111000001111, "INC", "Increment", false, false)
   {
   }
 
@@ -1213,7 +1213,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // DEC
-  InstrDEC::InstrDEC() : Instruction(0b1001010000001010, 0b1111111000001111, "DEC", "Decrement")
+  InstrDEC::InstrDEC() : Instruction(0b1001010000001010, 0b1111111000001111, "DEC", "Decrement", false, false)
   {
   }
 
@@ -1258,7 +1258,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // MUL
-  InstrMUL::InstrMUL() : Instruction(0b1001110000000000, 0b1111110000000000, "MUL", "Multiply Unsigned")
+  InstrMUL::InstrMUL() : Instruction(0b1001110000000000, 0b1111110000000000, "MUL", "Multiply Unsigned", false, false)
   {
   }
 
@@ -1288,7 +1288,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // MULS
-  InstrMULS::InstrMULS() : Instruction(0b0000001000000000, 0b1111111100000000, "MULS", "Multiply Signed")
+  InstrMULS::InstrMULS() : Instruction(0b0000001000000000, 0b1111111100000000, "MULS", "Multiply Signed", false, false)
   {
   }
 
@@ -1318,7 +1318,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // MULSU
-  InstrMULSU::InstrMULSU() : Instruction(0b0000001100000000, 0b1111111110001000, "MULSU", "Multiply Signed with Unsigned")
+  InstrMULSU::InstrMULSU() : Instruction(0b0000001100000000, 0b1111111110001000, "MULSU", "Multiply Signed with Unsigned", false, false)
   {
   }
 
@@ -1348,7 +1348,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // FMUL
-  InstrFMUL::InstrFMUL() : Instruction(0b0000001100001000, 0b1111111110001000, "FMUL", "Fractional Multiply Unsigned")
+  InstrFMUL::InstrFMUL() : Instruction(0b0000001100001000, 0b1111111110001000, "FMUL", "Fractional Multiply Unsigned", false, false)
   {
   }
 
@@ -1378,7 +1378,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // FMULS
-  InstrFMULS::InstrFMULS() : Instruction(0b0000001110000000, 0b1111111110001000, "FMULS", "Fractional Multiply Signed")
+  InstrFMULS::InstrFMULS() : Instruction(0b0000001110000000, 0b1111111110001000, "FMULS", "Fractional Multiply Signed", false, false)
   {
   }
 
@@ -1408,7 +1408,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // FMULSU
-  InstrFMULSU::InstrFMULSU() : Instruction(0b0000001110001000, 0b1111111110001000, "FMULSU", "Fractional Multiply Signed with Unsigned")
+  InstrFMULSU::InstrFMULSU() : Instruction(0b0000001110001000, 0b1111111110001000, "FMULSU", "Fractional Multiply Signed with Unsigned", false, false)
   {
   }
 
@@ -1438,7 +1438,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // DES
-  InstrDES::InstrDES() : Instruction(0b1001010000001011, 0b1111111100001111, "DES", "Data Encryption Standard")
+  InstrDES::InstrDES() : Instruction(0b1001010000001011, 0b1111111100001111, "DES", "Data Encryption Standard", false, false)
   {
   }
 
@@ -1468,7 +1468,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // RJMP
-  InstrRJMP::InstrRJMP() : Instruction(0b1100000000000000, 0b1111000000000000, "RJMP", "Relative Jump")
+  InstrRJMP::InstrRJMP() : Instruction(0b1100000000000000, 0b1111000000000000, "RJMP", "Relative Jump", false, false)
   {
   }
 
@@ -1501,7 +1501,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // IJMP
-  InstrIJMP::InstrIJMP() : Instruction(0b1001010000001001, 0b1111111111111111, "IJMP", "Indirect Jump")
+  InstrIJMP::InstrIJMP() : Instruction(0b1001010000001001, 0b1111111111111111, "IJMP", "Indirect Jump", false, false)
   {
   }
 
@@ -1531,7 +1531,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // EIJMP
-  InstrEIJMP::InstrEIJMP() : Instruction(0b1001010000011001, 0b1111111111111111, "EIJMP", "Extended Indirect Jump")
+  InstrEIJMP::InstrEIJMP() : Instruction(0b1001010000011001, 0b1111111111111111, "EIJMP", "Extended Indirect Jump", false, false)
   {
   }
 
@@ -1561,7 +1561,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // JMP
-  InstrJMP::InstrJMP() : Instruction(0b1001010000001100, 0b1111111000001110, "JMP", "Jump")
+  InstrJMP::InstrJMP() : Instruction(0b1001010000001100, 0b1111111000001110, "JMP", "Jump", true, false)
   {
   }
 
@@ -1596,7 +1596,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // RCALL
-  InstrRCALL::InstrRCALL() : Instruction(0b1101000000000000, 0b1111000000000000, "RCALL", "Relative Call to Subroutine")
+  InstrRCALL::InstrRCALL() : Instruction(0b1101000000000000, 0b1111000000000000, "RCALL", "Relative Call to Subroutine", false, true)
   {
   }
 
@@ -1630,7 +1630,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // ICALL
-  InstrICALL::InstrICALL() : Instruction(0b1001010100001001, 0b1111111111111111, "ICALL", "Indirect Call to Subroutine")
+  InstrICALL::InstrICALL() : Instruction(0b1001010100001001, 0b1111111111111111, "ICALL", "Indirect Call to Subroutine", false, true)
   {
   }
 
@@ -1661,7 +1661,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // EICALL
-  InstrEICALL::InstrEICALL() : Instruction(0b1001010100011001, 0b1111111111111111, "EICALL", "Extended Indirect Call to Subroutine")
+  InstrEICALL::InstrEICALL() : Instruction(0b1001010100011001, 0b1111111111111111, "EICALL", "Extended Indirect Call to Subroutine", false, true)
   {
   }
 
@@ -1691,7 +1691,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // CALL
-  InstrCALL::InstrCALL() : Instruction(0b1001010000001110, 0b1111111000001110, "CALL", "Call to Subroutine")
+  InstrCALL::InstrCALL() : Instruction(0b1001010000001110, 0b1111111000001110, "CALL", "Call to Subroutine", true, true)
   {
   }
 
@@ -1727,7 +1727,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // RET
-  InstrRET::InstrRET() : Instruction(0b1001010100001000, 0b1111111111111111, "RET", "Return from Subroutine")
+  InstrRET::InstrRET() : Instruction(0b1001010100001000, 0b1111111111111111, "RET", "Return from Subroutine", false, false)
   {
   }
 
@@ -1757,7 +1757,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // RETI
-  InstrRETI::InstrRETI() : Instruction(0b1001010100011000, 0b1111111111111111, "RETI", "Return from Interrupt")
+  InstrRETI::InstrRETI() : Instruction(0b1001010100011000, 0b1111111111111111, "RETI", "Return from Interrupt", false, false)
   {
   }
 
@@ -1788,7 +1788,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // CPSE
-  InstrCPSE::InstrCPSE() : Instruction(0b0001000000000000, 0b1111110000000000, "CPSE", "Compare Skip if Equal")
+  InstrCPSE::InstrCPSE() : Instruction(0b0001000000000000, 0b1111110000000000, "CPSE", "Compare Skip if Equal", false, false)
   {
   }
 
@@ -1825,7 +1825,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // CP
-  InstrCP::InstrCP() : Instruction(0b0001010000000000, 0b1111110000000000, "CP", "Compare")
+  InstrCP::InstrCP() : Instruction(0b0001010000000000, 0b1111110000000000, "CP", "Compare", false, false)
   {
   }
 
@@ -1877,7 +1877,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // CPC
-  InstrCPC::InstrCPC() : Instruction(0b0000010000000000, 0b1111110000000000, "CPC", "Compare with Carry")
+  InstrCPC::InstrCPC() : Instruction(0b0000010000000000, 0b1111110000000000, "CPC", "Compare with Carry", false, false)
   {
   }
 
@@ -1930,7 +1930,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // CPI
-  InstrCPI::InstrCPI() : Instruction(0b0011000000000000, 0b1111000000000000, "CPI", "Compare with Immediate")
+  InstrCPI::InstrCPI() : Instruction(0b0011000000000000, 0b1111000000000000, "CPI", "Compare with Immediate", false, false)
   {
   }
 
@@ -1979,7 +1979,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SBRC
-  InstrSBRC::InstrSBRC() : Instruction(0b1111110000000000, 0b1111111000001000, "SBRC", "Skip if Bit in Register is Cleared")
+  InstrSBRC::InstrSBRC() : Instruction(0b1111110000000000, 0b1111111000001000, "SBRC", "Skip if Bit in Register is Cleared", false, false)
   {
   }
 
@@ -2015,7 +2015,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SBRS
-  InstrSBRS::InstrSBRS() : Instruction(0b1111111000000000, 0b1111111000001000, "SBRS", "Skip if Bit in Register is Set")
+  InstrSBRS::InstrSBRS() : Instruction(0b1111111000000000, 0b1111111000001000, "SBRS", "Skip if Bit in Register is Set", false, false)
   {
   }
 
@@ -2051,7 +2051,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SBIC
-  InstrSBIC::InstrSBIC() : Instruction(0b1001100100000000, 0b1111111100000000, "SBIC", "Skip if Bit in I/O Register is Cleared")
+  InstrSBIC::InstrSBIC() : Instruction(0b1001100100000000, 0b1111111100000000, "SBIC", "Skip if Bit in I/O Register is Cleared", false, false)
   {
   }
 
@@ -2087,7 +2087,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SBIS
-  InstrSBIS::InstrSBIS() : Instruction(0b1001101100000000, 0b1111111100000000, "SBIS", "Skip if Bit in I/O Registerster is Set")
+  InstrSBIS::InstrSBIS() : Instruction(0b1001101100000000, 0b1111111100000000, "SBIS", "Skip if Bit in I/O Registerster is Set", false, false)
   {
   }
 
@@ -2123,7 +2123,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // BRBS
-  InstrBRBS::InstrBRBS() : Instruction(0b1111000000000000, 0b1111110000000000, "BRBS", "Branch if Bit in SREG is Set")
+  InstrBRBS::InstrBRBS() : Instruction(0b1111000000000000, 0b1111110000000000, "BRBS", "Branch if Bit in SREG is Set", false, false)
   {
   }
 
@@ -2159,7 +2159,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // BRBC
-  InstrBRBC::InstrBRBC() : Instruction(0b1111010000000000, 0b1111110000000000, "BRBC", "Branch if Bit in SREG is Cleared")
+  InstrBRBC::InstrBRBC() : Instruction(0b1111010000000000, 0b1111110000000000, "BRBC", "Branch if Bit in SREG is Cleared", false, false)
   {
   }
 
@@ -2195,7 +2195,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // MOV
-  InstrMOV::InstrMOV() : Instruction(0b0010110000000000, 0b1111110000000000, "MOV", "Copy Register")
+  InstrMOV::InstrMOV() : Instruction(0b0010110000000000, 0b1111110000000000, "MOV", "Copy Register", false, false)
   {
   }
 
@@ -2228,7 +2228,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // MOVW
-  InstrMOVW::InstrMOVW() : Instruction(0b0000000100000000, 0b1111111100000000, "MOVW", "Copy Register Word")
+  InstrMOVW::InstrMOVW() : Instruction(0b0000000100000000, 0b1111111100000000, "MOVW", "Copy Register Word", false, false)
   {
   }
 
@@ -2261,7 +2261,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDI
-  InstrLDI::InstrLDI() : Instruction(0b1110000000000000, 0b1111000000000000, "LDI", "Load Immediate")
+  InstrLDI::InstrLDI() : Instruction(0b1110000000000000, 0b1111000000000000, "LDI", "Load Immediate", false, false)
   {
   }
 
@@ -2294,7 +2294,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDS
-  InstrLDS::InstrLDS() : Instruction(0b1001000000000000, 0b1111111000001111, "LDS", "Load Direct from Data Space")
+  InstrLDS::InstrLDS() : Instruction(0b1001000000000000, 0b1111111000001111, "LDS", "Load Direct from Data Space", true, false)
   {
   }
 
@@ -2328,7 +2328,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDx1
-  InstrLDx1::InstrLDx1() : Instruction(0b1001000000001100, 0b1111111000001111, "LD", "Load Indirect from Data Space using X")
+  InstrLDx1::InstrLDx1() : Instruction(0b1001000000001100, 0b1111111000001111, "LD", "Load Indirect from Data Space using X", false, false)
   {
   }
 
@@ -2361,7 +2361,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDx2
-  InstrLDx2::InstrLDx2() : Instruction(0b1001000000001101, 0b1111111000001111, "LD", "Load Indirect from Data Space using X")
+  InstrLDx2::InstrLDx2() : Instruction(0b1001000000001101, 0b1111111000001111, "LD", "Load Indirect from Data Space using X", false, false)
   {
   }
 
@@ -2395,7 +2395,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDx3
-  InstrLDx3::InstrLDx3() : Instruction(0b1001000000001110, 0b1111111000001111, "LD", "Load Indirect from Data Space using X")
+  InstrLDx3::InstrLDx3() : Instruction(0b1001000000001110, 0b1111111000001111, "LD", "Load Indirect from Data Space using X", false, false)
   {
   }
 
@@ -2429,7 +2429,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDy1
-  InstrLDy1::InstrLDy1() : Instruction(0b1000000000001000, 0b1111111000001111, "LD", "Load Indirect from Data Space using Y")
+  InstrLDy1::InstrLDy1() : Instruction(0b1000000000001000, 0b1111111000001111, "LD", "Load Indirect from Data Space using Y", false, false)
   {
   }
 
@@ -2462,7 +2462,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDy2
-  InstrLDy2::InstrLDy2() : Instruction(0b1001000000001001, 0b1111111000001111, "LD", "Load Indirect from Data Space using Y")
+  InstrLDy2::InstrLDy2() : Instruction(0b1001000000001001, 0b1111111000001111, "LD", "Load Indirect from Data Space using Y", false, false)
   {
   }
 
@@ -2496,7 +2496,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDy3
-  InstrLDy3::InstrLDy3() : Instruction(0b1001000000001010, 0b1111111000001111, "LD", "Load Indirect from Data Space using Y")
+  InstrLDy3::InstrLDy3() : Instruction(0b1001000000001010, 0b1111111000001111, "LD", "Load Indirect from Data Space using Y", false, false)
   {
   }
 
@@ -2530,7 +2530,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDy4
-  InstrLDy4::InstrLDy4() : Instruction(0b1000000000001000, 0b1101001000001000, "LD", "Load Indirect from Data Space using Y")
+  InstrLDy4::InstrLDy4() : Instruction(0b1000000000001000, 0b1101001000001000, "LD", "Load Indirect from Data Space using Y", false, false)
   {
   }
 
@@ -2564,7 +2564,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDz1
-  InstrLDz1::InstrLDz1() : Instruction(0b1000000000000000, 0b1111111000001111, "LD", "Load Indirect from Data Space using Z")
+  InstrLDz1::InstrLDz1() : Instruction(0b1000000000000000, 0b1111111000001111, "LD", "Load Indirect from Data Space using Z", false, false)
   {
   }
 
@@ -2597,7 +2597,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDz2
-  InstrLDz2::InstrLDz2() : Instruction(0b1001000000000001, 0b1111111000001111, "LD", "Load Indirect from Data Space using Z")
+  InstrLDz2::InstrLDz2() : Instruction(0b1001000000000001, 0b1111111000001111, "LD", "Load Indirect from Data Space using Z", false, false)
   {
   }
 
@@ -2631,7 +2631,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDz3
-  InstrLDz3::InstrLDz3() : Instruction(0b1001000000000010, 0b1111111000001111, "LD", "Load Indirect from Data Space using Z")
+  InstrLDz3::InstrLDz3() : Instruction(0b1001000000000010, 0b1111111000001111, "LD", "Load Indirect from Data Space using Z", false, false)
   {
   }
 
@@ -2665,7 +2665,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LDz4
-  InstrLDz4::InstrLDz4() : Instruction(0b1000000000000000, 0b1101001000001000, "LD", "Load Indirect from Data Space using Z")
+  InstrLDz4::InstrLDz4() : Instruction(0b1000000000000000, 0b1101001000001000, "LD", "Load Indirect from Data Space using Z", false, false)
   {
   }
 
@@ -2699,7 +2699,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STS
-  InstrSTS::InstrSTS() : Instruction(0b1001001000000000, 0b1111111000001111, "STS", "Store Direct to Data Space")
+  InstrSTS::InstrSTS() : Instruction(0b1001001000000000, 0b1111111000001111, "STS", "Store Direct to Data Space", true, false)
   {
   }
 
@@ -2733,7 +2733,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STx1
-  InstrSTx1::InstrSTx1() : Instruction(0b1001001000001100, 0b1111111000001111, "ST", "Store Indirect to Data Space using X")
+  InstrSTx1::InstrSTx1() : Instruction(0b1001001000001100, 0b1111111000001111, "ST", "Store Indirect to Data Space using X", false, false)
   {
   }
 
@@ -2766,7 +2766,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STx2
-  InstrSTx2::InstrSTx2() : Instruction(0b1001001000001101, 0b1111111000001111, "ST", "Store Indirect to Data Space using X")
+  InstrSTx2::InstrSTx2() : Instruction(0b1001001000001101, 0b1111111000001111, "ST", "Store Indirect to Data Space using X", false, false)
   {
   }
 
@@ -2800,7 +2800,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STx3
-  InstrSTx3::InstrSTx3() : Instruction(0b1001001000001110, 0b1111111000001111, "ST", "Store Indirect to Data Space using X")
+  InstrSTx3::InstrSTx3() : Instruction(0b1001001000001110, 0b1111111000001111, "ST", "Store Indirect to Data Space using X", false, false)
   {
   }
 
@@ -2834,7 +2834,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STy1
-  InstrSTy1::InstrSTy1() : Instruction(0b1000001000001000, 0b1111111000001111, "ST", "Store Indirect to Data Space using Y")
+  InstrSTy1::InstrSTy1() : Instruction(0b1000001000001000, 0b1111111000001111, "ST", "Store Indirect to Data Space using Y", false, false)
   {
   }
 
@@ -2867,7 +2867,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STy2
-  InstrSTy2::InstrSTy2() : Instruction(0b1001001000001001, 0b1111111000001111, "ST", "Store Indirect to Data Space using Y")
+  InstrSTy2::InstrSTy2() : Instruction(0b1001001000001001, 0b1111111000001111, "ST", "Store Indirect to Data Space using Y", false, false)
   {
   }
 
@@ -2901,7 +2901,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STy3
-  InstrSTy3::InstrSTy3() : Instruction(0b1001001000001010, 0b1111111000001111, "ST", "Store Indirect to Data Space using Y")
+  InstrSTy3::InstrSTy3() : Instruction(0b1001001000001010, 0b1111111000001111, "ST", "Store Indirect to Data Space using Y", false, false)
   {
   }
 
@@ -2935,7 +2935,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STy4
-  InstrSTy4::InstrSTy4() : Instruction(0b1000001000001000, 0b1101001000001000, "ST", "Store Indirect to Data Space using Y")
+  InstrSTy4::InstrSTy4() : Instruction(0b1000001000001000, 0b1101001000001000, "ST", "Store Indirect to Data Space using Y", false, false)
   {
   }
 
@@ -2969,7 +2969,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STz1
-  InstrSTz1::InstrSTz1() : Instruction(0b1000001000000000, 0b1111111000001111, "ST", "Store Indirect to Data Space using Z")
+  InstrSTz1::InstrSTz1() : Instruction(0b1000001000000000, 0b1111111000001111, "ST", "Store Indirect to Data Space using Z", false, false)
   {
   }
 
@@ -3002,7 +3002,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STz2
-  InstrSTz2::InstrSTz2() : Instruction(0b1001001000000001, 0b1111111000001111, "ST", "Store Indirect to Data Space using Z")
+  InstrSTz2::InstrSTz2() : Instruction(0b1001001000000001, 0b1111111000001111, "ST", "Store Indirect to Data Space using Z", false, false)
   {
   }
 
@@ -3036,7 +3036,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STz3
-  InstrSTz3::InstrSTz3() : Instruction(0b1001001000000010, 0b1111111000001111, "ST", "Store Indirect to Data Space using Z")
+  InstrSTz3::InstrSTz3() : Instruction(0b1001001000000010, 0b1111111000001111, "ST", "Store Indirect to Data Space using Z", false, false)
   {
   }
 
@@ -3070,7 +3070,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // STz4
-  InstrSTz4::InstrSTz4() : Instruction(0b1000001000000000, 0b1101001000001000, "ST", "Store Indirect to Data Space using Z")
+  InstrSTz4::InstrSTz4() : Instruction(0b1000001000000000, 0b1101001000001000, "ST", "Store Indirect to Data Space using Z", false, false)
   {
   }
 
@@ -3104,7 +3104,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LPM1
-  InstrLPM1::InstrLPM1() : Instruction(0b1001010111001000, 0b1111111111111111, "LPM", "Load Program Memory")
+  InstrLPM1::InstrLPM1() : Instruction(0b1001010111001000, 0b1111111111111111, "LPM", "Load Program Memory", false, false)
   {
   }
 
@@ -3139,7 +3139,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LPM2
-  InstrLPM2::InstrLPM2() : Instruction(0b1001000000000100, 0b1111111000001111, "LPM", "Load Program Memory")
+  InstrLPM2::InstrLPM2() : Instruction(0b1001000000000100, 0b1111111000001111, "LPM", "Load Program Memory", false, false)
   {
   }
 
@@ -3175,7 +3175,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LPM3
-  InstrLPM3::InstrLPM3() : Instruction(0b1001000000000101, 0b1111111000001111, "LPM", "Load Program Memory")
+  InstrLPM3::InstrLPM3() : Instruction(0b1001000000000101, 0b1111111000001111, "LPM", "Load Program Memory", false, false)
   {
   }
 
@@ -3212,7 +3212,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // ELPM1
-  InstrELPM1::InstrELPM1() : Instruction(0b1001010111011000, 0b1111111111111111, "ELPM", "Extended Load Program Memory")
+  InstrELPM1::InstrELPM1() : Instruction(0b1001010111011000, 0b1111111111111111, "ELPM", "Extended Load Program Memory", false, false)
   {
   }
 
@@ -3242,7 +3242,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // ELPM2
-  InstrELPM2::InstrELPM2() : Instruction(0b1001000000000110, 0b1111111000001111, "ELPM", "Extended Load Program Memory")
+  InstrELPM2::InstrELPM2() : Instruction(0b1001000000000110, 0b1111111000001111, "ELPM", "Extended Load Program Memory", false, false)
   {
   }
 
@@ -3272,7 +3272,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // ELPM3
-  InstrELPM3::InstrELPM3() : Instruction(0b1001000000000111, 0b1111111000001111, "ELPM", "Extended Load Program Memory")
+  InstrELPM3::InstrELPM3() : Instruction(0b1001000000000111, 0b1111111000001111, "ELPM", "Extended Load Program Memory", false, false)
   {
   }
 
@@ -3302,7 +3302,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SPM1
-  InstrSPM1::InstrSPM1() : Instruction(0b1001010111101000, 0b1111111111111111, "SPM", "Store Program Memory")
+  InstrSPM1::InstrSPM1() : Instruction(0b1001010111101000, 0b1111111111111111, "SPM", "Store Program Memory", false, false)
   {
   }
 
@@ -3332,7 +3332,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SPM2
-  InstrSPM2::InstrSPM2() : Instruction(0b1001010111111000, 0b1111111111111111, "SPM Z+", "Store Program Memory")
+  InstrSPM2::InstrSPM2() : Instruction(0b1001010111111000, 0b1111111111111111, "SPM Z+", "Store Program Memory", false, false)
   {
   }
 
@@ -3362,7 +3362,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // IN
-  InstrIN::InstrIN() : Instruction(0b1011000000000000, 0b1111100000000000, "IN", "Load an I/O Location to Register")
+  InstrIN::InstrIN() : Instruction(0b1011000000000000, 0b1111100000000000, "IN", "Load an I/O Location to Register", false, false)
   {
   }
 
@@ -3395,7 +3395,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // OUT
-  InstrOUT::InstrOUT() : Instruction(0b1011100000000000, 0b1111100000000000, "OUT", "Store Register to I/O Location")
+  InstrOUT::InstrOUT() : Instruction(0b1011100000000000, 0b1111100000000000, "OUT", "Store Register to I/O Location", false, false)
   {
   }
 
@@ -3428,7 +3428,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // PUSH
-  InstrPUSH::InstrPUSH() : Instruction(0b1001001000001111, 0b1111111000001111, "PUSH", "Push Register on Stack")
+  InstrPUSH::InstrPUSH() : Instruction(0b1001001000001111, 0b1111111000001111, "PUSH", "Push Register on Stack", false, false)
   {
   }
 
@@ -3460,7 +3460,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // POP
-  InstrPOP::InstrPOP() : Instruction(0b1001000000001111, 0b1111111000001111, "POP", "Pop Register from Stack")
+  InstrPOP::InstrPOP() : Instruction(0b1001000000001111, 0b1111111000001111, "POP", "Pop Register from Stack", false, false)
   {
   }
 
@@ -3492,7 +3492,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // XCH
-  InstrXCH::InstrXCH() : Instruction(0b1001001000000100, 0b1111111000001111, "XCH Z,", "Exchange Indirect Register and Data Space")
+  InstrXCH::InstrXCH() : Instruction(0b1001001000000100, 0b1111111000001111, "XCH Z,", "Exchange Indirect Register and Data Space", false, false)
   {
   }
 
@@ -3529,7 +3529,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LAS
-  InstrLAS::InstrLAS() : Instruction(0b1001001000000101, 0b1111111000001111, "LAS Z,", "Load and Set Indirect Register and Data Space")
+  InstrLAS::InstrLAS() : Instruction(0b1001001000000101, 0b1111111000001111, "LAS Z,", "Load and Set Indirect Register and Data Space", false, false)
   {
   }
 
@@ -3566,7 +3566,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LAC
-  InstrLAC::InstrLAC() : Instruction(0b1001001000000110, 0b1111111000001111, "LAC Z,", "Load and Clear Indirect Register and Data Space")
+  InstrLAC::InstrLAC() : Instruction(0b1001001000000110, 0b1111111000001111, "LAC Z,", "Load and Clear Indirect Register and Data Space", false, false)
   {
   }
 
@@ -3603,7 +3603,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LAT
-  InstrLAT::InstrLAT() : Instruction(0b1001001000000111, 0b1111111000001111, "LAT Z,", "Load and Toggle Indirect Register and Data Space")
+  InstrLAT::InstrLAT() : Instruction(0b1001001000000111, 0b1111111000001111, "LAT Z,", "Load and Toggle Indirect Register and Data Space", false, false)
   {
   }
 
@@ -3640,7 +3640,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // LSR
-  InstrLSR::InstrLSR() : Instruction(0b1001010000000110, 0b1111111000001111, "LSR", "Logical Shift Right")
+  InstrLSR::InstrLSR() : Instruction(0b1001010000000110, 0b1111111000001111, "LSR", "Logical Shift Right", false, false)
   {
   }
 
@@ -3685,7 +3685,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // ROR
-  InstrROR::InstrROR() : Instruction(0b1001010000000111, 0b1111111000001111, "ROR", "Rotate Right through Carry")
+  InstrROR::InstrROR() : Instruction(0b1001010000000111, 0b1111111000001111, "ROR", "Rotate Right through Carry", false, false)
   {
   }
 
@@ -3735,7 +3735,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // ASR
-  InstrASR::InstrASR() : Instruction(0b1001010000000101, 0b1111111000001111, "ASR", "Arithmetic Shift Right")
+  InstrASR::InstrASR() : Instruction(0b1001010000000101, 0b1111111000001111, "ASR", "Arithmetic Shift Right", false, false)
   {
   }
 
@@ -3782,7 +3782,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SWAP
-  InstrSWAP::InstrSWAP() : Instruction(0b1001010000000010, 0b1111111000001111, "SWAP", "Swap Nibbles")
+  InstrSWAP::InstrSWAP() : Instruction(0b1001010000000010, 0b1111111000001111, "SWAP", "Swap Nibbles", false, false)
   {
   }
 
@@ -3817,7 +3817,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // BSET
-  InstrBSET::InstrBSET() : Instruction(0b1001010000001000, 0b1111111110001111, "BSET", "Bit Set in SREG")
+  InstrBSET::InstrBSET() : Instruction(0b1001010000001000, 0b1111111110001111, "BSET", "Bit Set in SREG", false, false)
   {
   }
 
@@ -3852,7 +3852,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // BCLR
-  InstrBCLR::InstrBCLR() : Instruction(0b1001010010001000, 0b1111111110001111, "BCLR", "Bit Clear in SREG")
+  InstrBCLR::InstrBCLR() : Instruction(0b1001010010001000, 0b1111111110001111, "BCLR", "Bit Clear in SREG", false, false)
   {
   }
 
@@ -3887,7 +3887,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SBI
-  InstrSBI::InstrSBI() : Instruction(0b1001101000000000, 0b1111111100000000, "SBI", "Set Bit in I/O Register")
+  InstrSBI::InstrSBI() : Instruction(0b1001101000000000, 0b1111111100000000, "SBI", "Set Bit in I/O Register", false, false)
   {
   }
 
@@ -3920,7 +3920,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // CBI
-  InstrCBI::InstrCBI() : Instruction(0b1001100000000000, 0b1111111100000000, "CBI", "Clear Bit in I/O Register")
+  InstrCBI::InstrCBI() : Instruction(0b1001100000000000, 0b1111111100000000, "CBI", "Clear Bit in I/O Register", false, false)
   {
   }
 
@@ -3953,7 +3953,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // BST
-  InstrBST::InstrBST() : Instruction(0b1111101000000000, 0b1111111000001000, "BST", "Bit Store from Bit in Register to T Flag in SREG")
+  InstrBST::InstrBST() : Instruction(0b1111101000000000, 0b1111111000001000, "BST", "Bit Store from Bit in Register to T Flag in SREG", false, false)
   {
   }
 
@@ -3990,7 +3990,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // BLD
-  InstrBLD::InstrBLD() : Instruction(0b1111100000000000, 0b1111111000001000, "BLD", "Bit Load from T Falg in SREG to Bit  in Register")
+  InstrBLD::InstrBLD() : Instruction(0b1111100000000000, 0b1111111000001000, "BLD", "Bit Load from T Falg in SREG to Bit  in Register", false, false)
   {
   }
 
@@ -4027,7 +4027,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // BREAK
-  InstrBREAK::InstrBREAK() : Instruction(0b1001010110011000, 0b1111111111111111, "BREAK", "Break")
+  InstrBREAK::InstrBREAK() : Instruction(0b1001010110011000, 0b1111111111111111, "BREAK", "Break", false, false)
   {
   }
 
@@ -4057,7 +4057,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // NOP
-  InstrNOP::InstrNOP() : Instruction(0b0000000000000000, 0b1111111111111111, "NOP", "No operation")
+  InstrNOP::InstrNOP() : Instruction(0b0000000000000000, 0b1111111111111111, "NOP", "No operation", false, false)
   {
   }
 
@@ -4086,7 +4086,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // SLEEP
-  InstrSLEEP::InstrSLEEP() : Instruction(0b1001010110001000, 0b1111111111111111, "SLEEP", "Sleep")
+  InstrSLEEP::InstrSLEEP() : Instruction(0b1001010110001000, 0b1111111111111111, "SLEEP", "Sleep", false, false)
   {
   }
 
@@ -4116,7 +4116,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // WDR
-  InstrWDR::InstrWDR() : Instruction(0b1001010110101000, 0b1111111111111111, "WDR", "Watchdog Reset")
+  InstrWDR::InstrWDR() : Instruction(0b1001010110101000, 0b1111111111111111, "WDR", "Watchdog Reset", false, false)
   {
   }
 

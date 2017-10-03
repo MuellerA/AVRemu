@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <regex>
+#include <signal.h>
 
 #include "avr.h"
 #include "instr.h"
@@ -11,6 +12,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using strings = std::vector<std::string> ;
+
+////////////////////////////////////////////////////////////////////////////////
+// SigIntHdl
+////////////////////////////////////////////////////////////////////////////////
+
+static bool SigInt = false ;
+static void SigIntHdl(int /*parameter*/)
+{
+  std::cout << std::endl << "Execution Interrupted" << std::endl << std::endl ;
+  SigInt = true ;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Command
@@ -44,7 +56,7 @@ bool Command::Match(const std::string &command)
 class CommandStep : public Command
 {
 public:
-  CommandStep() : Command(R"XXX(\s*s\s*(?:([\d]+)\s*)?)XXX")
+  CommandStep() : Command(R"XXX(\s*([sn])\s*(?:([\d]+)\s*)?)XXX")
   {
   }
 
@@ -58,16 +70,89 @@ public:
 
 strings CommandStep::Help() const
 {
-  return strings { "s [count]       -- step count instructions" } ;
+  return strings { "s [count]        -- step in count instructions",
+                   "n [count]        -- step over count instructions" } ;
 }
 
 bool CommandStep::Execute(AVR::Mcu &mcu)
 {
-  const std::string &countStr = _match[1] ;
+  void (*prevIntHdl)(int) ;
+  SigInt = false ;
+  prevIntHdl = signal(SIGINT, SigIntHdl) ;
+  
+  const std::string &mode = _match[1] ;
+  const std::string &countStr = _match[2] ;
   AVR::uint32 count = countStr.size() ? std::stoul(countStr) : 1 ;
-  for (AVR::uint32 i = 0 ; i < count ; ++i)
-    mcu.Execute() ;
+  switch (mode[0])
+  {
+  case 's':
+    for (AVR::uint32 i = 0 ; (i < count) && !SigInt ; ++i)
+      mcu.Execute() ;
+    break ;
+  case 'n':
+    for (AVR::uint32 i = 0 ; (i < count) && !SigInt ; ++i)
+    {
+      AVR::uint32 pc = mcu.PC() ;
+      const AVR::Instruction *instr = mcu.Instr(pc) ;
+      if (instr->IsCall())
+      {
+        pc += (instr->IsTwoWord()) ? 2 : 1 ;
+        while ((mcu.PC() != pc) && !SigInt)
+          mcu.Execute() ;
+      }
+      else
+        mcu.Execute() ;
+    }
+    break ;
+  }
+  signal(SIGINT, prevIntHdl) ;
+
   mcu.Status() ;
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandGoto
+////////////////////////////////////////////////////////////////////////////////
+class CommandGoto : public Command
+{
+public:
+  CommandGoto() : Command(R"XXX(\s*g\s*(?:(0x[0-9a-fA-F]+|[0-9]+)|([_0-9a-zA-Z]+))\s*)XXX")
+  {
+  }
+
+  ~CommandGoto()
+  {
+  }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandGoto::Help() const
+{
+  return strings { "g <addr>|<label> -- goto address/label" } ;
+}
+
+bool CommandGoto::Execute(AVR::Mcu &mcu)
+{
+  const std::string &addrLabel = _match[2] ;
+
+  if (addrLabel.size())
+  {
+    const AVR::Mcu::Xref *xref = mcu.XrefByLabel(addrLabel) ;
+    if (!xref)
+    {
+      std::cout << "illegal value" << std::endl ;
+      return false ;
+    }    
+    mcu.PC() = xref->_addr ;
+    return true ;
+  }
+  
+  const std::string &addrStr = _match[1] ;
+  AVR::uint32 addr = std::stoul(addrStr, nullptr, 0) ;
+  mcu.PC() = addr ;
   return true ;
 }
 
@@ -88,9 +173,9 @@ strings CommandAssign::Help() const
 {
   return strings
   {
-    "r<d>    = byte  -- assign register",
-    "d<addr> = byte  -- assign data memory",
-    "p<addr> = word  -- assign program memory"
+    "r<d>    = byte   -- set register",
+    "d<addr> = byte   -- set data memory",
+    "p<addr> = word   -- set program memory"
   } ;
 }
 
@@ -135,6 +220,84 @@ bool CommandAssign::Execute(AVR::Mcu &mcu)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// CommandList
+////////////////////////////////////////////////////////////////////////////////
+class CommandList : public Command
+{
+public:
+  CommandList() : Command(R"XXX(\s*l\s*(?:(0x[0-9a-fA-F]+|[0-9]+)\s*(?:(0x[0-9a-fA-F]+|[0-9]+)\s*)?)?)XXX") { }
+  ~CommandList() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandList::Help() const
+{
+  return strings { "l [[<addr>] <count>] -- list source"} ;
+}
+bool CommandList::Execute(AVR::Mcu &mcu)
+{
+  AVR::uint32 pc0   = mcu.PC() ;
+  AVR::uint32 addr  = pc0 ;
+  AVR::uint32 count = 20 ;
+  const std::string &m2 = _match[2] ;
+  const std::string &m1 = _match[1] ;
+  
+  if (m2.size())
+  {
+    count = std::stoul(m2, nullptr, 0) ;
+    addr  = std::stoul(m1, nullptr, 0) ;
+  }
+  else if (m1.size())
+  {
+    count = std::stoul(m1, nullptr, 0) ;
+  }
+
+  mcu.PC() = addr ;
+  for (AVR::uint32 iAddr = addr, eAddr = addr+count ; iAddr < eAddr ; ++iAddr)
+    std::cout << mcu.Disasm() << std::endl ;
+  std::cout << std::endl ;
+  
+  mcu.PC() = pc0 ;
+  
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandListLabels
+////////////////////////////////////////////////////////////////////////////////
+class CommandListLabels : public Command
+{
+public:
+  CommandListLabels() : Command(R"XXX(\s*ll\s*)XXX") { }
+  ~CommandListLabels() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandListLabels::Help() const
+{
+  return strings { "ll                   -- list labels"} ;
+}
+bool CommandListLabels::Execute(AVR::Mcu &mcu)
+{
+  for (const auto &iXref : mcu.XrefByLabel())
+  {
+    const AVR::Mcu::Xref *xref = iXref.second ;
+    char buff[32] ;
+    sprintf(buff, "[%05x] ", xref->_addr) ;
+    std::cout << buff << xref->_label ;
+    if (xref->_description.size())
+      std::cout << " -- " << xref->_description.c_str() ;
+    std::cout << std::endl ;
+  }
+  std::cout << std::endl ;
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // CommandQuit
 ////////////////////////////////////////////////////////////////////////////////
 class CommandQuit : public Command
@@ -152,7 +315,7 @@ private:
 
 strings CommandQuit::Help() const
 {
-  return strings { "q               -- quit"} ;
+  return strings { "q                -- quit"} ;
 }
 bool CommandQuit::Execute(AVR::Mcu &mcu)
 {
@@ -179,7 +342,7 @@ private:
 
 strings CommandRepeat::Help() const
 {
-  return strings { "<empty line>    -- repeat last command"} ;
+  return strings { "<empty line>     -- repeat last command"} ;
 }
 bool CommandRepeat::Execute(AVR::Mcu &mcu)
 {
@@ -211,16 +374,18 @@ private:
 
 strings CommandHelp::Help() const
 {
-  return strings { "?               -- help"} ;
+  return strings { "?                -- help"} ;
 }
 bool CommandHelp::Execute(AVR::Mcu &mcu)
 {
+  std::cout << std::endl ;
   for (Command *command : _commands)
   {
     for (const auto &help : command->Help())
       std::cout << help << std::endl ;
   }
-
+  std::cout << std::endl ;
+  
   return true ;
 }
 
@@ -258,10 +423,13 @@ void Execute(AVR::Mcu &mcu)
   
   std::vector<Command*> commands =
     {
+      new CommandRepeat(lastCommand), // first!
       new CommandStep(),
+      new CommandGoto(),
       new CommandAssign(),
+      new CommandList(),
+      new CommandListLabels(),
       new CommandQuit(quit),
-      new CommandRepeat(lastCommand),
       new CommandHelp(commands),
       new CommandUnknown(), // last!
     } ;
@@ -272,6 +440,9 @@ void Execute(AVR::Mcu &mcu)
   
   while (!quit)
   {
+    std::size_t pc0 = mcu.PC() ;
+    std::cout << mcu.Disasm() << std::endl << "> " << std::flush ;
+    mcu.PC() = pc0 ;
     std::getline(std::cin, cmd) ;
 
     for (Command *command : commands)

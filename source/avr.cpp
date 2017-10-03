@@ -12,7 +12,7 @@ namespace AVR
 {
   ////////////////////////////////////////////////////////////////////////////////
   // Instruction
-  Instruction::Instruction(Command pattern, Command mask, const std::string &mnemonic, const std::string &description) : _pattern(pattern), _mask(mask), _mnemonic(mnemonic), _description(description)
+  Instruction::Instruction(Command pattern, Command mask, const std::string &mnemonic, const std::string &description, bool isTwoWord, bool isCall) : _pattern(pattern), _mask(mask), _mnemonic(mnemonic), _description(description), _isTwoWord(isTwoWord), _isCall(isCall)
   {
   }
 
@@ -65,6 +65,8 @@ namespace AVR
 
   Mcu::~Mcu()
   {
+    for (auto iXref : _xrefs)
+      delete iXref ;
   }
 
   void Mcu::Execute()
@@ -78,7 +80,6 @@ namespace AVR
       return ;
     }
 
-    printf("%05zx:", _pc) ;
     Command cmd = _program[_pc++] ;
     const Instruction *instr = _instructions[cmd] ;
     
@@ -89,12 +90,6 @@ namespace AVR
       return ;
     }
 
-    {
-      uint32 pc = _pc ;
-      printf(" %s\n", instr->Disasm(*this, cmd).c_str()) ;
-      _pc = pc ;
-    }
-    
     // todo Ticks
     instr->Execute(*this, cmd) ;
   }
@@ -173,15 +168,15 @@ namespace AVR
     Command cmd = _program[_pc++] ;
 
     std::string label ;
-    auto iXrefs = _xrefs.find(pc) ;
-    if (iXrefs != _xrefs.end())
+    auto iXrefs = _xrefByAddr.find(pc) ;
+    if (iXrefs != _xrefByAddr.end())
     {
-      const auto &xref = iXrefs->second ;
+      const auto xref = iXrefs->second ;
 
-      label.append(xref._label) ;
+      label.append(xref->_label) ;
 
       bool first = true ;
-      for (const auto &iXref: xref._addrs)
+      for (const auto &iXref: xref->_addrs)
       {
         if (first)
         {
@@ -203,9 +198,9 @@ namespace AVR
         }
       }
       label.append("\n", 1) ;
-      if (!xref._description.empty())
+      if (!xref->_description.empty())
       {
-        label.append(xref._description) ;
+        label.append(xref->_description) ;
         label.append("\n", 1) ;
       }
     }
@@ -248,11 +243,11 @@ namespace AVR
 
   bool Mcu::ProgAddrName(uint32 addr, std::string &name) const
   {
-    auto iProgAddrName = _xrefs.find(addr) ;
-    if (iProgAddrName == _xrefs.end())
+    auto iProgAddrName = _xrefByAddr.find(addr) ;
+    if (iProgAddrName == _xrefByAddr.end())
       return false ;
 
-    name = iProgAddrName->second._label ;
+    name = iProgAddrName->second->_label ;
     return true ;
   }
 
@@ -366,6 +361,12 @@ namespace AVR
     }
     _program[addr] = cmd ;
   }
+
+  const Instruction* Mcu::Instr(uint32 addr) const
+  {
+    Command cmd = Prog(addr) ;
+    return _instructions[cmd] ;
+  }
   
   void  Mcu::Push(uint8 value)
   {
@@ -426,7 +427,11 @@ namespace AVR
   {
     for (auto &iPrg :_program)
       iPrg = 0 ;
+    for (auto iXref : _xrefs)
+      delete iXref ;
     _xrefs.clear() ;
+    _xrefByAddr.clear() ;
+    _xrefByLabel.clear() ;
   }
 
   size_t Mcu::SetProgram(size_t startAddress, const std::vector<Command> &prg)
@@ -464,6 +469,18 @@ namespace AVR
     return nCopy ;
   }
 
+  const Mcu::Xref* Mcu::XrefByAddr(uint32 addr)
+  {
+    auto iXref = _xrefByAddr.find(addr) ;
+    return (iXref != _xrefByAddr.end()) ? iXref->second : nullptr ;
+  }
+  
+  const Mcu::Xref* Mcu::XrefByLabel(const std::string &label)
+  {
+    auto iXref = _xrefByLabel.find(label) ;
+    return (iXref != _xrefByLabel.end()) ? iXref->second : nullptr ;
+  }
+
   void Mcu::AddInstruction(const Instruction *instr)
   {
     // loop should be optimized considering mask()
@@ -491,13 +508,7 @@ namespace AVR
 
     // add known addresses
     for (const auto &iKnownAddr : _knownProgramAddresses)
-    {
-      auto iXref = _xrefs.insert(std::pair<uint32, Xref>(iKnownAddr._addr, Xref(iKnownAddr._addr))).first ;
-      Xref &xref = iXref->second ;
-      xref._type  = XrefType::jmp ;
-      xref._label = iKnownAddr._label ;
-      xref._description = iKnownAddr._description ;
-    }
+      _xrefs.push_back(new Xref(iKnownAddr._addr, XrefType::jmp, iKnownAddr._label, iKnownAddr._description)) ;
 
     // check branch instructions
     uint32 pc0 = _pc ;
@@ -514,13 +525,21 @@ namespace AVR
 
         if (xt != XrefType::none)
         {
-          auto iXrefs = _xrefs.find(addr) ;
-          if (iXrefs == _xrefs.end())
-            iXrefs = _xrefs.insert(std::pair<uint32, Xref>(addr, Xref(addr))).first ;
+          Xref *xref = nullptr ;
+          
+          auto iXref = _xrefByAddr.find(addr) ;
+          if (iXref != _xrefByAddr.end())
+          {
+            xref = iXref->second ;
+          }
+          else
+          {
+            xref = new Xref(addr) ;
+            _xrefs.push_back(xref) ;
+          }
 
-          Xref &xref = iXrefs->second ;
-          xref._type |= xt ;
-          xref._addrs.push_back(pc) ;
+          xref->_type |= xt ;
+          xref->_addrs.push_back(pc) ;
         }
       }
     }
@@ -528,19 +547,21 @@ namespace AVR
     // create labels
     for (auto &iXref: _xrefs)
     {
-      Xref &xref = iXref.second ;
-      if (!xref._label.empty())
-        continue ;
+      _xrefByAddr[iXref->_addr] = iXref ;
+      
+      if (iXref->_label.empty())
+      {
+        if      (static_cast<uint32>(iXref->_type & XrefType::call)) iXref->_label.append("Fct_", 4) ;
+        else if (static_cast<uint32>(iXref->_type & XrefType::jmp )) iXref->_label.append("Lbl_", 4) ;
+        else if (static_cast<uint32>(iXref->_type & XrefType::data)) iXref->_label.append("Dat_", 4) ;
+        else printf("xref type %d\n", (uint32)iXref->_type) ;
 
-      if      (static_cast<uint32>(xref._type & XrefType::call)) xref._label.append("Fct_", 4) ;
-      else if (static_cast<uint32>(xref._type & XrefType::jmp )) xref._label.append("Lbl_", 4) ;
-      else if (static_cast<uint32>(xref._type & XrefType::data)) xref._label.append("Dat_", 4) ;
-      else printf("xref type %d\n", (uint32)xref._type) ;
-
-      char buff[32] ; sprintf(buff, "%05x", xref._addr) ;
-      xref._label.append(buff) ;
+        char buff[32] ; sprintf(buff, "%05x", iXref->_addr) ;
+        iXref->_label.append(buff) ;
+      }
+      _xrefByLabel[iXref->_label] = iXref ;
     }
-
+    
     _pc = pc0 ;
   }
 
