@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <functional>
 #include <map>
+#include <regex>
+#include <fstream>
 
 #include "avr.h"
 #include "instr.h"
@@ -42,7 +44,7 @@ std::map<std::string, std::function<AVR::Mcu*()> > mcuFactory
 
 int usage(const char *name)
 {
-  fprintf(stderr, "usage: %s [-d] [-x] [-m <mcu>] <avr-bin>\n", name) ;
+  fprintf(stderr, "usage: %s [-d] [-e] [-m <mcu>] [-x <xref>] [-p <eeProm>] <avr-bin>\n", name) ;
   fprintf(stderr, "       %s -h\n", name) ;
   fprintf(stderr, "use '-h' for a full list of MCUs\n") ;
   return 1 ;
@@ -50,12 +52,14 @@ int usage(const char *name)
 
 int usageFull(const char *name)
 {
-  fprintf(stderr, "usage: %s [-d] [-x] [-m <mcu>] <avr-bin>\n", name) ;
+  fprintf(stderr, "usage: %s [-d] [-e] [-m <mcu>] [-x <xref>] [-p <eeProm>] <avr-bin>\n", name) ;
   fprintf(stderr, "       %s -h\n", name) ;
   fprintf(stderr, "parameter:\n") ;
   fprintf(stderr, "   -m <mcu>    MCU type, see below\n") ;
   fprintf(stderr, "   -d          disassemble file\n") ;
-  fprintf(stderr, "   -x          execute file\n") ;
+  fprintf(stderr, "   -e          execute file\n") ;
+  fprintf(stderr, "   -x <xref>   read/write xref file\n") ;
+  fprintf(stderr, "   -p <eeProm> binary file of EEPROM memory\n") ;
   fprintf(stderr, "   <avr-bin>   binary file to be disassembled / executed\n") ;
   fprintf(stderr, "   -h          this help\n") ;
   fprintf(stderr, "Supported MCU types:") ; 
@@ -65,6 +69,48 @@ int usageFull(const char *name)
   }
   fprintf(stderr, "\n") ;
   return 1 ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void ParseXrefFile(AVR::Mcu &mcu, const std::string &xrefFileName)
+{
+  std::ifstream in ;
+  in.open(xrefFileName) ;
+  if (in.fail())
+  {
+    fprintf(stderr, "open file \"%s\" failed\n", xrefFileName.c_str()) ;
+    return ;
+  }
+
+  std::regex regex(R"XXX(([jcd])\s+(0x[0-9a-fA-F]+|[0-9]+)\s+([-_:*.a-zA-Z0-9]+)\s*)XXX", std::regex_constants::optimize) ;
+  std::smatch match ;
+  std::string line ;
+  while (!in.eof())
+  {
+    std::getline(in, line) ;
+    if (!std::regex_match(line, match, regex))
+    {
+      fprintf(stderr, "unknown line \"%s\"\n", line.c_str()) ;
+      continue ;
+    }
+
+    const std::string &typeStr = match[1] ;
+    const std::string &addrStr = match[2] ;
+    const std::string &label = match[3] ;
+
+    AVR::XrefType type = AVR::XrefType::none ;
+    switch (typeStr[0])
+    {
+    case 'j': type = AVR::XrefType::jmp  ; break ;
+    case 'c': type = AVR::XrefType::call ; break ;
+    case 'd': type = AVR::XrefType::data ; break ;
+    }
+    
+    AVR::uint32 addr = std::stoul(addrStr, nullptr, 0) ;
+
+    mcu.XrefAdd(AVR::Mcu::Xref(addr, type, label, "")) ;    
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +126,10 @@ int main(int argc, char *argv[])
   int iArg ;
   bool disasm = false ;
   bool execute = false ;
-  const char *mcuType = "ATany" ;
+  std::string mcuType = "ATany" ;
+  std::string xrefFileName ;
+  std::string eepromFileName ;
+  
   for (iArg = 1 ; iArg < argc ; ++iArg)
   {
     if (*argv[iArg] != '-')
@@ -89,13 +138,25 @@ int main(int argc, char *argv[])
       return usageFull(argv[0]) ;
     else if (!strcmp(argv[iArg], "-d"))
       disasm = true ;
-    else if (!strcmp(argv[iArg], "-x"))
+    else if (!strcmp(argv[iArg], "-e"))
       execute = true ;
     else if (!strcmp(argv[iArg], "-m"))
     {
       if (iArg >= argc-1)
         return usage(argv[0]) ;
       mcuType = argv[++iArg] ;
+    }
+    else if (!strcmp(argv[iArg], "-x"))
+    {
+      if (iArg >= argc-1)
+        return usage(argv[0]) ;
+      xrefFileName = argv[++iArg] ;
+    }
+    else if (!strcmp(argv[iArg], "-p"))
+    {
+      if (iArg >= argc-1)
+        return usage(argv[0]) ;
+      eepromFileName = argv[++iArg] ;
     }
     else
       return usage(argv[0]) ;
@@ -115,10 +176,9 @@ int main(int argc, char *argv[])
   FILE *f = fopen(argv[iArg], "rb") ;
   if (!f)
   {
-    fprintf(stderr, "read file \"%s\" failed\n", argv[1]) ;
+    fprintf(stderr, "read file \"%s\" failed\n", argv[iArg]) ;
     return 1 ;
   }
-
   while (true)
   {
     AVR::Command cmds[0x100] ;
@@ -128,7 +188,31 @@ int main(int argc, char *argv[])
     prog.insert(prog.end(), cmds, cmds + nCmd) ;
   }
   fclose(f) ;
-
+  
+  std::vector<AVR::uint8> eeprom ;
+  eeprom.reserve(mcu->EepromSize()) ;
+  FILE *ee = fopen(eepromFileName.c_str(), "rb") ;
+  if (!ee)
+  {
+    fprintf(stderr, "read file \"%s\" failed\n", eepromFileName.c_str()) ;
+    return 1 ;
+  }
+  while (true)
+  {
+    AVR::uint8 bytes[0x100] ;
+    size_t nByte = fread(bytes, sizeof(AVR::uint8), 0x100, ee) ;
+    if (!nByte)
+      break ;
+    eeprom.insert(eeprom.end(), bytes, bytes + nByte) ;
+  }
+  fclose(ee) ;
+  mcu->SetEeprom(0, eeprom) ;
+  
+  if (xrefFileName.size())
+  {
+    ParseXrefFile(*mcu, xrefFileName) ;
+  }
+  
   mcu->PC() = 0 ;
   size_t nCommand = mcu->SetProgram(0, prog) ;
   printf("prog size:   %zd\n", prog.size()) ;

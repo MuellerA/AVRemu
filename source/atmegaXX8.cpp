@@ -10,7 +10,7 @@ namespace AVR
 {
 
   ATmegaXX8::ATmegaXX8(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize)
-    : Mcu(programSize, 0xe0, 0x100, dataSize, eepromSize)
+    : Mcu(programSize, 0xe0, 0x100, dataSize, eepromSize), ioEeprom(*this)
   {
     const Instruction *instructions[]
     {
@@ -102,9 +102,10 @@ namespace AVR
       { 0x45, "TCCR0B" },
       { 0x44, "TCCR0A" },
       { 0x43, "GTCCR" },
-      { 0x41, "EEARL" },
-      { 0x40, "EEDR" },
-      { 0x3F, "EECR" },
+      //{ 0x42, "EEARH" },
+      //{ 0x41, "EEARL" },
+      //{ 0x40, "EEDR" },
+      //{ 0x3F, "EECR" },
       { 0x3E, "GPIOR0" },
       { 0x3D, "EIMSK" },
       { 0x3C, "EIFR" },
@@ -173,16 +174,14 @@ namespace AVR
         { 0x32, "IRQ_SPM_READY",    "Store Program Memory Ready" },
       } ;
 
-    std::vector<std::pair<uint32, std::string>> ioRegs
-    {
-      { 0x42, "EEARH" },
-    } ;
-    for (const auto &iIoReg: ioRegs)
-    {
-      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
-    }
+    _io[0x22] = new IoEeprom::EEARH(ioEeprom) ;
+    _io[0x21] = new IoEeprom::EEARL(ioEeprom) ;
+    _io[0x20] = new IoEeprom::EEDR (ioEeprom) ;
+    _io[0x1f] = new IoEeprom::EECR (ioEeprom) ;
   }
-  ATmega328P::~ATmega328P() {}
+  ATmega328P::~ATmega328P()
+  {
+  }
 
   ////////////////////////////////////////////////////////////////////////////////
   
@@ -223,16 +222,14 @@ namespace AVR
         { 0x32, "IRQ_SPM_READY",    "Store Program Memory Ready" },
       } ;
 
-    std::vector<std::pair<uint32, std::string>> ioRegs
-    {
-      { 0x42, "EEARH" },
-    } ;
-    for (const auto &iIoReg: ioRegs)
-    {
-      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
-    }
+    _io[0x22] = new IoEeprom::EEARH(ioEeprom) ;
+    _io[0x21] = new IoEeprom::EEARL(ioEeprom) ;
+    _io[0x20] = new IoEeprom::EEDR (ioEeprom) ;
+    _io[0x1f] = new IoEeprom::EECR (ioEeprom) ;
   }
-  ATmega168PA::~ATmega168PA() {}
+  ATmega168PA::~ATmega168PA()
+  {
+  }
 
   ////////////////////////////////////////////////////////////////////////////////
   
@@ -269,16 +266,14 @@ namespace AVR
         { 0x19, "IRQ_SPM_READY",    "Store Program Memory Ready" },
       } ;
 
-    std::vector<std::pair<uint32, std::string>> ioRegs
-    {
-      { 0x42, "EEARH" },
-    } ;
-    for (const auto &iIoReg: ioRegs)
-    {
-      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
-    }
+    _io[0x22] = new IoEeprom::EEARH(ioEeprom) ;
+    _io[0x21] = new IoEeprom::EEARL(ioEeprom) ;
+    _io[0x20] = new IoEeprom::EEDR (ioEeprom) ;
+    _io[0x1f] = new IoEeprom::EECR (ioEeprom) ;
   }
-  ATmega88PA::~ATmega88PA() {}
+  ATmega88PA::~ATmega88PA()
+  {
+  }
 
   ////////////////////////////////////////////////////////////////////////////////
   
@@ -313,6 +308,10 @@ namespace AVR
         { 0x18, "IRQ_TWI",          "2-wire Serial Interface" },
         { 0x19, "IRQ_SPM_READY",    "Store Program Memory Ready" },
       } ;
+
+    _io[0x21] = new IoEeprom::EEARL(ioEeprom) ;
+    _io[0x20] = new IoEeprom::EEDR (ioEeprom) ;
+    _io[0x1f] = new IoEeprom::EECR (ioEeprom) ;
   }
   ATmega48PA::~ATmega48PA()
   {

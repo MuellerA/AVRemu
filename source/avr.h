@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 
 namespace AVR
 
@@ -73,9 +74,10 @@ namespace AVR
     class Register
     {
     public:
+      virtual ~Register() {} ;
       virtual const std::string& Name() const = 0 ;
-      virtual uint8  operator()() const = 0 ;
-      virtual uint8& operator()() = 0 ;
+      virtual uint8  Get() const  = 0 ;
+      virtual void   Set(uint8 v) = 0 ;
       virtual uint8  Init() const = 0 ; // bootup value
     } ;
 
@@ -87,8 +89,8 @@ namespace AVR
     IoRegisterNotImplemented(const std::string &name) : _name(name), _value(0) {}
 
     virtual const std::string& Name() const { return _name ; }
-    virtual uint8  operator()() const { return _value ; }
-    virtual uint8& operator()()       { return _value ; }
+    virtual uint8  Get() const  { return _value ; }
+    virtual void   Set(uint8 v) { _value = v    ; }
     virtual uint8  Init() const { return 0 ; }
   private:
     std::string _name ;
@@ -112,6 +114,88 @@ namespace AVR
   
   inline bool  operator&& (uint8 r, SREG b) { return (r & (1<<(uint8)b)) == (1<<(uint8)b) ; }
 
+  class IoEeprom : public Io
+  {
+  public:
+    class EEARH : public Io::Register
+    {
+    public:
+      EEARH(IoEeprom &eeprom) : _eeprom(eeprom), _name("EEARH") {} ;
+      virtual const std::string &Name() const { return _name ; }
+      virtual uint8  Get() const  { return _eeprom.GetAddrHi() ; }
+      virtual void   Set(uint8 v) { _eeprom.SetAddrHi(v) ; }
+      virtual uint8  Init() const { return 0 ; }
+    private:
+      IoEeprom &_eeprom ;
+      std::string _name ;
+    } ;
+    class EEARL : public Io::Register
+    {
+    public:
+      EEARL(IoEeprom &eeprom) : _eeprom(eeprom), _name("EEARL") {} ;
+      virtual const std::string &Name() const { return _name ; }
+      virtual uint8  Get() const  { return _eeprom.GetAddrLo() ; }
+      virtual void   Set(uint8 v) { _eeprom.SetAddrLo(v) ; }
+      virtual uint8  Init() const { return 0 ; }
+    private:
+      IoEeprom &_eeprom ;
+      std::string _name ;
+    } ;
+    class EEDR : public Io::Register
+    {
+    public:
+      EEDR(IoEeprom &eeprom) : _eeprom(eeprom), _name("EEDR") {} ;
+      virtual const std::string &Name() const { return _name ; }
+      virtual uint8  Get() const  { return _eeprom.GetData() ; }
+      virtual void   Set(uint8 v) { _eeprom.SetData(v) ; }
+      virtual uint8  Init() const { return 0 ; }
+    private:
+      IoEeprom &_eeprom ;
+      std::string _name ;
+    } ;
+    class EECR : public Io::Register
+    {
+    public:
+      EECR(IoEeprom &eeprom) : _eeprom(eeprom), _name("EECR") {} ;
+      virtual const std::string &Name() const { return _name ; }
+      virtual uint8  Get() const  { return _eeprom.GetControl() ; }
+      virtual void   Set(uint8 v) { _eeprom.SetControl(v) ; }
+      virtual uint8  Init() const { return 0 ; }
+    private:
+      IoEeprom &_eeprom ;
+      std::string _name ;
+    } ;
+
+    IoEeprom(Mcu &mcu, bool hasEepm = true) : _mcu(mcu), _hasEepm(hasEepm), _addr(0), _data(0), _control(0), _activeTicks(0), _writeBusyTicks(0), _readBusyTicks(0) {}
+
+    uint16 GetAddr() const     { return _addr      ; }
+    void   SetAddr(uint16 v)   ;
+    uint8  GetAddrHi() const   { return _addr >> 1 ; }
+    void   SetAddrHi(uint8 v)  { SetAddr(((uint16)v << 8) | (_addr & 0x00ff)) ; }
+    uint8  GetAddrLo() const   { return _addr >> 0 ; }
+    void   SetAddrLo(uint8 v)  { SetAddr(((uint16)v << 0) | (_addr & 0xff00)) ; }
+    uint8  GetData() const     { return _data      ; }
+    void   SetData(uint8 v)    ;
+    uint8  GetControl() const  ;
+    void   SetControl(uint8 v) ;
+    
+  private:
+    static const uint8 kEEPM  = 0b00110000 ;
+    static const uint8 kEERIE = 0b00001000 ;
+    static const uint8 kEEMPE = 0b00000100 ;
+    static const uint8 kEEPE  = 0b00000010 ;
+    static const uint8 kEERE  = 0b00000001 ;
+    
+    Mcu    &_mcu ;
+    bool   _hasEepm ;
+    uint16 _addr ;
+    uint8  _data ;
+    mutable uint8  _control ;
+    uint32 _activeTicks ;
+    uint32 _writeBusyTicks ;
+    uint32 _readBusyTicks ;
+  } ;
+  
   class Mcu
   {
   public:
@@ -145,9 +229,9 @@ namespace AVR
       public:
         SPH(IoSP &sp) : _sp(sp), _name("SPH") {}
         virtual const std::string& Name() const { return _name ; }
-        virtual uint8  operator()() const { return _sp.Hi() ; }
-        virtual uint8& operator()()       { return _sp.Hi() ; }
-        virtual uint8  Init() const       { return _sp.Init() >> 8 ; }
+        virtual uint8  Get() const  { return _sp.GetHi() ; }
+        virtual void   Set(uint8 v) { _sp.SetHi(v) ; }
+        virtual uint8  Init() const { return _sp.Init() >> 8 ; }
       private:
         IoSP &_sp ;
         std::string _name ;
@@ -157,8 +241,8 @@ namespace AVR
       public:
         SPL(IoSP &sp) : _sp(sp), _name("SPL") {}
         virtual const std::string& Name() const { return _name ; }
-        virtual uint8  operator()() const { return _sp.Lo() ; }
-        virtual uint8& operator()()       { return _sp.Lo() ; }
+        virtual uint8  Get() const  { return _sp.GetLo() ; }
+        virtual void   Set(uint8 v) { _sp.SetLo(v) ; }
         virtual uint8  Init() const       { return _sp.Init() >> 0 ; }
       private:
         IoSP &_sp ;
@@ -168,11 +252,11 @@ namespace AVR
       IoSP(uint16 init) : _u16(init), _init(init) {}
       uint16  operator()() const { return _u16 ; }
       uint16& operator()()       { return _u16 ; }
-      uint8  Hi()   const  { return _u8[1] ; }
-      uint8& Hi()          { return _u8[1] ; }
-      uint8  Lo()   const  { return _u8[0] ; }
-      uint8& Lo()          { return _u8[0] ; }
-      uint16 Init() const  { return _init ; }
+      uint8  GetHi() const  { return _u8[1] ; }
+      void   SetHi(uint8 v) { _u8[1] = v ; }
+      uint8  GetLo() const  { return _u8[0] ; }
+      void   SetLo(uint8 v) { _u8[0] = v ; }
+      uint16 Init() const   { return _init ; }
     private:
       union
       {
@@ -190,8 +274,8 @@ namespace AVR
       public:
         SREG(IoSREG &sreg) : _sreg(sreg), _name("SREG") {}
         virtual const std::string& Name() const { return _name ; }
-        virtual uint8  operator()() const { return _sreg() ; }
-        virtual uint8& operator()()       { return _sreg() ; }
+        virtual uint8  Get() const  { return _sreg.Get() ; }
+        virtual void   Set(uint8 v) { _sreg.Set(v) ; }
         virtual uint8  Init() const       { return 0x00 ; }
       private:
         IoSREG &_sreg ;
@@ -199,8 +283,8 @@ namespace AVR
       } ;
 
       IoSREG() : _sreg(0x00) {}
-      uint8  operator()() const { return _sreg ; }
-      uint8& operator()()       { return _sreg ; }
+      uint8  Get() const  { return _sreg ; }
+      void   Set(uint8 v) { _sreg = v ; }
 
     private:
       uint8 _sreg ;
@@ -214,6 +298,10 @@ namespace AVR
     virtual ~Mcu() ;
 
   public:
+    std::size_t ProgramSize() const { return _programSize ; }
+    std::size_t DataSize()    const { return _dataSize    ; }
+    std::size_t EepromSize()  const { return _eepromSize  ; }
+    
     void Execute() ;
     void Skip() ;
     void Status() ;
@@ -225,7 +313,7 @@ namespace AVR
     std::size_t  PC() const { return _pc ; }
     std::size_t& PC()       { return _pc ; }
 
-    uint32 Ticks() { return _ticks ; }
+    uint32  Ticks() const { return _ticks ; }
     
     uint8   Reg(uint32 reg) const ;
     void    Reg(uint32 reg, uint8 value) ;
@@ -235,16 +323,18 @@ namespace AVR
     void    Io(uint32 io, uint8 value) ;
     uint8   Data(uint32 addr) const ;
     void    Data(uint32 addr, uint8 value) ;
+    void    Eeprom(size_t address, uint8 value) ;
+    uint8   Eeprom(size_t address) const ;
     Command Prog(uint32 addr) const ;
     void    Prog(uint32 addr, uint16 Command) ;
     const Instruction* Instr(uint32 addr) const ;
     
-    uint8  SREG() const { return _sreg()  ; }
-    uint8& SREG()       { return _sreg()  ; }
-    uint8  SPL()  const { return _sp.Lo() ; }
-    uint8& SPL()        { return _sp.Lo() ; }
-    uint8  SPH()  const { return _sp.Hi() ; }
-    uint8& SPH()        { return _sp.Hi() ; }
+    uint8  GetSREG() const  { return _sreg.Get()  ; }
+    void   SetSREG(uint8 v) { _sreg.Set(v)  ; }
+    uint8  GetSPL()  const  { return _sp.GetLo() ; }
+    void   SetSPL(uint8 v)  { _sp.SetLo(v) ; }
+    uint8  GetSPH()  const  { return _sp.GetHi() ; }
+    void   SetSPH(uint8 v)  { _sp.SetHi(v) ; }
 
     void  Push(uint8 value) ;
     uint8 Pop() ;
@@ -263,11 +353,18 @@ namespace AVR
     size_t SetProgram(size_t address, const std::vector<Command> &prg) ;
     size_t SetEeprom(size_t address, const std::vector<uint8> &eeprom) ;
 
-    const Xref* XrefByAddr(uint32 addr) ;
-    const Xref* XrefByLabel(const std::string &label) ;
-    const std::vector<Xref*>&           Xrefs() { return _xrefs ; }
-    const std::map<uint32, Xref*>&      XrefByAddr() { return _xrefByAddr ; }
-    const std::map<std::string, Xref*>& XrefByLabel() { return _xrefByLabel ; }
+    const Xref* XrefByAddr(uint32 addr) const ;
+    const Xref* XrefByLabel(const std::string &label) const ;
+    bool        XrefAdd(const Xref &xref) ;
+    bool        XrefAdd(XrefType type, uint32 target, uint32 source) ;
+    const std::vector<Xref*>&           Xrefs() const { return _xrefs ; }
+    const std::map<uint32     , Xref*>& XrefByAddr()  const { return _xrefByAddr  ; }
+    const std::map<std::string, Xref*>& XrefByLabel() const { return _xrefByLabel ; }
+
+    void AddBreakpoint(std::size_t addr) { _breakpoints.insert(addr) ; }
+    void DelBreakpoint(std::size_t addr) { _breakpoints.erase(addr) ; }
+    bool IsBreakpoint(std::size_t addr) const { return _breakpoints.find(addr) != _breakpoints.end() ; }
+    bool IsBreakpoint()                 const { return _breakpoints.find(_pc ) != _breakpoints.end() ; }
     
     virtual bool PcIs22bit()     { return false ; }
     virtual bool IsXmega()       { return false ; }
@@ -299,7 +396,8 @@ namespace AVR
     std::vector<Xref*>           _xrefs ;
     std::map<uint32, Xref*>      _xrefByAddr ;
     std::map<std::string, Xref*> _xrefByLabel ;
-
+    std::set<std::size_t>        _breakpoints ;
+    
     std::vector<const Instruction*> _instructions ;       // map cmd to instruction
   } ;
 
@@ -323,6 +421,8 @@ namespace AVR
   protected:
     ATmegaXX8(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
     virtual ~ATmegaXX8() ;
+
+    IoEeprom ioEeprom ;
   } ;
 
   class ATmega328P : public ATmegaXX8
@@ -362,6 +462,9 @@ namespace AVR
   public:
     ATmega8A() ;
     virtual ~ATmega8A() ;
+
+  protected:
+    IoEeprom ioEeprom ;
   } ;
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -373,6 +476,9 @@ namespace AVR
   protected:
     ATtinyX4(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
     virtual ~ATtinyX4() ;
+
+  protected:
+    IoEeprom ioEeprom ;
   } ;
 
   class ATtiny84A : public ATtinyX4
@@ -405,6 +511,9 @@ namespace AVR
   protected:
     ATtinyX5(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
     virtual ~ATtinyX5() ;
+
+  protected:
+    IoEeprom ioEeprom ;
   } ;
 
   class ATtiny85 : public ATtinyX5

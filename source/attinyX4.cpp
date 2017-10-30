@@ -10,7 +10,7 @@ namespace AVR
 {
 
   ATtinyX4::ATtinyX4(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize)
-    : Mcu(programSize, 0x40, 0x60, dataSize, eepromSize)
+    : Mcu(programSize, 0x40, 0x60, dataSize, eepromSize), ioEeprom(*this)
   {
     const Instruction *instructions[]
     {
@@ -88,10 +88,10 @@ namespace AVR
       { 0x42, "TCCR1C" },
       { 0x41, "WDTCSR" },
       { 0x40, "PCMSK1" },
-      { 0x3F, "EEARH" },
-      { 0x3E, "EEARL" },
-      { 0x3D, "EEDR" },
-      { 0x3C, "EECR" },
+      //{ 0x3F, "EEARH" },
+      //{ 0x3E, "EEARL" },
+      //{ 0x3D, "EEDR" },
+      //{ 0x3C, "EECR" },
       { 0x3B, "PORTA" },
       { 0x3A, "DDRA" },
       { 0x39, "PINA" },
@@ -134,6 +134,10 @@ namespace AVR
 
   ATtiny84A::ATtiny84A() : ATtinyX4(0x2000/2, 0x200, 0x200)
   {
+    _io[0x1f] = new IoEeprom::EEARH(ioEeprom) ;
+    _io[0x1e] = new IoEeprom::EEARL(ioEeprom) ;
+    _io[0x1d] = new IoEeprom::EEDR (ioEeprom) ;
+    _io[0x1c] = new IoEeprom::EECR (ioEeprom) ;
   }
   ATtiny84A::~ATtiny84A()
   {
@@ -143,6 +147,9 @@ namespace AVR
 
   ATtiny44A::ATtiny44A() : ATtinyX4(0x1000/2, 0x100, 0x100)
   {
+    _io[0x1e] = new IoEeprom::EEARL(ioEeprom) ;
+    _io[0x1d] = new IoEeprom::EEDR (ioEeprom) ;
+    _io[0x1c] = new IoEeprom::EECR (ioEeprom) ;
   }
   ATtiny44A::~ATtiny44A()
   {
@@ -152,6 +159,9 @@ namespace AVR
 
   ATtiny24A::ATtiny24A() : ATtinyX4(0x800/2, 0x80, 0x80)
   {
+    _io[0x1e] = new IoEeprom::EEARL(ioEeprom) ;
+    _io[0x1d] = new IoEeprom::EEDR (ioEeprom) ;
+    _io[0x1c] = new IoEeprom::EECR (ioEeprom) ;
   }
   ATtiny24A::~ATtiny24A()
   {

@@ -10,7 +10,7 @@ namespace AVR
 {
 
   ATtinyX5::ATtinyX5(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize)
-    : Mcu(programSize, 0x40, 0x60, dataSize, eepromSize)
+    : Mcu(programSize, 0x40, 0x60, dataSize, eepromSize), ioEeprom(*this)
   {
     const Instruction *instructions[]
     {
@@ -84,10 +84,10 @@ namespace AVR
       { 0x42, "DWDR" },
       { 0x41, "WDTCR" },
       { 0x40, "PRR" },
-      { 0x3F, "EEARH" },
-      { 0x3E, "EEARL" },
-      { 0x3D, "EEDR" },
-      { 0x3C, "EECR" },
+      //{ 0x3F, "EEARH" },
+      //{ 0x3E, "EEARL" },
+      //{ 0x3D, "EEDR" },
+      //{ 0x3C, "EECR" },
       { 0x38, "PORTB" },
       { 0x37, "DDRB" },
       { 0x36, "PINB" },
@@ -123,6 +123,10 @@ namespace AVR
 
   ATtiny85::ATtiny85() : ATtinyX5(0x2000/2, 0x200, 0x200)
   {
+    _io[0x1f] = new IoEeprom::EEARH(ioEeprom) ;
+    _io[0x1e] = new IoEeprom::EEARL(ioEeprom) ;
+    _io[0x1d] = new IoEeprom::EEDR (ioEeprom) ;
+    _io[0x1c] = new IoEeprom::EECR (ioEeprom) ;
   }
   ATtiny85::~ATtiny85()
   {
@@ -132,6 +136,9 @@ namespace AVR
 
   ATtiny45::ATtiny45() : ATtinyX5(0x1000/2, 0x100, 0x100)
   {
+    _io[0x1e] = new IoEeprom::EEARL(ioEeprom) ;
+    _io[0x1d] = new IoEeprom::EEDR (ioEeprom) ;
+    _io[0x1c] = new IoEeprom::EECR (ioEeprom) ;
   }
   ATtiny45::~ATtiny45()
   {
@@ -141,6 +148,9 @@ namespace AVR
 
   ATtiny25::ATtiny25() : ATtinyX5(0x800/2, 0x80, 0x80)
   {
+    _io[0x1e] = new IoEeprom::EEARL(ioEeprom) ;
+    _io[0x1d] = new IoEeprom::EEDR (ioEeprom) ;
+    _io[0x1c] = new IoEeprom::EECR (ioEeprom) ;
   }
   ATtiny25::~ATtiny25()
   {

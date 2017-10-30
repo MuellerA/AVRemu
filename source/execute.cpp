@@ -56,7 +56,7 @@ bool Command::Match(const std::string &command)
 class CommandStep : public Command
 {
 public:
-  CommandStep() : Command(R"XXX(\s*([sn])\s*(?:([\d]+)\s*)?)XXX")
+  CommandStep() : Command(R"XXX(\s*([sn])\s*(?:(0x[0-9a-fA-F]+|[\d]+)\s*)?)XXX")
   {
   }
 
@@ -70,8 +70,8 @@ public:
 
 strings CommandStep::Help() const
 {
-  return strings { "s [count]        -- step in count instructions",
-                   "n [count]        -- step over count instructions" } ;
+  return strings { "s [count]            -- step in count instructions",
+                   "n [count]            -- step over count instructions" } ;
 }
 
 bool CommandStep::Execute(AVR::Mcu &mcu)
@@ -82,12 +82,16 @@ bool CommandStep::Execute(AVR::Mcu &mcu)
   
   const std::string &mode = _match[1] ;
   const std::string &countStr = _match[2] ;
-  AVR::uint32 count = countStr.size() ? std::stoul(countStr) : 1 ;
+  AVR::uint32 count = countStr.size() ? std::stoul(countStr, nullptr, 0) : 1 ;
   switch (mode[0])
   {
   case 's':
     for (AVR::uint32 i = 0 ; (i < count) && !SigInt ; ++i)
+    {
       mcu.Execute() ;
+      if (mcu.IsBreakpoint())
+        break ;
+    }
     break ;
   case 'n':
     for (AVR::uint32 i = 0 ; (i < count) && !SigInt ; ++i)
@@ -97,17 +101,121 @@ bool CommandStep::Execute(AVR::Mcu &mcu)
       if (instr->IsCall())
       {
         pc += (instr->IsTwoWord()) ? 2 : 1 ;
-        while ((mcu.PC() != pc) && !SigInt)
+        while ((mcu.PC() != pc) && !mcu.IsBreakpoint(pc) && !SigInt)
+        {
           mcu.Execute() ;
+          if (mcu.IsBreakpoint())
+            break ;
+        }
       }
       else
+      {
         mcu.Execute() ;
+        if (mcu.IsBreakpoint())
+          break ;
+      }
+      if (mcu.IsBreakpoint())
+        break ;
     }
     break ;
   }
   signal(SIGINT, prevIntHdl) ;
 
   mcu.Status() ;
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandRun
+////////////////////////////////////////////////////////////////////////////////
+class CommandRun : public Command
+{
+public:
+  CommandRun() : Command(R"XXX(\s*r\s*)XXX")
+  {
+  }
+
+  ~CommandRun()
+  {
+  }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandRun::Help() const
+{
+  return strings { "r                    -- run" } ;
+}
+
+bool CommandRun::Execute(AVR::Mcu &mcu)
+{
+  void (*prevIntHdl)(int) ;
+  SigInt = false ;
+  prevIntHdl = signal(SIGINT, SigIntHdl) ;
+
+  while (!SigInt)
+  {
+    mcu.Execute() ;
+    if (mcu.IsBreakpoint())
+      break ;
+  }
+  signal(SIGINT, prevIntHdl) ;
+
+  mcu.Status() ;
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandBreakpoint
+////////////////////////////////////////////////////////////////////////////////
+class CommandBreakpoint : public Command
+{
+public:
+  CommandBreakpoint() : Command(R"XXX(\s*b\s*([-+])\s*(?:(0x[0-9a-fA-F]+|[0-9]+)|([_0-9a-zA-Z]+))\s*)XXX")
+  {
+  }
+
+  ~CommandBreakpoint()
+  {
+  }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandBreakpoint::Help() const
+{
+  return strings { "b + <addr>|<label>   -- add breakpoint",
+                   "b - <addr>|<label>   -- remove breakpoint" } ;
+}
+
+bool CommandBreakpoint::Execute(AVR::Mcu &mcu)
+{
+  bool add = _match[1].str()[0] == '+' ;
+  
+  const std::string &addrLabel = _match[3] ;
+  if (addrLabel.size())
+  {
+    const AVR::Mcu::Xref *xref = mcu.XrefByLabel(addrLabel) ;
+    if (!xref)
+    {
+      std::cout << "illegal value" << std::endl ;
+      return false ;
+    }
+    if (add)
+      mcu.AddBreakpoint(xref->_addr) ;
+    else
+      mcu.DelBreakpoint(xref->_addr) ;
+    return true ;                        
+  }
+
+  const std::string &addrStr = _match[2] ;
+  AVR::uint32 addr = std::stoul(addrStr, nullptr, 0) ;
+  if (add)
+    mcu.AddBreakpoint(addr) ;
+  else
+    mcu.DelBreakpoint(addr) ;
   return true ;
 }
 
@@ -131,7 +239,7 @@ public:
 
 strings CommandGoto::Help() const
 {
-  return strings { "g <addr>|<label> -- goto address/label" } ;
+  return strings { "g <addr>|<label>     -- goto address/label" } ;
 }
 
 bool CommandGoto::Execute(AVR::Mcu &mcu)
@@ -173,9 +281,9 @@ strings CommandAssign::Help() const
 {
   return strings
   {
-    "r<d>    = byte   -- set register",
-    "d<addr> = byte   -- set data memory",
-    "p<addr> = word   -- set program memory"
+    "r<d>    = byte       -- set register",
+    "d<addr> = byte       -- set data memory",
+    "p<addr> = word       -- set program memory"
   } ;
 }
 
@@ -315,7 +423,7 @@ private:
 
 strings CommandQuit::Help() const
 {
-  return strings { "q                -- quit"} ;
+  return strings { "q                    -- quit"} ;
 }
 bool CommandQuit::Execute(AVR::Mcu &mcu)
 {
@@ -342,7 +450,7 @@ private:
 
 strings CommandRepeat::Help() const
 {
-  return strings { "<empty line>     -- repeat last command"} ;
+  return strings { "<empty line>         -- repeat last command"} ;
 }
 bool CommandRepeat::Execute(AVR::Mcu &mcu)
 {
@@ -374,7 +482,7 @@ private:
 
 strings CommandHelp::Help() const
 {
-  return strings { "?                -- help"} ;
+  return strings { "?                    -- help"} ;
 }
 bool CommandHelp::Execute(AVR::Mcu &mcu)
 {
@@ -409,6 +517,9 @@ strings CommandUnknown::Help() const
 bool CommandUnknown::Execute(AVR::Mcu &mcu)
 {
   std::cout << "unknown command \"" << _match[0] << "\"" << std::endl ;
+  std::cout << "type \"?\" for help" << std::endl ;
+  std::cout << std::endl ;
+  
   return false ;
 }
 
@@ -425,6 +536,8 @@ void Execute(AVR::Mcu &mcu)
     {
       new CommandRepeat(lastCommand), // first!
       new CommandStep(),
+      new CommandRun(),
+      new CommandBreakpoint(),
       new CommandGoto(),
       new CommandAssign(),
       new CommandList(),
@@ -435,6 +548,7 @@ void Execute(AVR::Mcu &mcu)
     } ;
 
   std::cout << "type \"?\" for help" << std::endl ;
+  std::cout << std::endl ;
   
   std::string cmd ;
   

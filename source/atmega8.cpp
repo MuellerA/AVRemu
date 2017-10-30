@@ -9,7 +9,7 @@
 namespace AVR
 {
 
-  ATmega8A::ATmega8A() : Mcu(0x2000/2, 0x0040, 0x0060, 0x0400, 0x0200)
+  ATmega8A::ATmega8A() : Mcu(0x2000/2, 0x0040, 0x0060, 0x0400, 0x0200), ioEeprom(*this, false)
   {
     const Instruction *instructions[]
     {
@@ -87,10 +87,10 @@ namespace AVR
       { 0x42, "ASSR" },
       { 0x41, "WDTCR" },
       { 0x40, "UBRRH|UCSRC" },
-      { 0x3F, "EEARH" },
-      { 0x3E, "EEARL" },
-      { 0x3D, "EEDR" },
-      { 0x3C, "EECR" },
+      //{ 0x3F, "EEARH" },
+      //{ 0x3E, "EEARL" },
+      //{ 0x3D, "EEDR" },
+      //{ 0x3C, "EECR" },
       { 0x38, "PORTB" },
       { 0x37, "DDRB" },
       { 0x36, "PINB" },
@@ -124,6 +124,11 @@ namespace AVR
     _io[0x3f] = new IoSREG::SREG(_sreg) ;
     _io[0x3e] = new IoSP::SPH(_sp) ;
     _io[0x3d] = new IoSP::SPL(_sp) ;
+
+    _io[0x22] = new IoEeprom::EEARH(ioEeprom) ;
+    _io[0x21] = new IoEeprom::EEARL(ioEeprom) ;
+    _io[0x20] = new IoEeprom::EEDR (ioEeprom) ;
+    _io[0x1f] = new IoEeprom::EECR (ioEeprom) ;
   }
 
   ATmega8A::~ATmega8A()
