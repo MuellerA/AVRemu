@@ -189,24 +189,27 @@ int main(int argc, char *argv[])
   }
   fclose(f) ;
   
-  std::vector<AVR::uint8> eeprom ;
-  eeprom.reserve(mcu->EepromSize()) ;
-  FILE *ee = fopen(eepromFileName.c_str(), "rb") ;
-  if (!ee)
+  if (eepromFileName.size())
   {
-    fprintf(stderr, "read file \"%s\" failed\n", eepromFileName.c_str()) ;
-    return 1 ;
+    std::vector<AVR::uint8> eeprom ;
+    eeprom.reserve(mcu->EepromSize()) ;
+    FILE *ee = fopen(eepromFileName.c_str(), "rb") ;
+    if (!ee)
+    {
+      fprintf(stderr, "read file \"%s\" failed\n", eepromFileName.c_str()) ;
+      return 1 ;
+    }
+    while (true)
+    {
+      AVR::uint8 bytes[0x100] ;
+      size_t nByte = fread(bytes, sizeof(AVR::uint8), 0x100, ee) ;
+      if (!nByte)
+        break ;
+      eeprom.insert(eeprom.end(), bytes, bytes + nByte) ;
+    }
+    fclose(ee) ;
+    mcu->SetEeprom(0, eeprom) ;
   }
-  while (true)
-  {
-    AVR::uint8 bytes[0x100] ;
-    size_t nByte = fread(bytes, sizeof(AVR::uint8), 0x100, ee) ;
-    if (!nByte)
-      break ;
-    eeprom.insert(eeprom.end(), bytes, bytes + nByte) ;
-  }
-  fclose(ee) ;
-  mcu->SetEeprom(0, eeprom) ;
   
   if (xrefFileName.size())
   {

@@ -12,85 +12,190 @@ The twopass disassembler shows direct jump/call targets.
 
 Only supports MCUs with addresses < 64k, the RAMP registers are ignored.
 
-Usage: 
-<pre>
-usage: ./AVRemu [-d] [-x] [-m &lt;mcu&gt;] &lt;avr-bin&gt;
-       ./AVRemu -h
-parameter:
-   -m &lt;mcu&gt;    MCU type, see below
-   -d          disassemble file
-   -x          execute file
-   &lt;avr-bin&gt;   binary file to be disassembled
-   -h          this help
-Supported MCU types: ATany ATmega168PA ATmega328P ATmega48PA ATmega88PA ATmega8A ATtiny24A ATtiny25 ATtiny44A ATtiny45 ATtiny84A ATtiny85 ATxmega128A4U ATxmega16A4U ATxmega32A4U ATxmega64A4U
-</pre>
-
+<hr/>
+                                    
 Compile:
 <pre>
 cd source
 make -k
 </pre>
 
-Example:
+<hr/>
+
+Usage: 
 <pre>
-AVRemu/source > ./AVRemu -mcu ATtiny45 ../test/attiny45.bin 
+usage: AVRemu [-d] [-e] [-m &lt;mcu&gt;] [-x &lt;xref&gt;] [-p &lt;eeProm&gt;] &lt;avr-bin&gt;
+       AVRemu -h
+parameter:
+   -m &lt;mcu&gt;    MCU type, see below
+   -d          disassemble file
+   -e          execute file
+   -x &lt;xref&gt;   read/write xref file
+   -p &lt;eeProm&gt; binary file of EEPROM memory
+   &lt;avr-bin&gt;   binary file to be disassembled / executed
+   -h          this help
+Supported MCU types: ATany ATmega168PA ATmega328P ATmega48PA ATmega88PA ATmega8A ATtiny24A ATtiny25 ATtiny44A ATtiny45 ATtiny84A ATtiny85 ATxmega128A4U ATxmega16A4U ATxmega32A4U ATxmega64A4U
+</pre>
+
+<hr/>
+
+Example Disassembler:
+<pre>
+AVRemu/source &gt; ./AVRemu -d -m ATtiny85 -x attiny85.xref attiny85.bin
+
+RESET
 External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset
-00000:   ..     c00e          RJMP   14		; 0x0000f Relative Jump
+00000:   ..     c00e          RJMP   RESET		; 14 0x0000f Relative Jump
+IRQ_INT0
 External Interrupt Request 0
-00001:   @.     c040          RJMP   64		; 0x00042 Relative Jump
+00001:   ..     c0b4          RJMP   ISR_INT0		; 180 0x000b6 Relative Jump
+IRQ_PCINT0
 Pin Change Interrupt Request 0
 00002:   ..     9518          RETI  		; Return from Interrupt
+IRQ_TIMER1_COMPA
 Timer/Counter1 Compare Match A
-00003:   U.     c055          RJMP   85		; 0x00059 Relative Jump
+00003:   ..     9518          RETI  		; Return from Interrupt
+IRQ_TIMER1_OVF
 Timer/Counter1 Overflow
 00004:   ..     9518          RETI  		; Return from Interrupt
+IRQ_TIMER0_OVF
 Timer/Counter0 Overflow
 00005:   ..     9518          RETI  		; Return from Interrupt
+IRQ_EE_RDY
 EEPROM Ready
 00006:   ..     9518          RETI  		; Return from Interrupt
+IRQ_ANA_COMP
 Analog Comparator
 00007:   ..     9518          RETI  		; Return from Interrupt
+IRQ_ADC
 ADC Conversion Complete
 00008:   ..     9518          RETI  		; Return from Interrupt
+IRQ_TIMER1_COMPB
 Timer/Counter1 Compare Match B
 00009:   ..     9518          RETI  		; Return from Interrupt
+IRQ_TIMER0_COMPA
 Timer/Counter0 Compare Match A
-0000a:   ..     9518          RETI  		; Return from Interrupt
+0000a:   B.     c142          RJMP   ISR_TIMER0		; 322 0x0014d Relative Jump
+IRQ_TIMER0_COMPB
 Timer/Counter0 Compare Match B
 0000b:   ..     9518          RETI  		; Return from Interrupt
+IRQ_WDT
 Watchdog Time-out
 0000c:   ..     9518          RETI  		; Return from Interrupt
+IRQ_USI_START
 USI START
 0000d:   ..     9518          RETI  		; Return from Interrupt
+IRQ_USI_OVF
 USI Overflow
 0000e:   ..     9518          RETI  		; Return from Interrupt
-Xref: 00000
-0000f:   ..     e50f          LDI    r16, 0x5f		; 95 Load Immediate
-00010:   ..     bf0d          OUT    SPL, r16		; 0x3d Store Register to I/O Location
-00011:   ..     e001          LDI    r16, 0x01		; 1 Load Immediate
-00012:   ..     bf0e          OUT    SPH, r16		; 0x3e Store Register to I/O Location
-00013:   ..     e010          LDI    r17, 0x00		; 0 Load Immediate
-00014:   ..     e400          LDI    r16, 0x40		; 64 Load Immediate
-00015:   ..     bf0b          OUT    GIMSK, r16		; 0x3b Store Register to I/O Location
-00016:   ..     e800          LDI    r16, 0x80		; 128 Load Immediate
-00017:   ..     bd06          OUT    CLKPR, r16		; 0x26 Store Register to I/O Location
-00018:   ..     e003          LDI    r16, 0x03		; 3 Load Immediate
-00019:   ..     bd06          OUT    CLKPR, r16		; 0x26 Store Register to I/O Location
-0001a:   ..     e402          LDI    r16, 0x42		; 66 Load Immediate
-0001b:   ..     bd0a          OUT    TCCR0A, r16		; 0x2a Store Register to I/O Location
-0001c:   ..     bf13          OUT    TCCR0B, r17		; 0x33 Store Register to I/O Location
-0001d:   ..     e001          LDI    r16, 0x01		; 1 Load Immediate
-0001e:   ..     bf00          OUT    TCCR1, r16		; 0x30 Store Register to I/O Location
-0001f:   ..     ef0a          LDI    r16, 0xfa		; 250 Load Immediate
-00020:   ..     bd0e          OUT    OCR1A, r16		; 0x2e Store Register to I/O Location
-00021:   ..     e400          LDI    r16, 0x40		; 64 Load Immediate
-00022:   ..     bf09          OUT    TIMSK, r16		; 0x39 Store Register to I/O Location
-00023:   ..     bb17          OUT    DDRB, r17		; 0x17 Store Register to I/O Location
-00024:   ..     bb18          OUT    PORTB, r17		; 0x18 Store Register to I/O Location
-00025:   ..     9ab8          SBI    0x17, 0		; Set Bit in I/O Register
-00026:   ..     9abc          SBI    0x17, 4		; Set Bit in I/O Register
-00027:   ..     9ac2          SBI    0x18, 2		; Set Bit in I/O Register
-00028:   ..     bb15          OUT    PCMSK, r17		; 0x15 Store Register to I/O Location
-00029:   ..     e003          LDI    r16, 0x03		; 3 Load Immediate
-0002a:   ..     bd00          OUT    PRR, r16		; 0x20 Store Register to I/O Location
+RESET: RESET
+0000f:   ..     e000          LDI    r16, 0x00		; 0 Load Immediate
+00010:   ..     b903          OUT    ADCSRB, r16		; 0x03 Store Register to I/O Location
+00011:   ..     b904          OUT    ADCL, r16		; 0x04 Store Register to I/O Location
+00012:   ..     b905          OUT    ADCH, r16		; 0x05 Store Register to I/O Location
+00013:   ..     b906          OUT    ADCSRA, r16		; 0x06 Store Register to I/O Location
+00014:   ..     b907          OUT    ADMUX, r16		; 0x07 Store Register to I/O Location
+00015:   ..     b90d          OUT    USICR, r16		; 0x0d Store Register to I/O Location
+00016:   ..     b90e          OUT    USISR, r16		; 0x0e Store Register to I/O Location
+00017:   ..     bb04          OUT    DIDR0, r16		; 0x14 Store Register to I/O Location
+00018:   ..     bb07          OUT    DDRB, r16		; 0x17 Store Register to I/O Location
+00019:   ..     bb08          OUT    PORTB, r16		; 0x18 Store Register to I/O Location
+0001a:   ..     e01b          LDI    r17, 0x0b		; 11 Load Immediate
+0001b:   ..     bd10          OUT    PRR, r17		; 0x20 Store Register to I/O Location
+0001c:   ..     bd08          OUT    OCR0B, r16		; 0x28 Store Register to I/O Location
+0001d:   ..     e313          LDI    r17, 0x33		; 51 Load Immediate
+0001e:   ..     bd19          OUT    OCR0A, r17		; 0x29 Store Register to I/O Location
+0001f:   ..     e012          LDI    r17, 0x02		; 2 Load Immediate
+00020:   ..     bd1a          OUT    TCCR0A, r17		; 0x2a Store Register to I/O Location
+00021:   ..     bd0f          OUT    TCNT1, r16		; 0x2f Store Register to I/O Location
+00022:   ..     bf00          OUT    TCCR1, r16		; 0x30 Store Register to I/O Location
+00023:   ..     bf02          OUT    TCNT0, r16		; 0x32 Store Register to I/O Location
+00024:   ..     bf13          OUT    TCCR0B, r17		; 0x33 Store Register to I/O Location
+00025:   ..     e211          LDI    r17, 0x21		; 33 Load Immediate
+00026:   ..     bf15          OUT    MCUCR, r17		; 0x35 Store Register to I/O Location
+00027:   ..     bf08          OUT    TIFR, r16		; 0x38 Store Register to I/O Location
+</pre>
+
+<hr/>
+
+Example Emulator:
+
+<pre>
+type "?" for help
+
+RESET
+External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset
+00000:   ..     c00e          RJMP   RESET		; 14 0x0000f Relative Jump
+&gt; ?
+
+&lt;empty line&gt;            -- repeat last command
+s [count]               -- step in count instructions
+n [count]               -- step over count instructions
+r                       -- run
+b + &lt;addr&gt;|&lt;label&gt;      -- add breakpoint
+b - &lt;addr&gt;|&lt;label&gt;      -- remove breakpoint
+g &lt;addr&gt;|&lt;label&gt;        -- goto address/label
+r&lt;d&gt;    = byte          -- set register
+d&lt;addr&gt; = byte          -- set data memory
+p&lt;addr&gt; = word          -- set program memory
+d ? &lt;addr&gt; &lt;len&gt;        -- read memory content
+l [[&lt;addr&gt;] &lt;count&gt;]    -- list source
+ll [pattern]            -- list labels
+q                       -- quit
+h                       -- help
+?                       -- help
+
+RESET
+External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset
+00000:   ..     c00e          RJMP   RESET		; 14 0x0000f Relative Jump
+&gt; s
+       ________  00 00 00 00 00 00 00 00
+       SP: 025f  00 00 00 00 00 00 00 00
+                 00 00 00 00 00 00 00 00
+                 00 00 00 00 00 00 00 00
+RESET: RESET
+0000f:   ..     e000          LDI    r16, 0x00		; 0 Load Immediate
+&gt; 
+       ________  00 00 00 00 00 00 00 00
+       SP: 025f  00 00 00 00 00 00 00 00
+                 00 00 00 00 00 00 00 00
+                 00 00 00 00 00 00 00 00
+00010:   ..     b903          OUT    ADCSRB, r16		; 0x03 Store Register to I/O Location
+&gt; 
+       ________  00 00 00 00 00 00 00 00
+       SP: 025f  00 00 00 00 00 00 00 00
+                 00 00 00 00 00 00 00 00
+                 00 00 00 00 00 00 00 00
+00011:   ..     b904          OUT    ADCL, r16		; 0x04 Store Register to I/O Location
+&gt; r0=0xab
+       ________  ab 00 00 00 00 00 00 00
+       SP: 025f  00 00 00 00 00 00 00 00
+                 00 00 00 00 00 00 00 00
+                 00 00 00 00 00 00 00 00
+00011:   ..     b904          OUT    ADCL, r16		; 0x04 Store Register to I/O Location
+&gt; b + Main
+00011:   ..     b904          OUT    ADCL, r16		; 0x04 Store Register to I/O Location
+&gt; r
+       ________  ab 00 00 00 00 00 00 00
+       SP: 025f  00 00 00 00 00 00 00 00
+                 00 02 00 00 00 00 00 00
+                 00 00 00 00 00 00 00 00
+Main: 00035
+00195:   ..     9ab8          SBI    DDRB, 0		; 0x17 Set Bit in I/O Register
+&gt; l 10
+Main: 00035
+00195:   ..     9ab8          SBI    DDRB, 0		; 0x17 Set Bit in I/O Register
+00196:   ..     9ab9          SBI    DDRB, 1		; 0x17 Set Bit in I/O Register
+00197:   ..     98c1          CBI    PORTB, 1		; 0x18 Clear Bit in I/O Register
+00198:   .$     2411          EOR    r1, r1		; Exclusive OR
+00199:   ..     e6c9          LDI    r28, 0x69		; 105 Load Immediate
+0019a:   ..     e0d0          LDI    r29, 0x00		; 0 Load Immediate
+0019b:   ..     01ce          MOVW   r24, r28		; Copy Register Word
+0019c:   ..     d116          RCALL  ParamLoad		; 278 0x002b3 Relative Call to Subroutine
+0019d:   ..     01ce          MOVW   r24, r28		; Copy Register Word
+0019e:   \.     d15c          RCALL  ParamFix		; 348 0x002fb Relative Call to Subroutine
+
+Main: 00035
+00195:   ..     9ab8          SBI    DDRB, 0		; 0x17 Set Bit in I/O Register
+&gt; q
 </pre>
