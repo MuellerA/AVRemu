@@ -376,7 +376,7 @@ namespace AVR
     ioReg->Set(value) ;
   }
 
-  uint8  Mcu::Data(uint32 addr) const
+  uint8  Mcu::Data(uint32 addr, bool resetOnError) const
   {
     if ((_regStart <= addr) && (addr <= _regEnd))
     {
@@ -392,11 +392,12 @@ namespace AVR
     }
 
     fprintf(stderr, "illegal data access\n") ;
-    const_cast<Mcu*>(this)->_pc = 0 ;
+    if (resetOnError)
+      const_cast<Mcu*>(this)->_pc = 0 ;
     return 0xff ;
   }
 
-  void Mcu::Data(uint32 addr, uint8 value)
+  void Mcu::Data(uint32 addr, uint8 value, bool resetOnError)
   {
     if ((_regStart <= addr) && (addr <= _regEnd))
     {
@@ -415,18 +416,26 @@ namespace AVR
     }
 
     fprintf(stderr, "illegal data access\n") ;
-    _pc = 0 ;
+    if (resetOnError)
+      _pc = 0 ;
   }
 
-  void Mcu::Eeprom(size_t address, uint8 value)
+  void Mcu::Eeprom(size_t address, uint8 value, bool resetOnError)
   {
     if (address < _eepromSize)
       _eeprom[address] = value ;
+    if (resetOnError)
+      _pc = 0 ;
   }
   
-  uint8 Mcu::Eeprom(size_t address) const
+  uint8 Mcu::Eeprom(size_t address, bool resetOnError) const
   {
-    return (address < _eepromSize) ? _eeprom[address] : 0xff ;
+    if (address < _eepromSize)
+      return _eeprom[address] ;
+
+    if (resetOnError)
+      const_cast<Mcu*>(this)->_pc = 0 ;
+    return 0xff ;
   }  
   
   Command  Mcu::Prog(uint32 addr) const
@@ -463,7 +472,7 @@ namespace AVR
       fprintf(stderr, "stack underflow\n") ;
       return ;
     }
-    _data[sp] = value ;
+    _data[sp-_dataStart] = value ;
     _sp() = sp - 1 ;
   }
 
@@ -476,7 +485,7 @@ namespace AVR
       return 0xff ;
     }
     _sp() = sp ;
-    return _data[sp] ;
+    return _data[sp-_dataStart] ;
   }
 
   void Mcu::PushPC()

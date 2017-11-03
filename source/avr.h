@@ -321,10 +321,10 @@ namespace AVR
     void    RegW(uint32 reg, uint16 value) ;
     uint8   Io(uint32 io) const ;
     void    Io(uint32 io, uint8 value) ;
-    uint8   Data(uint32 addr) const ;
-    void    Data(uint32 addr, uint8 value) ;
-    void    Eeprom(size_t address, uint8 value) ;
-    uint8   Eeprom(size_t address) const ;
+    uint8   Data(uint32 addr, bool resetOnError = true) const ;
+    void    Data(uint32 addr, uint8 value, bool resetOnError = true) ;
+    void    Eeprom(size_t address, uint8 value, bool resetOnError = true) ;
+    uint8   Eeprom(size_t address, bool resetOnError = true) const ;
     Command Prog(uint32 addr) const ;
     void    Prog(uint32 addr, uint16 Command) ;
     const Instruction* Instr(uint32 addr) const ;

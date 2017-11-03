@@ -1053,7 +1053,7 @@ namespace AVR
     uint8 sreg = mcu.GetSREG() & 0b11100001 ;
     uint8 rr = mcu.Reg(nr) ;
     uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd | rr ;
+    uint8 r = rd ^ rr ;
     if (r & 0x80)
       sreg |= SREG::N ;
     if (r == 0x00)
