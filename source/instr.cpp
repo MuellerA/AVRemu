@@ -3997,7 +3997,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // BLD
-  InstrBLD::InstrBLD() : Instruction(0b1111100000000000, 0b1111111000001000, "BLD", "Bit Load from T Falg in SREG to Bit  in Register", false, false)
+  InstrBLD::InstrBLD() : Instruction(0b1111100000000000, 0b1111111000001000, "BLD", "Bit Load from T Flag in SREG to Bit  in Register", false, false)
   {
   }
 

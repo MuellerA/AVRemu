@@ -40,6 +40,34 @@ public:
   virtual bool     Execute(AVR::Mcu &mcu) = 0 ;
 
 protected:
+
+  bool Num(const std::string matchNum, AVR::uint32 &num)
+  {
+    num = std::stoul(matchNum, nullptr, 0) ;
+    return true ;
+  }
+  
+  bool Addr(const AVR::Mcu &mcu, const std::string &matchNum, const std::string &matchLbl, AVR::uint32 &addr)
+  {
+    if (matchLbl.size())
+    {
+      const AVR::Mcu::Xref *xref = mcu.XrefByLabel(matchLbl) ;
+      if (!xref)
+        return false ;
+
+      addr = xref->_addr ;
+      return true ;
+    }
+
+    addr = std::stoul(matchNum, nullptr, 0) ;
+    return true ;
+  }
+  
+  
+protected:
+  static const std::string _reNum  ;
+  static const std::string _reAddr ;
+
   std::string _command ;
   std::regex  _regex ;
   std::smatch _match ;
@@ -50,6 +78,9 @@ bool Command::Match(const std::string &command)
   _command = command ;
   return std::regex_match(_command, _match, _regex) ;
 }
+
+const std::string Command::_reNum{ R"XXX((?:(0x[0-9a-fA-F]+|[0-9]+)))XXX" } ;
+const std::string Command::_reAddr{ R"XXX((?:(0x[0-9a-fA-F]+|[0-9]+)|([_a-zA-Z][_0-9a-zA-Z]+)))XXX" } ;
 
 ////////////////////////////////////////////////////////////////////////////////
 // CommandStep
@@ -173,7 +204,7 @@ bool CommandRun::Execute(AVR::Mcu &mcu)
 class CommandBreakpoint : public Command
 {
 public:
-  CommandBreakpoint() : Command(R"XXX(\s*b\s*([-+])\s*(?:(0x[0-9a-fA-F]+|[0-9]+)|([_0-9a-zA-Z]+))\s*)XXX")
+  CommandBreakpoint() : Command(R"XXX(\s*b\s*([-+])\s*)XXX" + _reAddr + R"XXX(\s*)XXX")
   {
   }
 
@@ -193,30 +224,56 @@ strings CommandBreakpoint::Help() const
 
 bool CommandBreakpoint::Execute(AVR::Mcu &mcu)
 {
-  bool add = _match[1].str()[0] == '+' ;
+  AVR::uint32 addr ;
   
-  const std::string &addrLabel = _match[3] ;
-  if (addrLabel.size())
+  if (!Addr(mcu, _match[2], _match[3], addr))
   {
-    const AVR::Mcu::Xref *xref = mcu.XrefByLabel(addrLabel) ;
-    if (!xref)
-    {
-      std::cout << "illegal value" << std::endl ;
-      return false ;
-    }
-    if (add)
-      mcu.AddBreakpoint(xref->_addr) ;
-    else
-      mcu.DelBreakpoint(xref->_addr) ;
-    return true ;                        
+    std::cout << "illegal value" << std::endl ;
+    return false ;
   }
 
-  const std::string &addrStr = _match[2] ;
-  AVR::uint32 addr = std::stoul(addrStr, nullptr, 0) ;
+  bool add = _match[1].str()[0] == '+' ;
+
   if (add)
     mcu.AddBreakpoint(addr) ;
   else
     mcu.DelBreakpoint(addr) ;
+
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandListBreakpoints
+////////////////////////////////////////////////////////////////////////////////
+
+class CommandListBreakpoints : public Command
+{
+public:
+  CommandListBreakpoints() : Command(R"XXX(\s*lb\s*)XXX") { }
+  ~CommandListBreakpoints() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+  } ;
+
+strings CommandListBreakpoints::Help() const
+{
+  return strings { "lb                      -- list breakpoints" } ;
+}
+bool CommandListBreakpoints::Execute(AVR::Mcu &mcu)
+{
+  for (auto addr : mcu.Breakpoints())
+  {
+    const AVR::Mcu::Xref *xref = mcu.XrefByAddr((AVR::uint32) addr) ;
+
+    std::cout << std::hex << std::setfill('0') << std::setw(4) << addr ;
+  
+    if (xref)
+      std::cout << "    " << xref->_label ;
+
+    std::cout << std::endl << std::endl ;
+  }
+
   return true ;
 }
 
@@ -226,7 +283,7 @@ bool CommandBreakpoint::Execute(AVR::Mcu &mcu)
 class CommandGoto : public Command
 {
 public:
-  CommandGoto() : Command(R"XXX(\s*g\s*(?:(0x[0-9a-fA-F]+|[0-9]+)|([_0-9a-zA-Z]+))\s*)XXX")
+  CommandGoto() : Command(R"XXX(\s*g\s*)XXX" + _reAddr + R"XXX(\s*)XXX")
   {
   }
 
@@ -245,22 +302,13 @@ strings CommandGoto::Help() const
 
 bool CommandGoto::Execute(AVR::Mcu &mcu)
 {
-  const std::string &addrLabel = _match[2] ;
-
-  if (addrLabel.size())
+  AVR::uint32 addr ;
+  if (!Addr(mcu, _match[1], _match[2], addr))
   {
-    const AVR::Mcu::Xref *xref = mcu.XrefByLabel(addrLabel) ;
-    if (!xref)
-    {
-      std::cout << "illegal value" << std::endl ;
-      return false ;
-    }    
-    mcu.PC() = xref->_addr ;
-    return true ;
+    std::cout << "illegal value" << std::endl ;
+    return false ;
   }
-  
-  const std::string &addrStr = _match[1] ;
-  AVR::uint32 addr = std::stoul(addrStr, nullptr, 0) ;
+
   mcu.PC() = addr ;
   return true ;
 }
@@ -401,7 +449,7 @@ bool CommandRead::Execute(AVR::Mcu &mcu)
 class CommandList : public Command
 {
 public:
-  CommandList() : Command(R"XXX(\s*l\s*(?:(0x[0-9a-fA-F]+|[0-9]+)\s*(?:(0x[0-9a-fA-F]+|[0-9]+)\s*)?)?)XXX") { }
+  CommandList() : Command(R"XXX(\s*l\s*(?:)XXX" + _reNum + R"XXX(|(?:)XXX" + _reAddr + R"XXX((?:\s+)XXX" + _reNum + R"XXX()?))?\s*)XXX") { }
   ~CommandList() { }
 
   virtual strings Help() const ;
@@ -410,24 +458,31 @@ public:
 
 strings CommandList::Help() const
 {
-  return strings { "l [[<addr>] <count>]    -- list source"} ;
+  return strings { "l [[<addr>|<label>] <count>]    -- list source"} ;
 }
 bool CommandList::Execute(AVR::Mcu &mcu)
 {
   AVR::uint32 pc0   = mcu.PC() ;
   AVR::uint32 addr  = pc0 ;
   AVR::uint32 count = 20 ;
-  const std::string &m2 = _match[2] ;
-  const std::string &m1 = _match[1] ;
-  
-  if (m2.size())
+  const std::string &mCnt2 = _match[1] ;
+  const std::string &mNum = _match[2] ;
+  const std::string &mLbl = _match[3] ;
+  const std::string &mCnt1 = _match[4] ;
+
+  if (mCnt2.size())
   {
-    count = std::stoul(m2, nullptr, 0) ;
-    addr  = std::stoul(m1, nullptr, 0) ;
+    Num(mCnt2, count) ;
   }
-  else if (m1.size())
+  else if (mNum.size() || mLbl.size())
   {
-    count = std::stoul(m1, nullptr, 0) ;
+    if (!Addr(mcu, mNum, mLbl, addr))
+    {
+      std::cout << "illegal value" << std::endl ;
+      return false ;
+    }
+    if (mCnt1.size())
+      Num(mCnt1, count) ;
   }
 
   mcu.PC() = addr ;
@@ -617,6 +672,7 @@ void Execute(AVR::Mcu &mcu)
       new CommandRead(),
       new CommandList(),
       new CommandListLabels(),
+      new CommandListBreakpoints(),
       new CommandQuit(quit),
       new CommandHelp(commands),
       new CommandUnknown(), // last!

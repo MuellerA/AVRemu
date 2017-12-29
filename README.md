@@ -37,6 +37,11 @@ parameter:
 Supported MCU types: ATany ATmega168PA ATmega328P ATmega48PA ATmega88PA ATmega8A ATtiny24A ATtiny25 ATtiny44A ATtiny45 ATtiny84A ATtiny85 ATxmega128A4U ATxmega16A4U ATxmega32A4U ATxmega64A4U
 </pre>
 
+To extract the bin and xref files from an elf file use the script Elf.rb
+<pre>
+usage: Elf.rb &lt;elf-file(in)&gt; &lt;bin-file(out)&gt; &lt;xref-file(out)&gt;
+</pre>
+
 <hr/>
 
 Example Disassembler:
@@ -121,6 +126,8 @@ RESET: RESET
 Example Emulator:
 
 <pre>
+AVRemu/source &gt; ./AVRemu -e -m ATtiny85 -x attiny85.xref -p ledLamp.attiny85.eeprom  ledLamp.attiny85.bin 
+
 type "?" for help
 
 RESET

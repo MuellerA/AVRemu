@@ -365,6 +365,7 @@ namespace AVR
     void DelBreakpoint(std::size_t addr) { _breakpoints.erase(addr) ; }
     bool IsBreakpoint(std::size_t addr) const { return _breakpoints.find(addr) != _breakpoints.end() ; }
     bool IsBreakpoint()                 const { return _breakpoints.find(_pc ) != _breakpoints.end() ; }
+    const std::set<std::size_t>& Breakpoints() const { return _breakpoints ; }
     
     virtual bool PcIs22bit()     { return false ; }
     virtual bool IsXmega()       { return false ; }
