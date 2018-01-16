@@ -134,6 +134,9 @@ namespace AVR
     _dataEnd   = _dataStart + _dataSize - 1 ;
     
     _eepromSize = eepromSize ;
+#ifdef DEBUG
+    _log = fopen("AVRemu.log", "w") ;
+#endif
   }
 
   Mcu::~Mcu()
@@ -143,11 +146,19 @@ namespace AVR
         delete (iIo) ;
     for (auto iXref : _xrefs)
       delete iXref ;
+
+#ifdef DEBUG
+    fclose(_log) ;
+#endif
   }
 
   void Mcu::Execute()
   {
     _ticks += 1 ;
+
+#ifdef DEBUG
+    fprintf(_log, "PC: %05zx\n", _pc) ;
+#endif
     
     if (_pc >= _programSize)
     {
@@ -281,29 +292,36 @@ namespace AVR
       }
     }
 
+    char buff[32] ;
+    std::string str ;
+    str += label ;
+    sprintf(buff, "%05zx:   ", pc) ;
+    str += buff ;
+    str += Disasm_ASC(_program[pc]) ;
+    sprintf(buff, "     %04x ", _program[pc]) ;
+    str += buff ;
+    
     const Instruction *instr = _instructions[cmd] ;
     if (!instr)
     {
-      char buff[1024] ;
-      sprintf(buff, "%s%05zx:   %s     %04x          ???", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), _program[pc]) ;
-      return std::string(buff) ;
+      str += "         ???" ;
+      return str ;
     }
 
-    std::string instrDisasm = instr->Disasm(*this, cmd) ;
-
-    char buff[1024] ;
     switch (_pc - pc)
     {
     case 1:
-      sprintf(buff, "%s%05zx:   %s     %04x          ", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), _program[pc]) ;
+      str += "         " ;
       break ;
     case 2:
-      sprintf(buff, "%s%05zx:   %s%s   %04x %04x     ", label.c_str(), pc, Disasm_ASC(_program[pc]).c_str(), Disasm_ASC(_program[pc+1]).c_str(), _program[pc], _program[pc+1]) ;
+      sprintf(buff, "%04x     ", _program[pc+1]) ;
+      str += buff ;
       break ;
     }
-    std::string disasm(buff) ;
 
-    return disasm + instrDisasm ;
+    str += instr->Disasm(*this, cmd) ;
+
+    return str ;
   }
 
   bool Mcu::DataAddrName(uint32 addr, std::string &name) const
@@ -360,7 +378,7 @@ namespace AVR
     Io::Register *ioReg = _io[io] ;
     if (!ioReg)
     {
-      fprintf(stderr, "illegal IO Register access\n") ;
+      fprintf(stderr, "illegal IO Register access 0x%x\n", io) ;
       return 0xff ;
     }
     return ioReg->Get() ;
@@ -370,7 +388,7 @@ namespace AVR
     Io::Register *ioReg = _io[io] ;
     if (!ioReg)
     {
-      fprintf(stderr, "illegal IO Register access\n") ;
+      fprintf(stderr, "illegal IO Register access 0x%x\n", io) ;
       return ;
     }
     ioReg->Set(value) ;
@@ -514,8 +532,9 @@ namespace AVR
     // todo
   }
 
-  void Mcu::NotImplemented(const Instruction&)
+  void Mcu::NotImplemented(const Instruction &instr)
   {
+    fprintf(stderr, "not implemented instruction %s %s\n", instr.Mnemonic().c_str(), instr.Description().c_str()) ;
     // todo
   }
 

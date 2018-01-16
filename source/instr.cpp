@@ -3236,7 +3236,14 @@ namespace AVR
   }
   void InstrELPM1::Execute(Mcu &mcu, Command cmd) const
   {
-    mcu.NotImplemented(*this) ;
+    // TODO RAMPZ
+    mcu.XrefAdd(XrefType::data, mcu.RegW(30)>>1, mcu.PC()-1) ;
+    Command z, p ;
+    z = mcu.RegW(30) ;
+    p = mcu.Prog(z>>1) ;
+    if (z&1)
+      p >>= 8 ;
+    mcu.Reg(0, (uint8)p) ;
   }
   std::string InstrELPM1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3266,7 +3273,15 @@ namespace AVR
   }
   void InstrELPM2::Execute(Mcu &mcu, Command cmd) const
   {
-    mcu.NotImplemented(*this) ;
+    // TODO RAMPZ
+    mcu.XrefAdd(XrefType::data, mcu.RegW(30)>>1, mcu.PC()-1) ;
+    Command z, nd, p ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    z = mcu.RegW(30) ;
+    p = mcu.Prog(z>>1) ;
+    if (z&1)
+      p >>= 8 ;
+    mcu.Reg(nd, (uint8)p) ;
   }
   std::string InstrELPM2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3296,7 +3311,16 @@ namespace AVR
   }
   void InstrELPM3::Execute(Mcu &mcu, Command cmd) const
   {
-    mcu.NotImplemented(*this) ;
+    //TODO RAMPZ
+    mcu.XrefAdd(XrefType::data, mcu.RegW(30)>>1, mcu.PC()-1) ;
+    Command z, nd, p ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+    z = mcu.RegW(30) ;
+    p = mcu.Prog(z>>1) ;
+    if (z&1)
+      p >>= 8 ;
+    mcu.Reg(nd, (uint8)p) ;
+    mcu.RegW(30, z+1) ;
   }
   std::string InstrELPM3::Disasm(Mcu &mcu, Command cmd) const
   {

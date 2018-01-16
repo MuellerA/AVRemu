@@ -847,7 +847,7 @@ namespace AVR
     } ;
     for (const auto &iIoReg: ioRegs)
     {
-      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
+      _io[iIoReg.first] = new IoRegisterNotImplemented(iIoReg.second) ;
     }
     _io[0x3f] = new IoSREG::SREG(_sreg) ;
     _io[0x3e] = new IoSP::SPH(_sp) ;

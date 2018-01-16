@@ -408,37 +408,42 @@ bool CommandRead::Execute(AVR::Mcu &mcu)
 
   char mode = modeStr[0] ;
   AVR::uint32 addr = std::stoul(addrStr, nullptr, 0) ;
-  AVR::uint32 len = (lenStr.size()) ? std::stoul(lenStr, nullptr, 0) : 64 ;
+  AVR::uint32 len = (lenStr.size()) ? std::stoul(lenStr, nullptr, 0) : 128 ;
 
   AVR::uint32 cnt = 0 ;
-  for (AVR::uint32 iAddr = addr, eAddr = addr+len ; iAddr < eAddr ; ++iAddr)
+  for (AVR::uint32 iAddr = addr, eAddr = addr+len ; iAddr < eAddr ; )
   {
-    if (!cnt)
-      std::cout << std::hex << std::setfill('0') << std::setw(4) << iAddr << ':' ;
+    std::cout << std::hex << std::setfill('0') << std::setw(4) << iAddr << ':' ;
 
-    switch (mode)
+    unsigned char data[16] ;
+    for (cnt = 0 ; (cnt < 16) && (iAddr < eAddr) ; ++iAddr, ++cnt)
     {
-    case 'd': std::cout << ' ' << mcu.Data  ((AVR::uint32)iAddr, (bool)false) ; break ;
-    case 'e': std::cout << ' ' << mcu.Eeprom((size_t)iAddr, (bool)false) ; break ;
+      switch (mode)
+      {
+      case 'd': data[cnt] = mcu.Data  ((AVR::uint32)iAddr, (bool)false) ; break ;
+      case 'e': data[cnt] = mcu.Eeprom((size_t)     iAddr, (bool)false) ; break ;
+      }
     }
 
-    if (cnt == 15)
+    for (unsigned int i = 0 ; i < 16 ; ++i)
     {
-      std::cout << std::endl ;      
-      cnt = 0 ;
+      if (i < cnt)
+        std::cout << ' ' << data[i] ;
+      else
+        std::cout << "   " ;
+      if ((i & 0x03) == 0x03) std::cout << ' ' ;
     }
-    else
+    std::cout << "    " ;
+    for (unsigned int i = 0 ; i < cnt ; ++i)
     {
-      if ((cnt & 0x03) == 0x03)
-        std::cout << ' ' ;
+      unsigned char ch = data[i] ;
+      std::cout << (char)(((' ' <= ch) && (ch <= '~')) ? ch : '.') ;
+    }
 
-      cnt += 1 ;
-    }
+    std::cout << std::endl ;      
   }
-  if (cnt)
-    std::cout << std::endl << std::endl ;
-  else
-    std::cout << std::endl ;
+
+  std::cout << std::endl ;
 
   return true ;
 }

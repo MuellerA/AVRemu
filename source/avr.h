@@ -89,8 +89,8 @@ namespace AVR
     IoRegisterNotImplemented(const std::string &name) : _name(name), _value(0) {}
 
     virtual const std::string& Name() const { return _name ; }
-    virtual uint8  Get() const  { return _value ; }
-    virtual void   Set(uint8 v) { _value = v    ; }
+    virtual uint8  Get() const  { fprintf(stderr, "no implemented io %s\n", _name.c_str()) ; return _value ; }
+    virtual void   Set(uint8 v) { fprintf(stderr, "no implemented io %s\n", _name.c_str()) ; _value = v    ; }
     virtual uint8  Init() const { return 0 ; }
   private:
     std::string _name ;
@@ -400,6 +400,10 @@ namespace AVR
     std::set<std::size_t>        _breakpoints ;
     
     std::vector<const Instruction*> _instructions ;       // map cmd to instruction
+
+#ifdef DEBUG
+    FILE *_log ;
+#endif
   } ;
 
   ////////////////////////////////////////////////////////////////////////////////
