@@ -42,6 +42,28 @@ namespace AVR
   }
 
   ////////////////////////////////////////////////////////////////////////////////
+  // IoRegisterNotImplemented
+  uint8  IoRegisterNotImplemented::Get() const
+  {
+    if (!_errorMsgIssued)
+    {
+      fprintf(stderr, "no implemented IO %s\n", _name.c_str()) ;
+      _errorMsgIssued = true ;
+    }
+    return _value ;
+  }
+  void  IoRegisterNotImplemented::Set(uint8 v)
+  {
+    if (!_errorMsgIssued)
+    {
+      fprintf(stderr, "no implemented IO %s\n", _name.c_str()) ;
+      _errorMsgIssued = true ;
+    }
+    _value = v ;
+  }
+  
+  
+  ////////////////////////////////////////////////////////////////////////////////
   // IoEeprom
   void IoEeprom::SetAddr(uint16 v)
   {
@@ -116,19 +138,19 @@ namespace AVR
   
   ////////////////////////////////////////////////////////////////////////////////
   // Mcu
-  Mcu::Mcu(std::size_t programSize, std::size_t ioSize, std::size_t dataStart, std::size_t dataSize, std::size_t eepromSize)
+  Mcu::Mcu(std::size_t programSize, bool isRegDataMapped, std::size_t ioSize, std::size_t dataStart, std::size_t dataSize, std::size_t eepromSize)
     : _pc(0), _sp(dataStart+dataSize-1), _program(programSize), _io(ioSize), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
   {
     _programSize = programSize ;
 
     _regSize  = 0x20 ;
-    _regStart = 0 ;
-    _regEnd   = _regStart + _regSize - 1 ;
-
+    _regStart = (isRegDataMapped) ? 0 : 1 ;
+    _regEnd   = (isRegDataMapped) ? _regStart + _regSize - 1 : 0 ;
+    
     _ioSize  = ioSize ;
-    _ioStart = _regEnd + 1 ;
+    _ioStart = (isRegDataMapped) ? _regEnd + 1 : 0 ;
     _ioEnd   = _ioStart + _ioSize - 1 ;
-
+    
     _dataSize  = dataSize ;
     _dataStart = dataStart ;
     _dataEnd   = _dataStart + _dataSize - 1 ;
@@ -157,7 +179,11 @@ namespace AVR
     _ticks += 1 ;
 
 #ifdef DEBUG
-    fprintf(_log, "PC: %05zx\n", _pc) ;
+    fprintf(_log, "PC: %05zx", _pc) ;
+    auto iXrefs = _xrefByAddr.find(_pc) ;
+    if (iXrefs != _xrefByAddr.end())
+      fprintf(_log, "   %s", iXrefs->second->_label.c_str()) ;
+    fprintf(_log, "\n") ;
 #endif
     
     if (_pc >= _programSize)
@@ -409,7 +435,7 @@ namespace AVR
       return _data[addr - _dataStart] ;
     }
 
-    fprintf(stderr, "illegal data access\n") ;
+    fprintf(stderr, "illegal data read at %05zx: %04x\n", _pc, addr) ;
     if (resetOnError)
       const_cast<Mcu*>(this)->_pc = 0 ;
     return 0xff ;
@@ -433,7 +459,7 @@ namespace AVR
       return ;
     }
 
-    fprintf(stderr, "illegal data access\n") ;
+    fprintf(stderr, "illegal data write at %05zx: %04x, %02x\n", _pc, addr, value) ;
     if (resetOnError)
       _pc = 0 ;
   }
@@ -716,7 +742,7 @@ namespace AVR
   // ATany
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATany::ATany() : Mcu(0x40000, 0x1000, 0x1000, 0x1000, 0x1000)
+  ATany::ATany() : Mcu(0x40000, true, 0x1000, 0x1000, 0x1000, 0x1000)
   {
     const Instruction *instructions[]
     {

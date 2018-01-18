@@ -86,15 +86,16 @@ namespace AVR
   class IoRegisterNotImplemented : public Io::Register
   {
   public:
-    IoRegisterNotImplemented(const std::string &name) : _name(name), _value(0) {}
+    IoRegisterNotImplemented(const std::string &name, uint8 init = 0) : _name(name), _value(init), _errorMsgIssued(false) {}
 
     virtual const std::string& Name() const { return _name ; }
-    virtual uint8  Get() const  { fprintf(stderr, "no implemented io %s\n", _name.c_str()) ; return _value ; }
-    virtual void   Set(uint8 v) { fprintf(stderr, "no implemented io %s\n", _name.c_str()) ; _value = v    ; }
+    virtual uint8  Get() const  ;
+    virtual void   Set(uint8 v) ;
     virtual uint8  Init() const { return 0 ; }
   private:
-    std::string _name ;
-    uint8 _value ;
+    std::string   _name ;
+    uint8         _value ;
+    mutable bool  _errorMsgIssued ;
   } ;
 
   enum class SREG
@@ -291,7 +292,7 @@ namespace AVR
     } ;
     
   protected:
-    Mcu(std::size_t programSize, std::size_t ioSize, std::size_t dataStart, std::size_t dataSize, std::size_t eepromSize) ;
+    Mcu(std::size_t programSize, bool isRegDataMapped, std::size_t ioSize, std::size_t dataStart, std::size_t dataSize, std::size_t eepromSize) ;
     Mcu() = delete ;
     Mcu& operator=(const Mcu&) = delete ;
   public:

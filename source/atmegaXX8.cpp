@@ -10,7 +10,7 @@ namespace AVR
 {
 
   ATmegaXX8::ATmegaXX8(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize)
-    : Mcu(programSize, 0xe0, 0x100, dataSize, eepromSize), ioEeprom(*this)
+    : Mcu(programSize, true, 0xe0, 0x100, dataSize, eepromSize), ioEeprom(*this)
   {
     const Instruction *instructions[]
     {
