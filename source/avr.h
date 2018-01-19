@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// avrEmu.h
+// avr.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -9,12 +9,16 @@
 #include <map>
 #include <set>
 
-namespace AVR
+#include "io.h"
 
+namespace AVR
 {
+  ////////////////////////////////////////////////////////////////////////////////
+  // Types
+  ////////////////////////////////////////////////////////////////////////////////
+  
   class Mcu ;
   class Instruction ;
-  class Io ;
 
   using Command = unsigned short ; // 16 bit instruction
   using int8    = signed   char  ; //  8 bit
@@ -24,6 +28,10 @@ namespace AVR
   using int32   = signed   int   ; // 32 bit
   using uint32  = unsigned int   ; // 32 bit
 
+  ////////////////////////////////////////////////////////////////////////////////
+  // Xref
+  ////////////////////////////////////////////////////////////////////////////////
+  
   enum class XrefType
   {
     none = 0,
@@ -36,6 +44,10 @@ namespace AVR
   XrefType operator&(XrefType a, XrefType b) ;
   XrefType operator&=(XrefType &a, XrefType b) ;
 
+  ////////////////////////////////////////////////////////////////////////////////
+  // Instruction
+  ////////////////////////////////////////////////////////////////////////////////
+  
   class Instruction
   {
   protected:
@@ -68,36 +80,10 @@ namespace AVR
     bool        _isCall ;
   } ;
 
-  class Io
-  {
-  public:
-    class Register
-    {
-    public:
-      virtual ~Register() {} ;
-      virtual const std::string& Name() const = 0 ;
-      virtual uint8  Get() const  = 0 ;
-      virtual void   Set(uint8 v) = 0 ;
-      virtual uint8  Init() const = 0 ; // bootup value
-    } ;
-
-  } ;
-
-  class IoRegisterNotImplemented : public Io::Register
-  {
-  public:
-    IoRegisterNotImplemented(const std::string &name, uint8 init = 0) : _name(name), _value(init), _errorMsgIssued(false) {}
-
-    virtual const std::string& Name() const { return _name ; }
-    virtual uint8  Get() const  ;
-    virtual void   Set(uint8 v) ;
-    virtual uint8  Init() const { return 0 ; }
-  private:
-    std::string   _name ;
-    uint8         _value ;
-    mutable bool  _errorMsgIssued ;
-  } ;
-
+  ////////////////////////////////////////////////////////////////////////////////
+  // SREG
+  ////////////////////////////////////////////////////////////////////////////////
+  
   enum class SREG
   {
     C = 0,
@@ -115,87 +101,9 @@ namespace AVR
   
   inline bool  operator&& (uint8 r, SREG b) { return (r & (1<<(uint8)b)) == (1<<(uint8)b) ; }
 
-  class IoEeprom : public Io
-  {
-  public:
-    class EEARH : public Io::Register
-    {
-    public:
-      EEARH(IoEeprom &eeprom) : _eeprom(eeprom), _name("EEARH") {} ;
-      virtual const std::string &Name() const { return _name ; }
-      virtual uint8  Get() const  { return _eeprom.GetAddrHi() ; }
-      virtual void   Set(uint8 v) { _eeprom.SetAddrHi(v) ; }
-      virtual uint8  Init() const { return 0 ; }
-    private:
-      IoEeprom &_eeprom ;
-      std::string _name ;
-    } ;
-    class EEARL : public Io::Register
-    {
-    public:
-      EEARL(IoEeprom &eeprom) : _eeprom(eeprom), _name("EEARL") {} ;
-      virtual const std::string &Name() const { return _name ; }
-      virtual uint8  Get() const  { return _eeprom.GetAddrLo() ; }
-      virtual void   Set(uint8 v) { _eeprom.SetAddrLo(v) ; }
-      virtual uint8  Init() const { return 0 ; }
-    private:
-      IoEeprom &_eeprom ;
-      std::string _name ;
-    } ;
-    class EEDR : public Io::Register
-    {
-    public:
-      EEDR(IoEeprom &eeprom) : _eeprom(eeprom), _name("EEDR") {} ;
-      virtual const std::string &Name() const { return _name ; }
-      virtual uint8  Get() const  { return _eeprom.GetData() ; }
-      virtual void   Set(uint8 v) { _eeprom.SetData(v) ; }
-      virtual uint8  Init() const { return 0 ; }
-    private:
-      IoEeprom &_eeprom ;
-      std::string _name ;
-    } ;
-    class EECR : public Io::Register
-    {
-    public:
-      EECR(IoEeprom &eeprom) : _eeprom(eeprom), _name("EECR") {} ;
-      virtual const std::string &Name() const { return _name ; }
-      virtual uint8  Get() const  { return _eeprom.GetControl() ; }
-      virtual void   Set(uint8 v) { _eeprom.SetControl(v) ; }
-      virtual uint8  Init() const { return 0 ; }
-    private:
-      IoEeprom &_eeprom ;
-      std::string _name ;
-    } ;
-
-    IoEeprom(Mcu &mcu, bool hasEepm = true) : _mcu(mcu), _hasEepm(hasEepm), _addr(0), _data(0), _control(0), _activeTicks(0), _writeBusyTicks(0), _readBusyTicks(0) {}
-
-    uint16 GetAddr() const     { return _addr      ; }
-    void   SetAddr(uint16 v)   ;
-    uint8  GetAddrHi() const   { return _addr >> 1 ; }
-    void   SetAddrHi(uint8 v)  { SetAddr(((uint16)v << 8) | (_addr & 0x00ff)) ; }
-    uint8  GetAddrLo() const   { return _addr >> 0 ; }
-    void   SetAddrLo(uint8 v)  { SetAddr(((uint16)v << 0) | (_addr & 0xff00)) ; }
-    uint8  GetData() const     { return _data      ; }
-    void   SetData(uint8 v)    ;
-    uint8  GetControl() const  ;
-    void   SetControl(uint8 v) ;
-    
-  private:
-    static const uint8 kEEPM  = 0b00110000 ;
-    static const uint8 kEERIE = 0b00001000 ;
-    static const uint8 kEEMPE = 0b00000100 ;
-    static const uint8 kEEPE  = 0b00000010 ;
-    static const uint8 kEERE  = 0b00000001 ;
-    
-    Mcu    &_mcu ;
-    bool   _hasEepm ;
-    uint16 _addr ;
-    uint8  _data ;
-    mutable uint8  _control ;
-    uint32 _activeTicks ;
-    uint32 _writeBusyTicks ;
-    uint32 _readBusyTicks ;
-  } ;
+  ////////////////////////////////////////////////////////////////////////////////
+  // Mcu
+  ////////////////////////////////////////////////////////////////////////////////
   
   class Mcu
   {
@@ -228,26 +136,22 @@ namespace AVR
       class SPH : public Io::Register
       {
       public:
-        SPH(IoSP &sp) : _sp(sp), _name("SPH") {}
-        virtual const std::string& Name() const { return _name ; }
+        SPH(IoSP &sp) : Register("SPH"), _sp(sp) {}
         virtual uint8  Get() const  { return _sp.GetHi() ; }
         virtual void   Set(uint8 v) { _sp.SetHi(v) ; }
         virtual uint8  Init() const { return _sp.Init() >> 8 ; }
       private:
         IoSP &_sp ;
-        std::string _name ;
       } ;
       class SPL : public Io::Register
       {
       public:
-        SPL(IoSP &sp) : _sp(sp), _name("SPL") {}
-        virtual const std::string& Name() const { return _name ; }
+        SPL(IoSP &sp) : Register("SPL"), _sp(sp) {}
         virtual uint8  Get() const  { return _sp.GetLo() ; }
         virtual void   Set(uint8 v) { _sp.SetLo(v) ; }
         virtual uint8  Init() const       { return _sp.Init() >> 0 ; }
       private:
         IoSP &_sp ;
-        std::string _name ;
       } ;
 
       IoSP(uint16 init) : _u16(init), _init(init) {}
@@ -273,14 +177,11 @@ namespace AVR
       class SREG : public Io::Register
       {
       public:
-        SREG(IoSREG &sreg) : _sreg(sreg), _name("SREG") {}
-        virtual const std::string& Name() const { return _name ; }
+        SREG(IoSREG &sreg) : Register("SREG"), _sreg(sreg) {}
         virtual uint8  Get() const  { return _sreg.Get() ; }
         virtual void   Set(uint8 v) { _sreg.Set(v) ; }
-        virtual uint8  Init() const       { return 0x00 ; }
       private:
         IoSREG &_sreg ;
-        std::string _name ;
       } ;
 
       IoSREG() : _sreg(0x00) {}
@@ -349,7 +250,8 @@ namespace AVR
 
     const std::vector<const Instruction*>& Instructions() const { return _instructions ; }
     const std::vector<Command>&            Program()      const { return _program      ; }
-
+    const std::vector<Io::Register*>&      Io()           const { return _io           ; }
+    
     void   ClearProgram() ;
     size_t SetProgram(size_t address, const std::vector<Command> &prg) ;
     size_t SetEeprom(size_t address, const std::vector<uint8> &eeprom) ;
@@ -557,7 +459,13 @@ namespace AVR
     virtual void  PopPC() ;
 
     virtual bool PcIs22bit()     { return false ; }
-    virtual bool IsXmega()       { return false ; }
+    virtual bool IsXmega()       { return true  ; }
+
+    IoXmegaUsart _usartC0 ;
+    IoXmegaUsart _usartC1 ;
+    IoXmegaUsart _usartD0 ;
+    IoXmegaUsart _usartD1 ;
+    IoXmegaUsart _usartE0 ;
   } ;
 
   class ATxmega128A4U : public ATxmegaAU

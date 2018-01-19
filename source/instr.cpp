@@ -678,6 +678,8 @@ namespace AVR
       sreg |= SREG::H ;
     if (rV & 0x80)
       sreg |= SREG::V ;
+    if (r & 0x80)
+      sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
     if (rHC & 0x80)
@@ -783,6 +785,8 @@ namespace AVR
       sreg |= SREG::H ;
     if (rV & 0x80)
       sreg |= SREG::V ;
+    if (r & 0x80)
+      sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
     if (rHC & 0x80)
@@ -1964,6 +1968,8 @@ namespace AVR
       sreg |= SREG::H ;
     if (rV & 0x80)
       sreg |= SREG::V ;
+    if (r & 0x80)
+      sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
     if (rHC & 0x80)

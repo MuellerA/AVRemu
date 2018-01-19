@@ -5,6 +5,8 @@
 #include <iostream>
 #include <iomanip>
 #include <regex>
+#include <algorithm>
+#include <cstdlib>
 #include <signal.h>
 
 #include "avr.h"
@@ -163,7 +165,7 @@ bool CommandStep::Execute(AVR::Mcu &mcu)
 class CommandRun : public Command
 {
 public:
-  CommandRun() : Command(R"XXX(\s*r\s*)XXX")
+  CommandRun() : Command(R"XXX(\s*r\s*(?:)XXX" + _reAddr + R"XXX()?\s*)XXX")
   {
   }
 
@@ -177,7 +179,11 @@ public:
 
 strings CommandRun::Help() const
 {
-  return strings { "r                       -- run" } ;
+  return strings
+  {
+    "r                       -- run",
+    "r <addr>|<label>        -- run to address",
+  } ;
 }
 
 bool CommandRun::Execute(AVR::Mcu &mcu)
@@ -186,10 +192,23 @@ bool CommandRun::Execute(AVR::Mcu &mcu)
   SigInt = false ;
   prevIntHdl = signal(SIGINT, SigIntHdl) ;
 
+  const std::string &m1 = _match[1] ;
+  const std::string &m2 = _match[2] ;
+
+  bool infinity = !m1.size() & !m2.size() ;
+  
+  AVR::uint32 addr = 0 ;
+  if (!infinity && !Addr(mcu, m1, m2, addr))
+  {
+    std::cout << "illegal value" << std::endl ;
+    return false ;
+  }
+  
   while (!SigInt)
   {
     mcu.Execute() ;
-    if (mcu.IsBreakpoint())
+    if (!infinity && (mcu.PC() == addr) ||
+        mcu.IsBreakpoint())
       break ;
   }
   signal(SIGINT, prevIntHdl) ;
@@ -539,6 +558,89 @@ bool CommandListLabels::Execute(AVR::Mcu &mcu)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// CommandIoAddHex
+////////////////////////////////////////////////////////////////////////////////
+class CommandIoAddHex : public Command
+{
+public:
+  CommandIoAddHex() : Command(R"XXX(\s*io\s*([_0-9a-zA-Z]+)\s*=((?:\s*[0-9a-fA-F]{2})+)\s*)XXX") {}
+  ~CommandIoAddHex() {}
+
+  virtual strings Help() const ;
+  virtual bool Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandIoAddHex::Help() const
+{
+  return strings { "io <name> = <hex>       -- set next io read values (hex)" } ;
+}
+bool CommandIoAddHex::Execute(AVR::Mcu &mcu)
+{
+  const std::string &name = _match[1] ;
+  const std::string &hex  = _match[2] ;
+
+  auto &io = mcu.Io() ;
+  auto iIo = std::find_if(io.begin(), io.end(), [&name](const AVR::Io::Register *ioReg){ return ioReg && (ioReg->Name() == name) ; }) ;
+  if (iIo == io.end())
+  {
+    std::cout << "illegal value" << std::endl ;
+    return false ;
+  }
+
+  std::vector<AVR::uint8> data ;
+  const char *str = hex.c_str() ;
+  char *str_end = const_cast<char*>(str) ; ;
+
+  while (*str_end)
+  {
+    data.push_back(strtoul(str, &str_end, 0)) ;
+    str = str_end ;
+  }
+  (*iIo)->Add(data) ;
+  
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandIoAddAsc
+////////////////////////////////////////////////////////////////////////////////
+class CommandIoAddAsc : public Command
+{
+public:
+  CommandIoAddAsc() : Command(R"XXX(\s*io\s*([_0-9a-zA-Z]+)\s=\s*"(.+)"\s*)XXX") {}
+  ~CommandIoAddAsc() {}
+
+  virtual strings Help() const ;
+  virtual bool Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandIoAddAsc::Help() const
+{
+  return strings { "io <name> = \"<asc>\"     -- set next io read values (asc)" } ;
+}
+bool CommandIoAddAsc::Execute(AVR::Mcu &mcu)
+{
+  const std::string &name = _match[1] ;
+  const std::string &asc  = _match[2] ;
+
+  auto &io = mcu.Io() ;
+  auto iIo = std::find_if(io.begin(), io.end(), [&name](const AVR::Io::Register *ioReg){ return ioReg && (ioReg->Name() == name) ; }) ;
+  if (iIo == io.end())
+  {
+    std::cout << "illegal value" << std::endl ;
+    return false ;
+  }
+
+  std::vector<AVR::uint8> data ;
+  data.reserve(asc.size()) ;
+  for (auto c : asc)
+    data.push_back((AVR::uint8)c) ;
+  (*iIo)->Add(data) ;
+  
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // CommandQuit
 ////////////////////////////////////////////////////////////////////////////////
 class CommandQuit : public Command
@@ -678,6 +780,8 @@ void Execute(AVR::Mcu &mcu)
       new CommandList(),
       new CommandListLabels(),
       new CommandListBreakpoints(),
+      new CommandIoAddHex(),
+      new CommandIoAddAsc(),
       new CommandQuit(quit),
       new CommandHelp(commands),
       new CommandUnknown(), // last!

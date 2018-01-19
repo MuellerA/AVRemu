@@ -42,101 +42,6 @@ namespace AVR
   }
 
   ////////////////////////////////////////////////////////////////////////////////
-  // IoRegisterNotImplemented
-  uint8  IoRegisterNotImplemented::Get() const
-  {
-    if (!_errorMsgIssued)
-    {
-      fprintf(stderr, "no implemented IO %s\n", _name.c_str()) ;
-      _errorMsgIssued = true ;
-    }
-    return _value ;
-  }
-  void  IoRegisterNotImplemented::Set(uint8 v)
-  {
-    if (!_errorMsgIssued)
-    {
-      fprintf(stderr, "no implemented IO %s\n", _name.c_str()) ;
-      _errorMsgIssued = true ;
-    }
-    _value = v ;
-  }
-  
-  
-  ////////////////////////////////////////////////////////////////////////////////
-  // IoEeprom
-  void IoEeprom::SetAddr(uint16 v)
-  {
-    if (v >= _mcu.EepromSize())
-      v &= _mcu.EepromSize() - 1 ;
-    _addr = v ;
-  }
-
-  void IoEeprom::SetData(uint8 v)
-  {
-    if ((_writeBusyTicks < _mcu.Ticks()) && (_readBusyTicks < _mcu.Ticks()))
-      _data = v ;
-  }
-  
-  uint8 IoEeprom::GetControl() const
-  {
-    if (_readBusyTicks < _mcu.Ticks())
-      _control &= ~kEERE ;
-    if (_writeBusyTicks < _mcu.Ticks())
-      _control &= ~kEEPE ;
-    if (_activeTicks < _mcu.Ticks())
-      _control &= ~kEEMPE ;
-    return _control ;
-  }
-  
-  void IoEeprom::SetControl(uint8 v)
-  {
-    v &= 0x3f ;
-    
-    if (v & kEERIE)
-      fprintf(stderr, "EEPROM interrupt not supported\n") ;
-
-    if ((_writeBusyTicks < _mcu.Ticks()) && (_readBusyTicks < _mcu.Ticks()))
-    {
-      switch (v & (kEEMPE | kEEPE | kEERE))
-      {
-      case kEEMPE:
-        _activeTicks = _mcu.Ticks() + 4 ;
-        break ;
-      case kEEMPE|kEEPE:
-      case kEEPE:
-        if (_activeTicks >= _mcu.Ticks())
-        {
-          switch (v & kEEPM)
-          {
-          case 0x00000000: // erase & write
-            _mcu.Eeprom(_addr, _data) ;
-            _writeBusyTicks = _mcu.Ticks() + 34 ; // dummy - 3.4ms in real
-            break ;
-          case 0x00010000: // erase
-            _mcu.Eeprom(_addr, 0xff) ;
-            _writeBusyTicks = _mcu.Ticks() + 18 ; // dummy - 1.8ms in real
-            break ;
-          case 0x00100000: // write
-            _mcu.Eeprom(_addr, _mcu.Eeprom(_addr) & _data) ;
-            _writeBusyTicks = _mcu.Ticks() + 18 ; // dummy - 1.8ms in real
-            break ;
-          }
-        }
-        break ;
-      case kEERE:
-        _data = _mcu.Eeprom(_addr) ;
-        _readBusyTicks = _mcu.Ticks() ; // +4
-        break ;
-      default:
-        fprintf(stderr, "EEPROM illegal bit combination EEMPE|EEPE|EERE %02x", v&(kEEMPE|kEEPE|kEERE)) ;
-      }
-    }
-    
-    _control = v ;
-  }
-  
-  ////////////////////////////////////////////////////////////////////////////////
   // Mcu
   Mcu::Mcu(std::size_t programSize, bool isRegDataMapped, std::size_t ioSize, std::size_t dataStart, std::size_t dataSize, std::size_t eepromSize)
     : _pc(0), _sp(dataStart+dataSize-1), _program(programSize), _io(ioSize), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
@@ -318,34 +223,29 @@ namespace AVR
       }
     }
 
+    const Instruction *instr = _instructions[cmd] ;
+    
     char buff[32] ;
     std::string str ;
     str += label ;
     sprintf(buff, "%05zx:   ", pc) ;
     str += buff ;
-    str += Disasm_ASC(_program[pc]) ;
-    sprintf(buff, "     %04x ", _program[pc]) ;
-    str += buff ;
-    
-    const Instruction *instr = _instructions[cmd] ;
-    if (!instr)
+    if (instr && instr->IsTwoWord())
     {
-      str += "         ???" ;
-      return str ;
-    }
-
-    switch (_pc - pc)
-    {
-    case 1:
-      str += "         " ;
-      break ;
-    case 2:
-      sprintf(buff, "%04x     ", _program[pc+1]) ;
+      str += Disasm_ASC(_program[pc]) ;
+      str += Disasm_ASC(_program[pc+1]) ;
+      sprintf(buff, "   %04x %04x     ", _program[pc], _program[pc+1]) ;
       str += buff ;
-      break ;
+    }
+    else
+    {
+      str += Disasm_ASC(_program[pc]) ;
+      str += "  " ;
+      sprintf(buff, "   %04x          ", _program[pc]) ;
+      str += buff ;
     }
 
-    str += instr->Disasm(*this, cmd) ;
+    str += (instr) ? instr->Disasm(*this, cmd) : "???" ;
 
     return str ;
   }

@@ -9,7 +9,8 @@
 namespace AVR
 {
   ATxmegaAU::ATxmegaAU(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize)
-    : Mcu(programSize, false, 0x1000, 0x2000, dataSize, eepromSize)
+    : Mcu(programSize, false, 0x1000, 0x2000, dataSize, eepromSize),
+      _usartC0("USARTC0"), _usartC1("USARTC1"), _usartD0("USARTD0"), _usartD1("USARTD1"), _usartE0("USARTE0")
   {
     const Instruction *instructions[]
     {
@@ -665,21 +666,21 @@ namespace AVR
 
       { 0x0890, new IoRegisterNotImplemented("HIRESC_CTRLA") }, // High Resolution Extension on port C
 
-      { 0x08A0, new IoRegisterNotImplemented("USARTC0_DATA") }, // USART 0 on port C
-      { 0x08A1, new IoRegisterNotImplemented("USARTC0_STATUS") },
-      { 0x08A3, new IoRegisterNotImplemented("USARTC0_CTRLA") },
-      { 0x08A4, new IoRegisterNotImplemented("USARTC0_CTRLB") },
-      { 0x08A5, new IoRegisterNotImplemented("USARTC0_CTRLC") },
-      { 0x08A6, new IoRegisterNotImplemented("USARTC0_BAUDCTRLA") },
-      { 0x08A7, new IoRegisterNotImplemented("USARTC0_BAUDCTRLB") },
+      { 0x08A0, new IoXmegaUsart::Data     (_usartC0) }, // USART 0 on port C
+      { 0x08A1, new IoXmegaUsart::Status   (_usartC0) },
+      { 0x08A3, new IoXmegaUsart::CtrlA    (_usartC0) },
+      { 0x08A4, new IoXmegaUsart::CtrlB    (_usartC0) },
+      { 0x08A5, new IoXmegaUsart::CtrlC    (_usartC0) },
+      { 0x08A6, new IoXmegaUsart::BaudCtrlA(_usartC0) },
+      { 0x08A7, new IoXmegaUsart::BaudCtrlB(_usartC0) },
 
-      { 0x08B0, new IoRegisterNotImplemented("USARTC1_DATA") }, // USART 1 on port C
-      { 0x08B1, new IoRegisterNotImplemented("USARTC1_STATUS") },
-      { 0x08B3, new IoRegisterNotImplemented("USARTC1_CTRLA") },
-      { 0x08B4, new IoRegisterNotImplemented("USARTC1_CTRLB") },
-      { 0x08B5, new IoRegisterNotImplemented("USARTC1_CTRLC") },
-      { 0x08B6, new IoRegisterNotImplemented("USARTC1_BAUDCTRLA") },
-      { 0x08B7, new IoRegisterNotImplemented("USARTC1_BAUDCTRLB") },
+      { 0x08B0, new IoXmegaUsart::Data     (_usartC1) }, // USART 1 on port C
+      { 0x08B1, new IoXmegaUsart::Status   (_usartC1) },                     
+      { 0x08B3, new IoXmegaUsart::CtrlA    (_usartC1) },                     
+      { 0x08B4, new IoXmegaUsart::CtrlB    (_usartC1) },                     
+      { 0x08B5, new IoXmegaUsart::CtrlC    (_usartC1) },                     
+      { 0x08B6, new IoXmegaUsart::BaudCtrlA(_usartC1) },                     
+      { 0x08B7, new IoXmegaUsart::BaudCtrlB(_usartC1) },                     
 
       { 0x08C0, new IoRegisterNotImplemented("SPIC_CTRL") }, // Serial Peripheral Interface on port C
       { 0x08C1, new IoRegisterNotImplemented("SPIC_INTCTRL") },
@@ -764,21 +765,21 @@ namespace AVR
 
       { 0x0990, new IoRegisterNotImplemented("HIRESD_CTRLA") }, // High Resolution Extension on port D
 
-      { 0x09A0, new IoRegisterNotImplemented("USARTD0_DATA") }, // USART 0 on port D
-      { 0x09A1, new IoRegisterNotImplemented("USARTD0_STATUS") },
-      { 0x09A3, new IoRegisterNotImplemented("USARTD0_CTRLA") },
-      { 0x09A4, new IoRegisterNotImplemented("USARTD0_CTRLB") },
-      { 0x09A5, new IoRegisterNotImplemented("USARTD0_CTRLC") },
-      { 0x09A6, new IoRegisterNotImplemented("USARTD0_BAUDCTRLA") },
-      { 0x09A7, new IoRegisterNotImplemented("USARTD0_BAUDCTRLB") },
+      { 0x09A0, new IoXmegaUsart::Data     (_usartD0) }, // USART 0 on port D
+      { 0x09A1, new IoXmegaUsart::Status   (_usartD0) },                     
+      { 0x09A3, new IoXmegaUsart::CtrlA    (_usartD0) },                     
+      { 0x09A4, new IoXmegaUsart::CtrlB    (_usartD0) },                     
+      { 0x09A5, new IoXmegaUsart::CtrlC    (_usartD0) },                     
+      { 0x09A6, new IoXmegaUsart::BaudCtrlA(_usartD0) },                     
+      { 0x09A7, new IoXmegaUsart::BaudCtrlB(_usartD0) },                     
 
-      { 0x09B0, new IoRegisterNotImplemented("USARTD1_DATA") }, // USART 1 on port D
-      { 0x09B1, new IoRegisterNotImplemented("USARTD1_STATUS") },
-      { 0x09B3, new IoRegisterNotImplemented("USARTD1_CTRLA") },
-      { 0x09B4, new IoRegisterNotImplemented("USARTD1_CTRLB") },
-      { 0x09B5, new IoRegisterNotImplemented("USARTD1_CTRLC") },
-      { 0x09B6, new IoRegisterNotImplemented("USARTD1_BAUDCTRLA") },
-      { 0x09B7, new IoRegisterNotImplemented("USARTD1_BAUDCTRLB") },
+      { 0x09B0, new IoXmegaUsart::Data     (_usartD1) }, // USART 1 on port D
+      { 0x09B1, new IoXmegaUsart::Status   (_usartD1) },                     
+      { 0x09B3, new IoXmegaUsart::CtrlA    (_usartD1) },                     
+      { 0x09B4, new IoXmegaUsart::CtrlB    (_usartD1) },                     
+      { 0x09B5, new IoXmegaUsart::CtrlC    (_usartD1) },                     
+      { 0x09B6, new IoXmegaUsart::BaudCtrlA(_usartD1) },                     
+      { 0x09B7, new IoXmegaUsart::BaudCtrlB(_usartD1) },                     
 
       { 0x09C0, new IoRegisterNotImplemented("SPID_CTRL") }, // Serial Peripheral Interface on port D
       { 0x09C1, new IoRegisterNotImplemented("SPID_INTCTRL") },
@@ -835,13 +836,13 @@ namespace AVR
 
       { 0x0A90, new IoRegisterNotImplemented("HIRESE_CTRLA") }, // High Resolution Extension on port E
 
-      { 0x0AA0, new IoRegisterNotImplemented("USARTE0_DATA") }, // USART 0 on port E
-      { 0x0AA1, new IoRegisterNotImplemented("USARTE0_STATUS") },
-      { 0x0AA3, new IoRegisterNotImplemented("USARTE0_CTRLA") },
-      { 0x0AA4, new IoRegisterNotImplemented("USARTE0_CTRLB") },
-      { 0x0AA5, new IoRegisterNotImplemented("USARTE0_CTRLC") },
-      { 0x0AA6, new IoRegisterNotImplemented("USARTE0_BAUDCTRLA") },
-      { 0x0AA7, new IoRegisterNotImplemented("USARTE0_BAUDCTRLB") },
+      { 0x0AA0, new IoXmegaUsart::Data     (_usartE0) }, // USART 0 on port E
+      { 0x0AA1, new IoXmegaUsart::Status   (_usartE0) },                     
+      { 0x0AA3, new IoXmegaUsart::CtrlA    (_usartE0) },                     
+      { 0x0AA4, new IoXmegaUsart::CtrlB    (_usartE0) },                     
+      { 0x0AA5, new IoXmegaUsart::CtrlC    (_usartE0) },                     
+      { 0x0AA6, new IoXmegaUsart::BaudCtrlA(_usartE0) },                     
+      { 0x0AA7, new IoXmegaUsart::BaudCtrlB(_usartE0) },                     
 
       // DAC, Fuse, Signature?
     } ;
@@ -849,6 +850,7 @@ namespace AVR
     {
       _io[iIoReg.first] = iIoReg.second ;
     }
+
     _io[0x3f] = new IoSREG::SREG(_sreg) ;
     _io[0x3e] = new IoSP::SPH(_sp) ;
     _io[0x3d] = new IoSP::SPL(_sp) ;
