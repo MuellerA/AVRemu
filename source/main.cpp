@@ -83,7 +83,7 @@ void ParseXrefFile(AVR::Mcu &mcu, const std::string &xrefFileName)
     return ;
   }
 
-  std::regex regex(R"XXX(([jcd])\s+(0x[0-9a-fA-F]+|[0-9]+)\s+([-_:*.a-zA-Z0-9]+)\s*)XXX", std::regex_constants::optimize) ;
+  std::regex regex(R"XXX(([jcd])\s+(0x[0-9a-fA-F]+|[0-9]+)\s+([-_:*.a-zA-Z0-9]+)(?:\s+(.*?))?\s*)XXX", std::regex_constants::optimize) ;
   std::smatch match ;
   std::string line ;
   while (!in.eof())
@@ -97,7 +97,8 @@ void ParseXrefFile(AVR::Mcu &mcu, const std::string &xrefFileName)
 
     const std::string &typeStr = match[1] ;
     const std::string &addrStr = match[2] ;
-    const std::string &label = match[3] ;
+    const std::string &label   = match[3] ;
+    const std::string &desc    = match[4] ;
 
     AVR::XrefType type = AVR::XrefType::none ;
     switch (typeStr[0])
@@ -109,7 +110,7 @@ void ParseXrefFile(AVR::Mcu &mcu, const std::string &xrefFileName)
     
     AVR::uint32 addr = std::stoul(addrStr, nullptr, 0) ;
 
-    mcu.XrefAdd(AVR::Mcu::Xref(addr, type, label, "")) ;    
+    mcu.XrefAdd(AVR::Mcu::Xref(addr, type, label, desc)) ;
   }
 }
 

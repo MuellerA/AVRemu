@@ -59,6 +59,10 @@ namespace AVR
     _dataSize  = dataSize ;
     _dataStart = dataStart ;
     _dataEnd   = _dataStart + _dataSize - 1 ;
+
+    _pcIs22Bit     = false ;
+    _isXMega       = false ;
+    _isTinyReduced = false ;
     
     _eepromSize = eepromSize ;
 #ifdef DEBUG
@@ -434,13 +438,18 @@ namespace AVR
 
   void Mcu::PushPC()
   {
-    Push(_pc >> 8) ;
     Push(_pc >> 0) ;
+    Push(_pc >> 8) ;
+    if (_pcIs22Bit)
+      Push(_pc >> 16) ;
   }
 
   void Mcu::PopPC()
   {
-    _pc = (Pop() << 0) | (Pop() << 8) ;
+    if (_pcIs22Bit)
+      _pc = (Pop() << 16) | (Pop() << 8) | (Pop() << 0) ;
+    else
+      _pc = (Pop() << 8) | (Pop() << 0) ;      
   }
 
   void Mcu::Break()
@@ -628,7 +637,9 @@ namespace AVR
       {
         XrefType xt = instr->Xref(*this, cmd, addr) ;
 
-        if (xt != XrefType::none)
+        if ((xt != XrefType::none) &&
+            !(!instr->IsTwoWord() && (addr == _pc + 0)) &&
+            !( instr->IsTwoWord() && (addr == _pc + 1)))
         {
           XrefAdd(xt, addr, pc) ;
         }

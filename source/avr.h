@@ -270,9 +270,9 @@ namespace AVR
     bool IsBreakpoint()                 const { return _breakpoints.find(_pc ) != _breakpoints.end() ; }
     const std::set<std::size_t>& Breakpoints() const { return _breakpoints ; }
     
-    virtual bool PcIs22bit()     { return false ; }
-    virtual bool IsXmega()       { return false ; }
-    virtual bool IsTinyReduced() { return false ; }
+    bool PcIs22bit()     const { return _pcIs22Bit     ; }
+    bool IsXmega()       const { return _isXMega       ; }
+    bool IsTinyReduced() const { return _isTinyReduced ; }
     
   protected:
     void AddInstruction(const Instruction *instr) ;
@@ -291,6 +291,10 @@ namespace AVR
     std::size_t _dataSize, _dataStart, _dataEnd ;
     std::size_t _eepromSize ;
 
+    bool _pcIs22Bit     ;
+    bool _isXMega       ;
+    bool _isTinyReduced ;
+    
     std::vector<Command>         _program ;
     uint8                        _reg[0x20] ;
     std::vector<Io::Register*>   _io ;
@@ -454,12 +458,6 @@ namespace AVR
   protected:
     ATxmegaAU(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
     virtual ~ATxmegaAU() ;
-
-    virtual void  PushPC() ;
-    virtual void  PopPC() ;
-
-    virtual bool PcIs22bit()     { return false ; }
-    virtual bool IsXmega()       { return true  ; }
 
     IoXmegaUsart _usartC0 ;
     IoXmegaUsart _usartC1 ;

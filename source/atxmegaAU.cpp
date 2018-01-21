@@ -12,6 +12,8 @@ namespace AVR
     : Mcu(programSize, false, 0x1000, 0x2000, dataSize, eepromSize),
       _usartC0("USARTC0"), _usartC1("USARTC1"), _usartD0("USARTD0"), _usartD1("USARTD1"), _usartE0("USARTE0")
   {
+    _isXMega = true ;
+
     const Instruction *instructions[]
     {
       &instrADD, &instrADC, &instrADIW, &instrSUB, &instrSUBI, &instrSBC, &instrSBCI, &instrSBIW, &instrAND, &instrANDI,
@@ -860,22 +862,11 @@ namespace AVR
   {
   }
 
-  void ATxmegaAU::PushPC()
-  {
-    Push(_pc >> 16) ;
-    Push(_pc >>  8) ;
-    Push(_pc >>  0) ;
-  }
-
-  void ATxmegaAU::PopPC()
-  {
-    _pc = (Pop() << 0) | (Pop() << 8) | (Pop() << 16) ;
-  }
-  
   ////////////////////////////////////////////////////////////////////////////////
 
   ATxmega128A4U::ATxmega128A4U() : ATxmegaAU(0x20000/2, 0x2000, 0x800)
   {
+    _pcIs22Bit = true ;
   }
   ATxmega128A4U::~ATxmega128A4U()
   {
