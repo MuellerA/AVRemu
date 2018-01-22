@@ -43,13 +43,13 @@ public:
 
 protected:
 
-  bool Num(const std::string matchNum, AVR::uint32 &num)
+  bool Num(const std::string matchNum, uint32_t &num)
   {
     num = std::stoul(matchNum, nullptr, 0) ;
     return true ;
   }
   
-  bool Addr(const AVR::Mcu &mcu, const std::string &matchNum, const std::string &matchLbl, AVR::uint32 &addr)
+  bool Addr(const AVR::Mcu &mcu, const std::string &matchNum, const std::string &matchLbl, uint32_t &addr)
   {
     if (matchLbl.size())
     {
@@ -57,7 +57,7 @@ protected:
       if (!xref)
         return false ;
 
-      addr = xref->_addr ;
+      addr = xref->Addr() ;
       return true ;
     }
 
@@ -116,11 +116,11 @@ bool CommandStep::Execute(AVR::Mcu &mcu)
   
   const std::string &mode = _match[1] ;
   const std::string &countStr = _match[2] ;
-  AVR::uint32 count = countStr.size() ? std::stoul(countStr, nullptr, 0) : 1 ;
+  uint32_t count = countStr.size() ? std::stoul(countStr, nullptr, 0) : 1 ;
   switch (mode[0])
   {
   case 's':
-    for (AVR::uint32 i = 0 ; (i < count) && !SigInt ; ++i)
+    for (uint32_t i = 0 ; (i < count) && !SigInt ; ++i)
     {
       mcu.Execute() ;
       if (mcu.IsBreakpoint())
@@ -128,9 +128,9 @@ bool CommandStep::Execute(AVR::Mcu &mcu)
     }
     break ;
   case 'n':
-    for (AVR::uint32 i = 0 ; (i < count) && !SigInt ; ++i)
+    for (uint32_t i = 0 ; (i < count) && !SigInt ; ++i)
     {
-      AVR::uint32 pc = mcu.PC() ;
+      uint32_t pc = mcu.PC() ;
       const AVR::Instruction *instr = mcu.Instr(pc) ;
       if (instr->IsCall())
       {
@@ -197,7 +197,7 @@ bool CommandRun::Execute(AVR::Mcu &mcu)
 
   bool infinity = !m1.size() & !m2.size() ;
   
-  AVR::uint32 addr = 0 ;
+  uint32_t addr = 0 ;
   if (!infinity && !Addr(mcu, m1, m2, addr))
   {
     std::cout << "illegal value" << std::endl ;
@@ -243,7 +243,7 @@ strings CommandBreakpoint::Help() const
 
 bool CommandBreakpoint::Execute(AVR::Mcu &mcu)
 {
-  AVR::uint32 addr ;
+  uint32_t addr ;
   
   if (!Addr(mcu, _match[2], _match[3], addr))
   {
@@ -268,7 +268,7 @@ bool CommandBreakpoint::Execute(AVR::Mcu &mcu)
 class CommandListBreakpoints : public Command
 {
 public:
-  CommandListBreakpoints() : Command(R"XXX(\s*lb\s*)XXX") { }
+  CommandListBreakpoints() : Command(R"XXX(\s*b\s*\?\s*)XXX") { }
   ~CommandListBreakpoints() { }
 
   virtual strings Help() const ;
@@ -277,18 +277,18 @@ public:
 
 strings CommandListBreakpoints::Help() const
 {
-  return strings { "lb                      -- list breakpoints" } ;
+  return strings { "b ?                     -- list breakpoints" } ;
 }
 bool CommandListBreakpoints::Execute(AVR::Mcu &mcu)
 {
   for (auto addr : mcu.Breakpoints())
   {
-    const AVR::Mcu::Xref *xref = mcu.XrefByAddr((AVR::uint32) addr) ;
+    const AVR::Mcu::Xref *xref = mcu.XrefByAddr((uint32_t) addr) ;
 
     std::cout << std::hex << std::setfill('0') << std::setw(4) << addr ;
   
     if (xref)
-      std::cout << "    " << xref->_label ;
+      std::cout << "    " << xref->Label() ;
 
     std::cout << std::endl << std::endl ;
   }
@@ -316,12 +316,12 @@ public:
 
 strings CommandGoto::Help() const
 {
-  return strings { "g <addr>|<label>        -- goto address/label" } ;
+  return strings { "g <addr>|<label>        -- set PC to address" } ;
 }
 
 bool CommandGoto::Execute(AVR::Mcu &mcu)
 {
-  AVR::uint32 addr ;
+  uint32_t addr ;
   if (!Addr(mcu, _match[1], _match[2], addr))
   {
     std::cout << "illegal value" << std::endl ;
@@ -349,17 +349,17 @@ strings CommandAssign::Help() const
 {
   return strings
   {
-    "r<d>    = byte          -- set register",
-    "d<addr> = byte          -- set data memory",
-    "p<addr> = word          -- set program memory"
+    "r<d>     = byte          -- set register",
+    "d <addr> = byte          -- set data memory",
+    "p <addr> = word          -- set program memory"
   } ;
 }
 
 bool CommandAssign::Execute(AVR::Mcu &mcu)
 {
   char typ = _match[1].str()[0] ;
-  AVR::uint32 idx = std::stoul(_match[2], nullptr, 0) ;
-  AVR::uint32 val = std::stoul(_match[3], nullptr, 0) ;
+  uint32_t idx = std::stoul(_match[2], nullptr, 0) ;
+  uint32_t val = std::stoul(_match[3], nullptr, 0) ;
 
   switch (typ)
   {
@@ -401,7 +401,7 @@ bool CommandAssign::Execute(AVR::Mcu &mcu)
 class CommandRead : public Command
 {
 public:
-  CommandRead() : Command(R"XXX(\d*([de])\s*\?\s*(0x[0-9a-fA-F]+|[0-9]+)\s*(0x[0-9a-fA-F]+|[0-9]+)?\s*)XXX") { }
+  CommandRead() : Command(R"XXX(\d*([de])\s*(0x[0-9a-fA-F]+|[0-9]+)\s*\?\s*(0x[0-9a-fA-F]+|[0-9]+)?\s*)XXX") { }
   ~CommandRead() { }
 
   virtual strings Help() const ;
@@ -410,12 +410,12 @@ public:
 
 strings CommandRead::Help() const
 {
-  return strings { "d ? <addr> <len>        -- read memory content" } ;
+  return strings { "d <addr> ? [<len>]        -- read memory content" } ;
 }
 
-std::ostream& operator<<(std::ostream& os, AVR::uint8 v)
+std::ostream& operator<<(std::ostream& os, uint8_t v)
 {
-  os << std::setfill('0') << std::setw(sizeof(AVR::uint8)*2) << std::hex << (unsigned int)v ;
+  os << std::setfill('0') << std::setw(sizeof(uint8_t)*2) << std::hex << (unsigned int)v ;
   return os ;
 }
 
@@ -426,11 +426,11 @@ bool CommandRead::Execute(AVR::Mcu &mcu)
   const std::string &lenStr  = _match[3] ;
 
   char mode = modeStr[0] ;
-  AVR::uint32 addr = std::stoul(addrStr, nullptr, 0) ;
-  AVR::uint32 len = (lenStr.size()) ? std::stoul(lenStr, nullptr, 0) : 128 ;
+  uint32_t addr = std::stoul(addrStr, nullptr, 0) ;
+  uint32_t len = (lenStr.size()) ? std::stoul(lenStr, nullptr, 0) : 128 ;
 
-  AVR::uint32 cnt = 0 ;
-  for (AVR::uint32 iAddr = addr, eAddr = addr+len ; iAddr < eAddr ; )
+  uint32_t cnt = 0 ;
+  for (uint32_t iAddr = addr, eAddr = addr+len ; iAddr < eAddr ; )
   {
     std::cout << std::hex << std::setfill('0') << std::setw(4) << iAddr << ':' ;
 
@@ -439,8 +439,8 @@ bool CommandRead::Execute(AVR::Mcu &mcu)
     {
       switch (mode)
       {
-      case 'd': data[cnt] = mcu.Data  ((AVR::uint32)iAddr, (bool)false) ; break ;
-      case 'e': data[cnt] = mcu.Eeprom((size_t)     iAddr, (bool)false) ; break ;
+      case 'd': data[cnt] = mcu.Data  ((uint32_t)iAddr, (bool)false) ; break ;
+      case 'e': data[cnt] = mcu.Eeprom((size_t)  iAddr, (bool)false) ; break ;
       }
     }
 
@@ -473,7 +473,7 @@ bool CommandRead::Execute(AVR::Mcu &mcu)
 class CommandList : public Command
 {
 public:
-  CommandList() : Command(R"XXX(\s*l\s*(?:)XXX" + _reNum + R"XXX(|(?:)XXX" + _reAddr + R"XXX((?:\s+)XXX" + _reNum + R"XXX()?))?\s*)XXX") { }
+  CommandList() : Command(R"XXX(\s*p\s*)XXX" + _reAddr + R"XXX(?\s*\?\s*)XXX" + _reNum + R"XXX(?\s*)XXX") {}
   ~CommandList() { }
 
   virtual strings Help() const ;
@@ -482,35 +482,33 @@ public:
 
 strings CommandList::Help() const
 {
-  return strings { "l [[<addr>|<label>] <count>]    -- list source"} ;
+  return strings { "p [<addr>|<label>] ? [<count>]    -- list source"} ;
 }
 bool CommandList::Execute(AVR::Mcu &mcu)
 {
-  AVR::uint32 pc0   = mcu.PC() ;
-  AVR::uint32 addr  = pc0 ;
-  AVR::uint32 count = 20 ;
-  const std::string &mCnt2 = _match[1] ;
-  const std::string &mNum = _match[2] ;
-  const std::string &mLbl = _match[3] ;
-  const std::string &mCnt1 = _match[4] ;
+  uint32_t pc0   = mcu.PC() ;
+  uint32_t addr  = pc0 ;
+  uint32_t count = 20 ;
+  const std::string &mNum = _match[1] ;
+  const std::string &mLbl = _match[2] ;
+  const std::string &mCnt = _match[3] ;
 
-  if (mCnt2.size())
-  {
-    Num(mCnt2, count) ;
-  }
-  else if (mNum.size() || mLbl.size())
+  if (mNum.size() || mLbl.size())
   {
     if (!Addr(mcu, mNum, mLbl, addr))
     {
       std::cout << "illegal value" << std::endl ;
       return false ;
-    }
-    if (mCnt1.size())
-      Num(mCnt1, count) ;
+    } 
   }
+  else
+    addr = mcu.PC() ;
+
+  if (mCnt.size())
+    Num(mCnt, count) ;
 
   mcu.PC() = addr ;
-  for (AVR::uint32 iAddr = addr, eAddr = addr+count ; iAddr < eAddr ; ++iAddr)
+  for (uint32_t iAddr = addr, eAddr = addr+count ; iAddr < eAddr ; ++iAddr)
     std::cout << mcu.Disasm() << std::endl ;
   std::cout << std::endl ;
   
@@ -520,36 +518,36 @@ bool CommandList::Execute(AVR::Mcu &mcu)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CommandListLabels
+// CommandListSymbols
 ////////////////////////////////////////////////////////////////////////////////
-class CommandListLabels : public Command
+class CommandListSymbols : public Command
 {
 public:
-  CommandListLabels() : Command(R"XXX(\s*ll\s*([_0-9a-zA-Z]+)?\s*)XXX") { }
-  ~CommandListLabels() { }
+  CommandListSymbols() : Command(R"XXX(\s*ls\s*([_0-9a-zA-Z]+)?\s*)XXX") { }
+  ~CommandListSymbols() { }
 
   virtual strings Help() const ;
   virtual bool    Execute(AVR::Mcu &mcu) ;
 } ;
 
-strings CommandListLabels::Help() const
+strings CommandListSymbols::Help() const
 {
-  return strings { "ll [pattern]            -- list labels"} ;
+  return strings { "ls [pattern]            -- list symbols"} ;
 }
-bool CommandListLabels::Execute(AVR::Mcu &mcu)
+bool CommandListSymbols::Execute(AVR::Mcu &mcu)
 {
   std::string pattern = _match[1] ;
   
   for (const auto &iXref : mcu.XrefByLabel())
   {
     const AVR::Mcu::Xref *xref = iXref.second ;
-    if (!pattern.size() || (xref->_label.find(pattern) != std::string::npos))
+    if (!pattern.size() || (xref->Label().find(pattern) != std::string::npos))
     {
       char buff[32] ;
-      sprintf(buff, "[%05x] ", xref->_addr) ;
-      std::cout << buff << xref->_label ;
-      if (xref->_description.size())
-        std::cout << " -- " << xref->_description.c_str() ;
+      sprintf(buff, "[%05x] ", xref->Addr()) ;
+      std::cout << buff << xref->Label() ;
+      if (xref->Description().size())
+        std::cout << " -- " << xref->Description().c_str() ;
       std::cout << std::endl ;
     }
   }
@@ -587,7 +585,7 @@ bool CommandIoAddHex::Execute(AVR::Mcu &mcu)
     return false ;
   }
 
-  std::vector<AVR::uint8> data ;
+  std::vector<uint8_t> data ;
   const char *str = hex.c_str() ;
   char *str_end = const_cast<char*>(str) ; ;
 
@@ -631,10 +629,10 @@ bool CommandIoAddAsc::Execute(AVR::Mcu &mcu)
     return false ;
   }
 
-  std::vector<AVR::uint8> data ;
+  std::vector<uint8_t> data ;
   data.reserve(asc.size()) ;
   for (auto c : asc)
-    data.push_back((AVR::uint8)c) ;
+    data.push_back((uint8_t)c) ;
   (*iIo)->Add(data) ;
   
   return true ;
@@ -773,13 +771,13 @@ void Execute(AVR::Mcu &mcu)
       new CommandRepeat(lastCommand), // first!
       new CommandStep(),
       new CommandRun(),
-      new CommandBreakpoint(),
       new CommandGoto(),
+      new CommandBreakpoint(),
+      new CommandListBreakpoints(),
       new CommandAssign(),
       new CommandRead(),
       new CommandList(),
-      new CommandListLabels(),
-      new CommandListBreakpoints(),
+      new CommandListSymbols(),
       new CommandIoAddHex(),
       new CommandIoAddAsc(),
       new CommandQuit(quit),
@@ -792,8 +790,6 @@ void Execute(AVR::Mcu &mcu)
   
   std::string cmd ;
 
- //Command* read=commands[6] ;
-  
   while (!quit)
   {
     std::size_t pc0 = mcu.PC() ;
@@ -809,8 +805,6 @@ void Execute(AVR::Mcu &mcu)
           lastCommand = command ;
         else
           lastCommand = nullptr ;
- //read->Match("d ? 0x60 256") ;
- //read->Execute(mcu) ;
         break ;
       }
     }

@@ -11,18 +11,18 @@ namespace AVR
   // Instruction Classes
   ////////////////////////////////////////////////////////////////////////////////
 
-#define INSTR(name)                                                          \
-  class Instr##name : public Instruction                                     \
-  {                                                                          \
-  public:                                                                    \
-    Instr##name() ;                                                          \
-    virtual ~Instr##name() ;                                                 \
-    virtual uint8       Ticks  (Mcu &mcu, Command cmd) const ;               \
-    virtual void        Skip   (Mcu &mcu, Command cmd) const ;               \
-    virtual void        Execute(Mcu &mcu, Command cmd) const ;               \
-    virtual std::string Disasm (Mcu &mcu, Command cmd) const ;               \
-    virtual XrefType    Xref   (Mcu &mcu, Command cmd, uint32 &addr) const ; \
-  } ;                                                                        \
+#define INSTR(name)                                                            \
+  class Instr##name : public Instruction                                       \
+  {                                                                            \
+  public:                                                                      \
+    Instr##name() ;                                                            \
+    virtual ~Instr##name() ;                                                   \
+    virtual uint8_t     Ticks  (Mcu &mcu, Command cmd) const ;                 \
+    virtual void        Skip   (Mcu &mcu, Command cmd) const ;                 \
+    virtual void        Execute(Mcu &mcu, Command cmd) const ;                 \
+    virtual std::string Disasm (Mcu &mcu, Command cmd) const ;                 \
+    virtual XrefType    Xref   (Mcu &mcu, Command cmd, uint32_t &addr) const ; \
+  } ;                                                                          \
   extern Instr##name instr##name
 
   ////////////////////////////////////////////////////////////////////////////////

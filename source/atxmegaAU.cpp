@@ -125,7 +125,7 @@ namespace AVR
         { 0x0FC, "USB_INT_TRNCOMPL", "USB on port D Transaction complete interrupt" },
       } ;
 
-    std::vector<std::pair<uint32, Io::Register*>> ioRegs
+    std::vector<std::pair<uint32_t, Io::Register*>> ioRegs
     {
       { 0x0000, new IoRegisterNotImplemented("GPIOR0") }, // General Purpose IO Registers
       { 0x0001, new IoRegisterNotImplemented("GPIOR1") },

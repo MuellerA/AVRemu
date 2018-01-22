@@ -223,27 +223,27 @@ namespace AVR
   {
     Command k ;
     xxxxKKKKKKKKKKKK(cmd, k) ;
-    uint32 addr = (uint32)(mcu.PC()) + (int16)k ;
+    uint32_t addr = (uint32_t)(mcu.PC()) + (int16_t)k ;
     char buff[1024] ;
     std::string label ;
     if (mcu.ProgAddrName(addr, label))
-      sprintf(buff, "%-6s %s\t\t; %d 0x%05x %s", instr.Mnemonic().c_str(), label.c_str(), (int16)k, addr, instr.Description().c_str()) ;
+      sprintf(buff, "%-6s %s\t\t; %d 0x%05x %s", instr.Mnemonic().c_str(), label.c_str(), (int16_t)k, addr, instr.Description().c_str()) ;
     else
-      sprintf(buff, "%-6s %d\t\t; 0x%05x %s", instr.Mnemonic().c_str(), (int16)k, addr, instr.Description().c_str()) ;
+      sprintf(buff, "%-6s %d\t\t; 0x%05x %s", instr.Mnemonic().c_str(), (int16_t)k, addr, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
-  void Xref_xxxxKKKKKKKKKKKK(const Instruction &instr, const Mcu &mcu, Command cmd, uint32 &addr)
+  void Xref_xxxxKKKKKKKKKKKK(const Instruction &instr, const Mcu &mcu, Command cmd, uint32_t &addr)
   {
     Command k ;
     xxxxKKKKKKKKKKKK(cmd, k) ;
-    addr = (uint32)(mcu.PC()) + (int16)k ;
+    addr = (uint32_t)(mcu.PC()) + (int16_t)k ;
   }
 
   std::string Disasm_xxxxxxxKKKKKxxxKk16(const Instruction &instr, Mcu &mcu, Command cmd)
   {
     Command k ;
     xxxxxxxKKKKKxxxK(cmd, k) ;
-    uint32 addr = (((uint32)k) << 16) + mcu.ProgramNext() ;
+    uint32_t addr = (((uint32_t)k) << 16) + mcu.ProgramNext() ;
     char buff[1024] ;
     std::string label ;
     if (mcu.ProgAddrName(addr, label))
@@ -252,11 +252,11 @@ namespace AVR
       sprintf(buff, "%-6s 0x%05x\t\t; %s", instr.Mnemonic().c_str(), addr, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
-  void Xref_xxxxxxxKKKKKxxxKk16(const Instruction &instr, Mcu &mcu, Command cmd, uint32 &addr)
+  void Xref_xxxxxxxKKKKKxxxKk16(const Instruction &instr, Mcu &mcu, Command cmd, uint32_t &addr)
   {
     Command k ;
     xxxxxxxKKKKKxxxK(cmd, k) ;
-    addr = (((uint32)k) << 16) + mcu.ProgramNext() ;
+    addr = (((uint32_t)k) << 16) + mcu.ProgramNext() ;
   }
 
   std::string Disasm_xxxxxxxRRRRRxBBB(const Instruction &instr, Command cmd)
@@ -286,13 +286,13 @@ namespace AVR
     Command k, s ;
     xxxxxxKKKKKKKxxx(cmd, k) ;
     xxxxxxxxxxxxxSSS(cmd, s) ;
-    uint32 addr = (uint32)(mcu.PC()) + (int16)k ;
+    uint32_t addr = (uint32_t)(mcu.PC()) + (int16_t)k ;
     char buff[1024] ;
     std::string label ;
     if (mcu.ProgAddrName(addr, label))
-      sprintf(buff, "%-6s %s\t\t; %d 0x%05x %s", sToBRBS(s), label.c_str(), (int16)k, addr, instr.Description().c_str()) ;
+      sprintf(buff, "%-6s %s\t\t; %d 0x%05x %s", sToBRBS(s), label.c_str(), (int16_t)k, addr, instr.Description().c_str()) ;
     else
-      sprintf(buff, "%-6s %d\t\t; 0x%05x %s", sToBRBS(s), (int16)k, addr, instr.Description().c_str()) ;
+      sprintf(buff, "%-6s %d\t\t; 0x%05x %s", sToBRBS(s), (int16_t)k, addr, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
   std::string Disasm_xxxxxxKKKKKKKSSS_BRBC(const Instruction &instr, const Mcu &mcu, Command cmd)
@@ -300,20 +300,20 @@ namespace AVR
     Command k, s ;
     xxxxxxKKKKKKKxxx(cmd, k) ;
     xxxxxxxxxxxxxSSS(cmd, s) ;
-    uint32 addr = (uint32)(mcu.PC()) + (int16)k ;
+    uint32_t addr = (uint32_t)(mcu.PC()) + (int16_t)k ;
     char buff[1024] ;
     std::string label ;
     if (mcu.ProgAddrName(addr, label))
-      sprintf(buff, "%-6s %s\t\t; %d 0x%05x %s", sToBRBC(s), label.c_str(), (int16)k, addr, instr.Description().c_str()) ;
+      sprintf(buff, "%-6s %s\t\t; %d 0x%05x %s", sToBRBC(s), label.c_str(), (int16_t)k, addr, instr.Description().c_str()) ;
     else
-      sprintf(buff, "%-6s %d\t\t; 0x%05x %s", sToBRBC(s), (int16)k, addr, instr.Description().c_str()) ;
+      sprintf(buff, "%-6s %d\t\t; 0x%05x %s", sToBRBC(s), (int16_t)k, addr, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
-  void Xref_xxxxxxKKKKKKKxxx(const Instruction &instr, const Mcu &mcu, Command cmd, uint32 &addr)
+  void Xref_xxxxxxKKKKKKKxxx(const Instruction &instr, const Mcu &mcu, Command cmd, uint32_t &addr)
   {
     Command k ;
     xxxxxxKKKKKKKxxx(cmd, k) ;
-    addr = (uint32)(mcu.PC()) + (int16)k ;
+    addr = (uint32_t)(mcu.PC()) + (int16_t)k ;
   }
 
   std::string Disasm_xxxxxxKKKKKKKxxx(const Instruction &instr, const Mcu &mcu, Command cmd)
@@ -321,7 +321,7 @@ namespace AVR
     Command k ;
     xxxxxxKKKKKKKxxx(cmd, k) ;
     char buff[1024] ;
-    sprintf(buff, "%-6s %d\t\t; 0x%05x %s", instr.Mnemonic().c_str(), (int16)k, (uint32)(mcu.PC()) + (int16)k, instr.Description().c_str()) ;
+    sprintf(buff, "%-6s %d\t\t; 0x%05x %s", instr.Mnemonic().c_str(), (int16_t)k, (uint32_t)(mcu.PC()) + (int16_t)k, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
 
@@ -356,7 +356,7 @@ namespace AVR
   {
     Command d ;
     xxxxxxxRRRRRxxxx(cmd, d) ;
-    uint32 addr = mcu.ProgramNext() ;
+    uint32_t addr = mcu.ProgramNext() ;
     char buff[1024] ;
     std::string ioRegName ;
     if (mcu.DataAddrName(addr, ioRegName))
@@ -369,7 +369,7 @@ namespace AVR
   {
     Command r ;
     xxxxxxxRRRRRxxxx(cmd, r) ;
-    uint32 addr = mcu.ProgramNext() ;
+    uint32_t addr = mcu.ProgramNext() ;
     char buff[1024] ;
     std::string ioRegName ;
     if (mcu.DataAddrName(addr, ioRegName))
@@ -448,7 +448,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrADD::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrADD::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -461,12 +461,12 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11000000 ;
-    uint8 rr = mcu.Reg(nr) ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd + rr ;
-    uint8 rHC = rd & rr | rr & ~r | ~r & rd ;
-    uint8 rV  = rd & rr & ~r | ~rd & ~rr & r ;
+    uint8_t sreg = mcu.GetSREG() & 0b11000000 ;
+    uint8_t rr = mcu.Reg(nr) ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd + rr ;
+    uint8_t rHC = rd & rr | rr & ~r | ~r & rd ;
+    uint8_t rV  = rd & rr & ~r | ~rd & ~rr & r ;
     if (rHC & 0x08)
       sreg |= SREG::H ;
     if (rV & 0x80)
@@ -486,7 +486,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrADD::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrADD::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -501,7 +501,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrADC::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrADC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -514,13 +514,13 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg0 = mcu.GetSREG() ;
-    uint8 sreg = sreg0 & 0b11000000 ;
-    uint8 rr = mcu.Reg(nr) ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd + rr + (sreg0 & SREG::C) ;
-    uint8 rHC = rd & rr | rr & ~r | ~r & rd ;
-    uint8 rV  = rd & rr & ~r | ~rd & ~rr & r ;
+    uint8_t sreg0 = mcu.GetSREG() ;
+    uint8_t sreg = sreg0 & 0b11000000 ;
+    uint8_t rr = mcu.Reg(nr) ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd + rr + (sreg0 & SREG::C) ;
+    uint8_t rHC = rd & rr | rr & ~r | ~r & rd ;
+    uint8_t rV  = rd & rr & ~r | ~rd & ~rr & r ;
     if (rHC & 0x08)
       sreg |= SREG::H ;
     if (rV & 0x80)
@@ -540,7 +540,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrADC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrADC::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -555,7 +555,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrADIW::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrADIW::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -568,9 +568,9 @@ namespace AVR
     xxxxxxxxKKxxKKKK(cmd, k) ;
     xxxxxxxxxxRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100000 ;
-    uint16 rd = mcu.RegW(nd) ;
-    uint16 r = rd + k ;
+    uint8_t  sreg = mcu.GetSREG() & 0b11100000 ;
+    uint16_t rd   = mcu.RegW(nd) ;
+    uint16_t r    = rd + k ;
     if (~rd & r & 0x8000)
       sreg |= SREG::V ;
     if (r & 0x8000)
@@ -588,7 +588,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxKKDDKKKK(*this, cmd) ;
   }
-  XrefType InstrADIW::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrADIW::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -603,7 +603,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSUB::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSUB::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -616,12 +616,12 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11000000 ;
-    uint8 rr = mcu.Reg(nr) ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd - rr ;
-    uint8 rHC = ~rd & rr | rr & r | r & ~rd ;
-    uint8 rV  = rd & ~rr & ~r | ~rd & rr & r ;
+    uint8_t sreg = mcu.GetSREG() & 0b11000000 ;
+    uint8_t rr = mcu.Reg(nr) ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd - rr ;
+    uint8_t rHC = ~rd & rr | rr & r | r & ~rd ;
+    uint8_t rV  = rd & ~rr & ~r | ~rd & rr & r ;
     if (rHC & 0x08)
       sreg |= SREG::H ;
     if (rV & 0x80)
@@ -641,7 +641,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrSUB::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSUB::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -656,7 +656,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSUBI::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSUBI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -669,11 +669,11 @@ namespace AVR
     xxxxKKKKxxxxKKKK(cmd, k) ;
     xxxxxxxxRRRRxxxx1(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11000000 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd - k ;
-    uint8 rHC = ~rd & k | k & r | r & ~rd ;
-    uint8 rV  = rd & ~k & ~r | ~rd & k & r ;
+    uint8_t sreg = mcu.GetSREG() & 0b11000000 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd - k ;
+    uint8_t rHC = ~rd & k | k & r | r & ~rd ;
+    uint8_t rV  = rd & ~k & ~r | ~rd & k & r ;
     if (rHC & 0x08)
       sreg |= SREG::H ;
     if (rV & 0x80)
@@ -693,7 +693,7 @@ namespace AVR
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  XrefType InstrSUBI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSUBI::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -708,7 +708,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSBC::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -721,13 +721,13 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg0 = mcu.GetSREG() ;
-    uint8 sreg = sreg0 & 0b11000000 ;
-    uint8 rr = mcu.Reg(nr) ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd - rr - (sreg0 & SREG::C) ;
-    uint8 rHC = ~rd & rr | rr & r | r & ~rd ;
-    uint8 rV  = rd & ~rr & ~r | ~rd & rr & r ;
+    uint8_t sreg0 = mcu.GetSREG() ;
+    uint8_t sreg = sreg0 & 0b11000000 ;
+    uint8_t rr = mcu.Reg(nr) ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd - rr - (sreg0 & SREG::C) ;
+    uint8_t rHC = ~rd & rr | rr & r | r & ~rd ;
+    uint8_t rV  = rd & ~rr & ~r | ~rd & rr & r ;
     if (rHC & 0x08)
       sreg |= SREG::H ;
     if (rV & 0x80)
@@ -747,7 +747,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrSBC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBC::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -762,7 +762,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSBCI::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBCI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -775,12 +775,12 @@ namespace AVR
     xxxxKKKKxxxxKKKK(cmd, k) ;
     xxxxxxxxRRRRxxxx1(cmd, nd) ;
 
-    uint8 sreg0 = mcu.GetSREG() ;
-    uint8 sreg = sreg0 & 0b11000000 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd - k - (sreg0 & SREG::C);
-    uint8 rHC = ~rd & k | k & r | r & ~rd ;
-    uint8 rV  = rd & ~k & ~r | ~rd & k & r ;
+    uint8_t sreg0 = mcu.GetSREG() ;
+    uint8_t sreg = sreg0 & 0b11000000 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd - k - (sreg0 & SREG::C);
+    uint8_t rHC = ~rd & k | k & r | r & ~rd ;
+    uint8_t rV  = rd & ~k & ~r | ~rd & k & r ;
     if (rHC & 0x08)
       sreg |= SREG::H ;
     if (rV & 0x80)
@@ -800,7 +800,7 @@ namespace AVR
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  XrefType InstrSBCI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBCI::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -815,7 +815,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSBIW::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBIW::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -828,9 +828,9 @@ namespace AVR
     xxxxxxxxKKxxKKKK(cmd, k) ;
     xxxxxxxxxxRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100000 ;
-    uint16 rd = mcu.RegW(nd) ;
-    uint16 r = rd - k ;
+    uint8_t  sreg = mcu.GetSREG() & 0b11100000 ;
+    uint16_t rd   = mcu.RegW(nd) ;
+    uint16_t r    = rd - k ;
     if (rd & ~r & 0x8000)
       sreg |= SREG::V ;
     if (r & 0x8000)
@@ -848,7 +848,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxKKDDKKKK(*this, cmd) ;
   }
-  XrefType InstrSBIW::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBIW::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -863,7 +863,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrAND::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrAND::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -876,10 +876,10 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100001 ;
-    uint8 rr = mcu.Reg(nr) ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd & rr ;
+    uint8_t sreg = mcu.GetSREG() & 0b11100001 ;
+    uint8_t rr = mcu.Reg(nr) ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd & rr ;
     if (r & 0x80)
       sreg |= SREG::N ;
     if (r == 0x00)
@@ -893,7 +893,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrAND::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrAND::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -908,7 +908,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrANDI::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrANDI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -921,9 +921,9 @@ namespace AVR
     xxxxKKKKxxxxKKKK(cmd, k) ;
     xxxxxxxxRRRRxxxx1(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100001 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd & k ;
+    uint8_t sreg = mcu.GetSREG() & 0b11100001 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd & k ;
     if (r & 0x80)
       sreg |= SREG::N ;
     if (r == 0x00)
@@ -937,7 +937,7 @@ namespace AVR
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  XrefType InstrANDI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrANDI::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -952,7 +952,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrOR::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrOR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -965,10 +965,10 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100001 ;
-    uint8 rr = mcu.Reg(nr) ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd | rr ;
+    uint8_t sreg = mcu.GetSREG() & 0b11100001 ;
+    uint8_t rr = mcu.Reg(nr) ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd | rr ;
     if (r & 0x80)
       sreg |= SREG::N ;
     if (r == 0x00)
@@ -982,7 +982,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrOR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrOR::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -997,7 +997,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrORI::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrORI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -1010,9 +1010,9 @@ namespace AVR
     xxxxKKKKxxxxKKKK(cmd, k) ;
     xxxxxxxxRRRRxxxx1(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100001 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd | k ;
+    uint8_t sreg = mcu.GetSREG() & 0b11100001 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd | k ;
     if (r & 0x80)
       sreg |= SREG::N ;
     if (r == 0x00)
@@ -1026,7 +1026,7 @@ namespace AVR
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  XrefType InstrORI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrORI::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1041,7 +1041,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrEOR::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrEOR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -1054,10 +1054,10 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100001 ;
-    uint8 rr = mcu.Reg(nr) ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd ^ rr ;
+    uint8_t sreg = mcu.GetSREG() & 0b11100001 ;
+    uint8_t rr = mcu.Reg(nr) ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd ^ rr ;
     if (r & 0x80)
       sreg |= SREG::N ;
     if (r == 0x00)
@@ -1071,7 +1071,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrEOR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrEOR::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1086,7 +1086,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrCOM::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrCOM::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -1098,9 +1098,9 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100000 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = 0xff - rd ;
+    uint8_t sreg = mcu.GetSREG() & 0b11100000 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = 0xff - rd ;
     if (r & 0x80)
       sreg |= SREG::N ;
     if (r == 0x00)
@@ -1115,7 +1115,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrCOM::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCOM::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1130,7 +1130,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrNEG::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrNEG::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -1142,10 +1142,10 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11000000 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = 0 - rd ;
-    uint8 rH = r | ~rd ;
+    uint8_t sreg = mcu.GetSREG() & 0b11000000 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = 0 - rd ;
+    uint8_t rH = r | ~rd ;
     if (rH & 0x08)
       sreg |= SREG::H ;
     if (r == 0x80)
@@ -1165,7 +1165,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrNEG::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrNEG::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1180,7 +1180,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrINC::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrINC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -1192,9 +1192,9 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100001 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd + 1 ;
+    uint8_t sreg = mcu.GetSREG() & 0b11100001 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd + 1 ;
     if (r == 0x80)
       sreg |= SREG::V ;
     if (r & 0x80)
@@ -1210,7 +1210,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrINC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrINC::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1225,7 +1225,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrDEC::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrDEC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -1237,9 +1237,9 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100001 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd - 1 ;
+    uint8_t sreg = mcu.GetSREG() & 0b11100001 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd - 1 ;
     if (r == 0x7f)
       sreg |= SREG::V ;
     if (r & 0x80)
@@ -1255,7 +1255,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrDEC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrDEC::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1270,7 +1270,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrMUL::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrMUL::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -1285,7 +1285,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrMUL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrMUL::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1300,7 +1300,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrMULS::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrMULS::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -1315,7 +1315,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxDDDDRRRR_MULS(*this, cmd) ;
   }
-  XrefType InstrMULS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrMULS::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1330,7 +1330,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrMULSU::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrMULSU::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -1345,7 +1345,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxDDDxRRR(*this, cmd) ;
   }
-  XrefType InstrMULSU::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrMULSU::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1360,7 +1360,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrFMUL::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrFMUL::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -1375,7 +1375,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxDDDxRRR(*this, cmd) ;
   }
-  XrefType InstrFMUL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrFMUL::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1390,7 +1390,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrFMULS::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrFMULS::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -1405,7 +1405,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxDDDxRRR(*this, cmd) ;
   }
-  XrefType InstrFMULS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrFMULS::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1420,7 +1420,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrFMULSU::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrFMULSU::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -1435,7 +1435,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxDDDxRRR(*this, cmd) ;
   }
-  XrefType InstrFMULSU::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrFMULSU::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1450,7 +1450,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrDES::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrDES::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -1465,7 +1465,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxKKKKxxxx(*this, cmd) ;
   }
-  XrefType InstrDES::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrDES::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1480,7 +1480,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrRJMP::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrRJMP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -1491,13 +1491,13 @@ namespace AVR
   {
     Command k ;
     xxxxKKKKKKKKKKKK(cmd, k) ;
-    mcu.PC() = mcu.PC() + (int16)k ;
+    mcu.PC() = mcu.PC() + (int16_t)k ;
   }
   std::string InstrRJMP::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxKKKKKKKKKKKK(*this, mcu, cmd) ;
   }
-  XrefType InstrRJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrRJMP::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     Xref_xxxxKKKKKKKKKKKK(*this, mcu, cmd, addr) ;
     return XrefType::jmp ;
@@ -1513,7 +1513,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrIJMP::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrIJMP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -1529,7 +1529,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrIJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrIJMP::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ; // todo information
   }
@@ -1544,7 +1544,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrEIJMP::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrEIJMP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -1559,7 +1559,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrEIJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrEIJMP::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ; // todo information
   }
@@ -1574,7 +1574,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrJMP::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrJMP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 3 ;
   }
@@ -1586,14 +1586,14 @@ namespace AVR
   {
     Command k ;
     xxxxxxxKKKKKxxxK(cmd, k) ;
-    uint32 addr = (((uint32)k) << 16) + mcu.ProgramNext() ;
+    uint32_t addr = (((uint32_t)k) << 16) + mcu.ProgramNext() ;
     mcu.PC() = addr ;
   }
   std::string InstrJMP::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxxKKKKKxxxKk16(*this, mcu, cmd) ;
   }
-  XrefType InstrJMP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrJMP::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     Xref_xxxxxxxKKKKKxxxKk16(*this, mcu, cmd, addr) ;
     return XrefType::jmp ;
@@ -1609,7 +1609,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrRCALL::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrRCALL::Ticks(Mcu &mcu, Command cmd) const
   {
     return 3 ; // todo
   }
@@ -1621,13 +1621,13 @@ namespace AVR
     Command k ;
     xxxxKKKKKKKKKKKK(cmd, k) ;
     mcu.PushPC() ;
-    mcu.PC() = mcu.PC() + (int16)k ;
+    mcu.PC() = mcu.PC() + (int16_t)k ;
   }
   std::string InstrRCALL::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxKKKKKKKKKKKK(*this, mcu, cmd) ;
   }
-  XrefType InstrRCALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrRCALL::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     Xref_xxxxKKKKKKKKKKKK(*this, mcu, cmd, addr) ;
     return XrefType::call ;
@@ -1643,7 +1643,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrICALL::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrICALL::Ticks(Mcu &mcu, Command cmd) const
   {
     return 3 ; // todo
   }
@@ -1660,7 +1660,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrICALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrICALL::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ; // todo information
   }
@@ -1675,7 +1675,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrEICALL::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrEICALL::Ticks(Mcu &mcu, Command cmd) const
   {
     return 4 ; // todo
   }
@@ -1690,7 +1690,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrEICALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrEICALL::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ; // todo information
   }
@@ -1705,7 +1705,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrCALL::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrCALL::Ticks(Mcu &mcu, Command cmd) const
   {
     return 4 ; // todo
   }
@@ -1717,7 +1717,7 @@ namespace AVR
   {
     Command k ;
     xxxxxxxKKKKKxxxK(cmd, k) ;
-    uint32 addr = (((uint32)k) << 16) + mcu.ProgramNext() ;
+    uint32_t addr = (((uint32_t)k) << 16) + mcu.ProgramNext() ;
     mcu.PushPC() ;
     mcu.PC() = addr ;
   }
@@ -1725,7 +1725,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxKKKKKxxxKk16(*this, mcu, cmd) ;
   }
-  XrefType InstrCALL::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCALL::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     Xref_xxxxxxxKKKKKxxxKk16(*this, mcu, cmd, addr) ;
     return XrefType::call ;
@@ -1741,7 +1741,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrRET::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrRET::Ticks(Mcu &mcu, Command cmd) const
   {
     return 4 ; // todo
   }
@@ -1756,7 +1756,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrRET::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrRET::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1771,7 +1771,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrRETI::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrRETI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 4 ; // todo
   }
@@ -1781,7 +1781,7 @@ namespace AVR
   void InstrRETI::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.PopPC() ;
-    uint8 sreg = mcu.GetSREG() ;
+    uint8_t sreg = mcu.GetSREG() ;
     sreg |= SREG::I ;
     mcu.SetSREG(sreg) ;
   }
@@ -1789,7 +1789,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrRETI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrRETI::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1804,7 +1804,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrCPSE::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrCPSE::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -1817,8 +1817,8 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 rr = mcu.Reg(nr) ;
-    uint8 rd = mcu.Reg(nd) ;
+    uint8_t rr = mcu.Reg(nr) ;
+    uint8_t rd = mcu.Reg(nd) ;
     if (rr == rd)
       mcu.Skip() ;
   }
@@ -1826,7 +1826,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrCPSE::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCPSE::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1841,7 +1841,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrCP::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrCP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -1854,12 +1854,12 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11000000 ;
-    uint8 rr = mcu.Reg(nr) ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd - rr ;
-    uint8 rHC = ~rd & rr | rr & r | r & ~rd ;
-    uint8 rV  = rd & ~rr & ~r | ~rd & rr & r ;
+    uint8_t sreg = mcu.GetSREG() & 0b11000000 ;
+    uint8_t rr = mcu.Reg(nr) ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd - rr ;
+    uint8_t rHC = ~rd & rr | rr & r | r & ~rd ;
+    uint8_t rV  = rd & ~rr & ~r | ~rd & rr & r ;
     if (rHC & 0x08)
       sreg |= SREG::H ;
     if (rV & 0x80)
@@ -1878,7 +1878,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrCP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCP::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1893,7 +1893,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrCPC::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrCPC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -1906,13 +1906,13 @@ namespace AVR
     xxxxxxRxxxxxRRRR(cmd, nr) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg0 = mcu.GetSREG() ;
-    uint8 sreg = sreg0 & 0b11000000 ;
-    uint8 rr = mcu.Reg(nr) ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd - rr - (sreg0 & SREG::C) ;
-    uint8 rHC = ~rd & rr | rr & r | r & ~rd ;
-    uint8 rV  = rd & ~rr & ~r | ~rd & rr & r ;
+    uint8_t sreg0 = mcu.GetSREG() ;
+    uint8_t sreg = sreg0 & 0b11000000 ;
+    uint8_t rr = mcu.Reg(nr) ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd - rr - (sreg0 & SREG::C) ;
+    uint8_t rHC = ~rd & rr | rr & r | r & ~rd ;
+    uint8_t rV  = rd & ~rr & ~r | ~rd & rr & r ;
     if (rHC & 0x08)
       sreg |= SREG::H ;
     if (rV & 0x80)
@@ -1931,7 +1931,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrCPC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCPC::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1946,7 +1946,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrCPI::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrCPI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -1959,11 +1959,11 @@ namespace AVR
     xxxxKKKKxxxxKKKK(cmd, k) ;
     xxxxxxxxRRRRxxxx1(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11000000 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd - k ;
-    uint8 rHC = ~rd & k | k & r | r & ~rd ;
-    uint8 rV  = rd & ~k & ~r | ~rd & k & r ;
+    uint8_t sreg = mcu.GetSREG() & 0b11000000 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd - k ;
+    uint8_t rHC = ~rd & k | k & r | r & ~rd ;
+    uint8_t rV  = rd & ~k & ~r | ~rd & k & r ;
     if (rHC & 0x08)
       sreg |= SREG::H ;
     if (rV & 0x80)
@@ -1982,7 +1982,7 @@ namespace AVR
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  XrefType InstrCPI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCPI::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -1997,7 +1997,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSBRC::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBRC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -2010,7 +2010,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     xxxxxxxxxxxxxBBB(cmd, b) ;
 
-    uint8 r = mcu.Reg(nr) ;
+    uint8_t r = mcu.Reg(nr) ;
     if (!(r & (1<<b)))
       mcu.Skip() ;
   }
@@ -2018,7 +2018,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxBBB(*this, cmd) ;
   }
-  XrefType InstrSBRC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBRC::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2033,7 +2033,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSBRS::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBRS::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -2046,7 +2046,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     xxxxxxxxxxxxxBBB(cmd, b) ;
 
-    uint8 r = mcu.Reg(nr) ;
+    uint8_t r = mcu.Reg(nr) ;
     if (r & (1<<b))
       mcu.Skip() ;
   }
@@ -2054,7 +2054,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxBBB(*this, cmd) ;
   }
-  XrefType InstrSBRS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBRS::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2069,7 +2069,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSBIC::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBIC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -2082,7 +2082,7 @@ namespace AVR
     xxxxxxxxAAAAAxxx(cmd, ni) ;
     xxxxxxxxxxxxxBBB(cmd, b) ;
 
-    uint8 i = mcu.Io(ni) ;
+    uint8_t i = mcu.Io(ni) ;
     if (!(i & (1<<b)))
       mcu.Skip() ;
   }
@@ -2090,7 +2090,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxAAAAABBB(*this, mcu, cmd) ;
   }
-  XrefType InstrSBIC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBIC::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2105,7 +2105,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSBIS::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBIS::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -2118,7 +2118,7 @@ namespace AVR
     xxxxxxxxAAAAAxxx(cmd, ni) ;
     xxxxxxxxxxxxxBBB(cmd, b) ;
 
-    uint8 i = mcu.Io(ni) ;
+    uint8_t i = mcu.Io(ni) ;
     if (i & (1<<b))
       mcu.Skip() ;
   }
@@ -2126,7 +2126,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxAAAAABBB(*this, mcu, cmd) ;
   }
-  XrefType InstrSBIS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBIS::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2141,7 +2141,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrBRBS::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrBRBS::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -2155,13 +2155,13 @@ namespace AVR
     xxxxxxxxxxxxxSSS(cmd, s) ;
 
     if (mcu.GetSREG() & (1<<s))
-      mcu.PC() = mcu.PC() + (int16)k ;
+      mcu.PC() = mcu.PC() + (int16_t)k ;
   }
   std::string InstrBRBS::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxKKKKKKKSSS_BRBS(*this, mcu, cmd) ;
   }
-  XrefType InstrBRBS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBRBS::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     Xref_xxxxxxKKKKKKKxxx(*this, mcu, cmd, addr) ;
     return XrefType::jmp ;
@@ -2177,7 +2177,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrBRBC::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrBRBC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -2191,13 +2191,13 @@ namespace AVR
     xxxxxxxxxxxxxSSS(cmd, s) ;
 
     if (!(mcu.GetSREG() & (1<<s)))
-      mcu.PC() = mcu.PC() + (int16)k ;
+      mcu.PC() = mcu.PC() + (int16_t)k ;
   }
   std::string InstrBRBC::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxKKKKKKKSSS_BRBC(*this, mcu, cmd) ;
   }
-  XrefType InstrBRBC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBRBC::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     Xref_xxxxxxKKKKKKKxxx(*this, mcu, cmd, addr) ;
     return XrefType::jmp ;
@@ -2213,7 +2213,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrMOV::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrMOV::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -2231,7 +2231,7 @@ namespace AVR
   {
     return Disasm_xxxxxxRDDDDDRRRR(*this, cmd) ;
   }
-  XrefType InstrMOV::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrMOV::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2246,7 +2246,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrMOVW::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrMOVW::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -2264,7 +2264,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxDDDDRRRR_MOVW(*this, cmd) ;
   }
-  XrefType InstrMOVW::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrMOVW::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2279,7 +2279,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDI::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -2291,13 +2291,13 @@ namespace AVR
     Command k, d ;
     xxxxKKKKxxxxKKKK(cmd, k) ;
     xxxxxxxxRRRRxxxx1(cmd, d) ;
-    mcu.Reg(d, (uint8)k) ;
+    mcu.Reg(d, (uint8_t)k) ;
   }
   std::string InstrLDI::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxKKKKDDDDKKKK(*this, cmd) ;
   }
-  XrefType InstrLDI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDI::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2312,7 +2312,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDS::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDS::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -2324,14 +2324,14 @@ namespace AVR
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    uint32 addr = mcu.ProgramNext() ;
+    uint32_t addr = mcu.ProgramNext() ;
     mcu.Reg(nd, mcu.Data(addr)) ;
   }
   std::string InstrLDS::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxxDDDDDxxxxk16(*this, mcu, cmd) ;
   }
-  XrefType InstrLDS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDS::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2346,7 +2346,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDx1::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDx1::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -2364,7 +2364,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "X") ;
   }
-  XrefType InstrLDx1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDx1::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2379,7 +2379,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDx2::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDx2::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2398,7 +2398,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "X+") ;
   }
-  XrefType InstrLDx2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDx2::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2413,7 +2413,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDx3::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDx3::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2432,7 +2432,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "-X") ;
   }
-  XrefType InstrLDx3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDx3::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2447,7 +2447,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDy1::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDy1::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -2465,7 +2465,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Y") ;
   }
-  XrefType InstrLDy1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDy1::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2480,7 +2480,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDy2::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDy2::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2499,7 +2499,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Y+") ;
   }
-  XrefType InstrLDy2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDy2::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2514,7 +2514,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDy3::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDy3::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2533,7 +2533,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "-Y") ;
   }
-  XrefType InstrLDy3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDy3::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2548,7 +2548,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDy4::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDy4::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2567,7 +2567,7 @@ namespace AVR
   {
     return Disasm_xxQxQQxDDDDDxQQQ(*this, mcu, cmd, "Y") ;
   }
-  XrefType InstrLDy4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDy4::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2582,7 +2582,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDz1::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDz1::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -2600,7 +2600,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z") ;
   }
-  XrefType InstrLDz1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDz1::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2615,7 +2615,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDz2::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDz2::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2634,7 +2634,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z+") ;
   }
-  XrefType InstrLDz2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDz2::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2649,7 +2649,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDz3::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDz3::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2668,7 +2668,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "-Z") ;
   }
-  XrefType InstrLDz3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDz3::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2683,7 +2683,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLDz4::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDz4::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2702,7 +2702,7 @@ namespace AVR
   {
     return Disasm_xxQxQQxDDDDDxQQQ(*this, mcu, cmd, "Z") ;
   }
-  XrefType InstrLDz4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLDz4::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2717,7 +2717,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTS::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTS::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ;
   }
@@ -2729,14 +2729,14 @@ namespace AVR
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    uint32 addr = mcu.ProgramNext() ;
+    uint32_t addr = mcu.ProgramNext() ;
     mcu.Data(addr, mcu.Reg(nd)) ;
   }
   std::string InstrSTS::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxxRRRRRxxxxk16(*this, mcu, cmd) ;
   }
-  XrefType InstrSTS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTS::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2751,7 +2751,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTx1::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTx1::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2769,7 +2769,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "X") ;
   }
-  XrefType InstrSTx1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTx1::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2784,7 +2784,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTx2::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTx2::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2803,7 +2803,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "X+") ;
   }
-  XrefType InstrSTx2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTx2::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2818,7 +2818,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTx3::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTx3::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2837,7 +2837,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "-X") ;
   }
-  XrefType InstrSTx3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTx3::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2852,7 +2852,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTy1::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTy1::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2870,7 +2870,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "Y") ;
   }
-  XrefType InstrSTy1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTy1::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2885,7 +2885,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTy2::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTy2::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2904,7 +2904,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "Y+") ;
   }
-  XrefType InstrSTy2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTy2::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2919,7 +2919,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTy3::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTy3::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2938,7 +2938,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "-Y") ;
   }
-  XrefType InstrSTy3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTy3::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2953,7 +2953,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTy4::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTy4::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -2972,7 +2972,7 @@ namespace AVR
   {
     return Disasm_xxQxQQxRRRRRxQQQ(*this, mcu, cmd, "Y") ;
   }
-  XrefType InstrSTy4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTy4::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -2987,7 +2987,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTz1::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTz1::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -3005,7 +3005,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "Z") ;
   }
-  XrefType InstrSTz1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTz1::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3020,7 +3020,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTz2::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTz2::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -3039,7 +3039,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "Z+") ;
   }
-  XrefType InstrSTz2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTz2::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3054,7 +3054,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTz3::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTz3::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -3073,7 +3073,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxRRRRRxxxx(*this, mcu, cmd, "-Z") ;
   }
-  XrefType InstrSTz3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTz3::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3088,7 +3088,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSTz4::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTz4::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -3107,7 +3107,7 @@ namespace AVR
   {
     return Disasm_xxQxQQxRRRRRxQQQ(*this, mcu, cmd, "Z") ;
   }
-  XrefType InstrSTz4::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSTz4::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3122,7 +3122,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLPM1::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLPM1::Ticks(Mcu &mcu, Command cmd) const
   {
     return 3 ;
   }
@@ -3137,13 +3137,13 @@ namespace AVR
     p = mcu.Prog(z>>1) ;
     if (z&1)
       p >>= 8 ;
-    mcu.Reg(0, (uint8)p) ;
+    mcu.Reg(0, (uint8_t)p) ;
   }
   std::string InstrLPM1::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrLPM1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLPM1::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3158,7 +3158,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLPM2::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLPM2::Ticks(Mcu &mcu, Command cmd) const
   {
     return 3 ;
   }
@@ -3174,13 +3174,13 @@ namespace AVR
     p = mcu.Prog(z>>1) ;
     if (z&1)
       p >>= 8 ;
-    mcu.Reg(nd, (uint8)p) ;
+    mcu.Reg(nd, (uint8_t)p) ;
   }
   std::string InstrLPM2::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z") ;
   }
-  XrefType InstrLPM2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLPM2::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3195,7 +3195,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLPM3::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLPM3::Ticks(Mcu &mcu, Command cmd) const
   {
     return 3 ;
   }
@@ -3211,14 +3211,14 @@ namespace AVR
     p = mcu.Prog(z>>1) ;
     if (z&1)
       p >>= 8 ;
-    mcu.Reg(nd, (uint8)p) ;
+    mcu.Reg(nd, (uint8_t)p) ;
     mcu.RegW(30, z+1) ;
   }
   std::string InstrLPM3::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z+") ;
   }
-  XrefType InstrLPM3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLPM3::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3233,7 +3233,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrELPM1::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrELPM1::Ticks(Mcu &mcu, Command cmd) const
   {
     return 3 ;
   }
@@ -3249,13 +3249,13 @@ namespace AVR
     p = mcu.Prog(z>>1) ;
     if (z&1)
       p >>= 8 ;
-    mcu.Reg(0, (uint8)p) ;
+    mcu.Reg(0, (uint8_t)p) ;
   }
   std::string InstrELPM1::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrELPM1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrELPM1::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3270,7 +3270,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrELPM2::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrELPM2::Ticks(Mcu &mcu, Command cmd) const
   {
     return 3 ;
   }
@@ -3287,13 +3287,13 @@ namespace AVR
     p = mcu.Prog(z>>1) ;
     if (z&1)
       p >>= 8 ;
-    mcu.Reg(nd, (uint8)p) ;
+    mcu.Reg(nd, (uint8_t)p) ;
   }
   std::string InstrELPM2::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z") ;
   }
-  XrefType InstrELPM2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrELPM2::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3308,7 +3308,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrELPM3::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrELPM3::Ticks(Mcu &mcu, Command cmd) const
   {
     return 3 ;
   }
@@ -3325,14 +3325,14 @@ namespace AVR
     p = mcu.Prog(z>>1) ;
     if (z&1)
       p >>= 8 ;
-    mcu.Reg(nd, (uint8)p) ;
+    mcu.Reg(nd, (uint8_t)p) ;
     mcu.RegW(30, z+1) ;
   }
   std::string InstrELPM3::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, mcu, cmd, "Z+") ;
   }
-  XrefType InstrELPM3::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrELPM3::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3347,7 +3347,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSPM1::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSPM1::Ticks(Mcu &mcu, Command cmd) const
   {
     return 3 ; // todo
   }
@@ -3362,7 +3362,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrSPM1::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSPM1::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ; // todo information
   }
@@ -3377,7 +3377,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSPM2::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSPM2::Ticks(Mcu &mcu, Command cmd) const
   {
     return 3 ; // todo
   }
@@ -3392,7 +3392,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrSPM2::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSPM2::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ; // todo information
   }
@@ -3407,7 +3407,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrIN::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrIN::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3425,7 +3425,7 @@ namespace AVR
   {
     return Disasm_xxxxxAADDDDDAAAA(*this, mcu, cmd) ;
   }
-  XrefType InstrIN::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrIN::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3440,7 +3440,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrOUT::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrOUT::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3458,7 +3458,7 @@ namespace AVR
   {
     return Disasm_xxxxxAARRRRRAAAA(*this, mcu, cmd) ;
   }
-  XrefType InstrOUT::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrOUT::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3473,7 +3473,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrPUSH::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrPUSH::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -3490,7 +3490,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrPUSH::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrPUSH::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3505,7 +3505,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrPOP::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrPOP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 2 ; // todo
   }
@@ -3522,7 +3522,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrPOP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrPOP::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3537,7 +3537,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrXCH::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrXCH::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3549,9 +3549,9 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 rd = mcu.Reg(nd) ;
-    uint16 z = mcu.RegW(30) ;
-    uint8 r = mcu.Data(z) ;
+    uint8_t  rd = mcu.Reg(nd) ;
+    uint16_t z  = mcu.RegW(30) ;
+    uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, rd) ;
     mcu.Reg(nd, r) ;
   }
@@ -3559,7 +3559,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrXCH::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrXCH::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3574,7 +3574,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLAS::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLAS::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3586,9 +3586,9 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 rd = mcu.Reg(nd) ;
-    uint16 z = mcu.RegW(30) ;
-    uint8 r = mcu.Data(z) ;
+    uint8_t  rd = mcu.Reg(nd) ;
+    uint16_t z  = mcu.RegW(30) ;
+    uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, rd | z) ;
     mcu.Reg(nd, r) ;
   }
@@ -3596,7 +3596,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrLAS::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLAS::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3611,7 +3611,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLAC::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLAC::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3623,9 +3623,9 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 rd = mcu.Reg(nd) ;
-    uint16 z = mcu.RegW(30) ;
-    uint8 r = mcu.Data(z) ;
+    uint8_t  rd = mcu.Reg(nd) ;
+    uint16_t z  = mcu.RegW(30) ;
+    uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, ~rd & r) ;
     mcu.Reg(nd, r) ;
   }
@@ -3633,7 +3633,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrLAC::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLAC::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3648,7 +3648,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLAT::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLAT::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3660,9 +3660,9 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 rd = mcu.Reg(nd) ;
-    uint16 z = mcu.RegW(30) ;
-    uint8 r = mcu.Data(z) ;
+    uint8_t  rd = mcu.Reg(nd) ;
+    uint16_t z  = mcu.RegW(30) ;
+    uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, rd ^ r) ;
     mcu.Reg(nd, r) ;
   }
@@ -3670,7 +3670,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrLAT::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLAT::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3685,7 +3685,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrLSR::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrLSR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3697,9 +3697,9 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100000 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd >> 1 ;
+    uint8_t sreg = mcu.GetSREG() & 0b11100000 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd >> 1 ;
     if (r == 0x00)
       sreg |= SREG::Z ;
     if (rd & 0x01)
@@ -3715,7 +3715,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrLSR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrLSR::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3730,7 +3730,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrROR::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrROR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3742,10 +3742,10 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg0 = mcu.GetSREG() ;
-    uint8 sreg = sreg0 & 0b11100000 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = rd >> 1 ;
+    uint8_t sreg0 = mcu.GetSREG() ;
+    uint8_t sreg = sreg0 & 0b11100000 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = rd >> 1 ;
     if (sreg0 && SREG::C)
       r |= 0x80 ;
     if (r & 0x80)
@@ -3765,7 +3765,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrROR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrROR::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3780,7 +3780,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrASR::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrASR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3792,9 +3792,9 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b11100000 ;
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = (uint8)((int8)rd >> 1) ;
+    uint8_t sreg = mcu.GetSREG() & 0b11100000 ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = (uint8_t)((int8_t)rd >> 1) ;
     if (r & 0x80)
       sreg |= SREG::N ;
     if (r == 0x00)
@@ -3812,7 +3812,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrASR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrASR::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3827,7 +3827,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSWAP::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSWAP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3839,15 +3839,15 @@ namespace AVR
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
-    uint8 rd = mcu.Reg(nd) ;
-    uint8 r = ((rd & 0xf0) >> 4) | ((rd & 0x0f) << 4) ;
+    uint8_t rd = mcu.Reg(nd) ;
+    uint8_t r = ((rd & 0xf0) >> 4) | ((rd & 0x0f) << 4) ;
     mcu.Reg(nd, r) ;
   }
   std::string InstrSWAP::Disasm(Mcu &mcu, Command cmd) const
   {
     return Disasm_xxxxxxxDDDDDxxxx(*this, cmd) ;
   }
-  XrefType InstrSWAP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSWAP::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3862,7 +3862,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrBSET::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrBSET::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3874,7 +3874,7 @@ namespace AVR
     Command s ;
     xxxxxxxxxSSSxxxx(cmd, s) ;
 
-    uint8 sreg = mcu.GetSREG() ;
+    uint8_t sreg = mcu.GetSREG() ;
     sreg |= 1 << s ;
     mcu.SetSREG(sreg) ;
   }
@@ -3882,7 +3882,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxSSSxxxx_BSET(*this, cmd) ;
   }
-  XrefType InstrBSET::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBSET::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3897,7 +3897,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrBCLR::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrBCLR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -3909,7 +3909,7 @@ namespace AVR
     Command s ;
     xxxxxxxxxSSSxxxx(cmd, s) ;
 
-    uint8 sreg = mcu.GetSREG() ;
+    uint8_t sreg = mcu.GetSREG() ;
     sreg &= ~(1 << s) ;
     mcu.SetSREG(sreg) ;
   }
@@ -3917,7 +3917,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxSSSxxxx_BCLR(*this, cmd) ;
   }
-  XrefType InstrBCLR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBCLR::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3932,7 +3932,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSBI::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -3950,7 +3950,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxAAAAABBB(*this, mcu, cmd) ;
   }
-  XrefType InstrSBI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSBI::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3965,7 +3965,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrCBI::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrCBI::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ; // todo
   }
@@ -3983,7 +3983,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxAAAAABBB(*this, mcu, cmd) ;
   }
-  XrefType InstrCBI::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrCBI::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -3998,7 +3998,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrBST::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrBST::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -4011,7 +4011,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     xxxxxxxxxxxxxBBB(cmd, b) ;
 
-    uint8 sreg = mcu.GetSREG() & 0b10111111 ;
+    uint8_t sreg = mcu.GetSREG() & 0b10111111 ;
     if (mcu.Reg(nr) & (1<<b))
       sreg |= SREG::T ;
     mcu.SetSREG(sreg) ;
@@ -4020,7 +4020,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxBBB(*this, cmd) ;
   }
-  XrefType InstrBST::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBST::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -4035,7 +4035,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrBLD::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrBLD::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -4048,7 +4048,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     xxxxxxxxxxxxxBBB(cmd, b) ;
 
-    uint8 d = mcu.Reg(nd) & ~(1<<b) ;
+    uint8_t d = mcu.Reg(nd) & ~(1<<b) ;
     if (mcu.GetSREG() && SREG::T)
       d |= 1<<b ;
     mcu.Reg(nd, d) ;
@@ -4057,7 +4057,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxDDDDDxBBB(*this, cmd) ;
   }
-  XrefType InstrBLD::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBLD::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -4072,7 +4072,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrBREAK::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrBREAK::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -4087,7 +4087,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrBREAK::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrBREAK::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -4102,7 +4102,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrNOP::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrNOP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -4116,7 +4116,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrNOP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrNOP::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -4131,7 +4131,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrSLEEP::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrSLEEP::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -4146,7 +4146,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrSLEEP::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrSLEEP::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }
@@ -4161,7 +4161,7 @@ namespace AVR
   {
   }
 
-  uint8 InstrWDR::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrWDR::Ticks(Mcu &mcu, Command cmd) const
   {
     return 1 ;
   }
@@ -4176,7 +4176,7 @@ namespace AVR
   {
     return Disasm_xxxxxxxxxxxxxxxx(*this) ;
   }
-  XrefType InstrWDR::Xref(Mcu &mcu, Command cmd, uint32 &addr) const
+  XrefType InstrWDR::Xref(Mcu &mcu, Command cmd, uint32_t &addr) const
   {
     return XrefType::none ;
   }

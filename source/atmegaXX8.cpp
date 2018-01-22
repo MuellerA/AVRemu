@@ -36,7 +36,7 @@ namespace AVR
     for (const Instruction* iInstr: instructions)
       AddInstruction(iInstr) ;
 
-    std::vector<std::pair<uint32, std::string>> ioRegs
+    std::vector<std::pair<uint32_t, std::string>> ioRegs
     {
       { 0xC6, "UDR0" },
       { 0xC5, "UBRR0H" },

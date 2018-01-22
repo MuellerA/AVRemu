@@ -55,7 +55,7 @@ namespace AVR
         { 0x0e, "IRQ_USI_OVF",      "USI Overflow" },
       } ;
 
-    std::vector<std::pair<uint32, std::string>> ioRegs
+    std::vector<std::pair<uint32_t, std::string>> ioRegs
     {
       { 0x5B, "GIMSK" },
       { 0x5A, "GIFR" },

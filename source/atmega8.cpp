@@ -58,7 +58,7 @@ namespace AVR
         { 0x012, "IRQ_SPM_RDY",      "Store Program Memory Ready        " },
       } ;
     
-    std::vector<std::pair<uint32, std::string>> ioRegs
+    std::vector<std::pair<uint32_t, std::string>> ioRegs
     {
       { 0x5A, "GIFR" },
       { 0x59, "TIMSK" },

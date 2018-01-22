@@ -24,20 +24,20 @@ namespace AVR
   // Xref
   XrefType operator|(XrefType a, XrefType b)
   {
-    return static_cast<XrefType>(static_cast<uint32>(a) | static_cast<uint32>(b)) ;
+    return static_cast<XrefType>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b)) ;
   }
   XrefType operator|=(XrefType &a, XrefType b)
   {
-    a = static_cast<XrefType>(static_cast<uint32>(a) | static_cast<uint32>(b)) ;
+    a = static_cast<XrefType>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b)) ;
     return a ;
   }
   XrefType operator&(XrefType a, XrefType b)
   {
-    return static_cast<XrefType>(static_cast<uint32>(a) & static_cast<uint32>(b)) ;
+    return static_cast<XrefType>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)) ;
   }
   XrefType operator&=(XrefType &a, XrefType b)
   {
-    a = static_cast<XrefType>(static_cast<uint32>(a) & static_cast<uint32>(b)) ;
+    a = static_cast<XrefType>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)) ;
     return a ;
   }
 
@@ -91,7 +91,7 @@ namespace AVR
     fprintf(_log, "PC: %05zx", _pc) ;
     auto iXrefs = _xrefByAddr.find(_pc) ;
     if (iXrefs != _xrefByAddr.end())
-      fprintf(_log, "   %s", iXrefs->second->_label.c_str()) ;
+      fprintf(_log, "   %s", iXrefs->second->Label().c_str()) ;
     fprintf(_log, "\n") ;
 #endif
     
@@ -118,7 +118,7 @@ namespace AVR
 
   void Mcu::Status()
   {    
-    uint8 sreg = _sreg.Get() ;
+    uint8_t sreg = _sreg.Get() ;
     printf("       %c%c%c%c%c%c%c%c ",
            (sreg && AVR::SREG::I) ? 'I' : '_',
            (sreg && AVR::SREG::T) ? 'T' : '_',
@@ -195,10 +195,10 @@ namespace AVR
     {
       const auto xref = iXrefs->second ;
 
-      label.append(xref->_label) ;
+      label.append(xref->Label()) ;
 
       bool first = true ;
-      for (const auto &iXref: xref->_addrs)
+      for (const auto &iXref: xref->Sources())
       {
         if (first)
         {
@@ -220,9 +220,9 @@ namespace AVR
         }
       }
       label.append("\n", 1) ;
-      if (!xref->_description.empty())
+      if (!xref->Description().empty())
       {
-        label.append(xref->_description) ;
+        label.append(xref->Description()) ;
         label.append("\n", 1) ;
       }
     }
@@ -254,7 +254,7 @@ namespace AVR
     return str ;
   }
 
-  bool Mcu::DataAddrName(uint32 addr, std::string &name) const
+  bool Mcu::DataAddrName(uint32_t addr, std::string &name) const
   {
     static std::string reserved("Reserved") ;
 
@@ -265,13 +265,13 @@ namespace AVR
     return true ;
   }
 
-  bool Mcu::ProgAddrName(uint32 addr, std::string &name) const
+  bool Mcu::ProgAddrName(uint32_t addr, std::string &name) const
   {
     auto iProgAddrName = _xrefByAddr.find(addr) ;
     if (iProgAddrName == _xrefByAddr.end())
       return false ;
 
-    name = iProgAddrName->second->_label ;
+    name = iProgAddrName->second->Label() ;
     return true ;
   }
 
@@ -287,23 +287,23 @@ namespace AVR
     return cmd ;
   }
 
-  uint8  Mcu::Reg(uint32 reg) const
+  uint8_t  Mcu::Reg(uint32_t reg) const
   {
     return _reg[reg] ;
   }
-  void   Mcu::Reg(uint32 reg, uint8 value)
+  void   Mcu::Reg(uint32_t reg, uint8_t value)
   {
     _reg[reg] = value ;
   }
-  uint16 Mcu::RegW(uint32 reg) const
+  uint16_t Mcu::RegW(uint32_t reg) const
   {
-    return *(uint16*)(_reg + reg) ;
+    return *(uint16_t*)(_reg + reg) ;
   }
-  void   Mcu::RegW(uint32 reg, uint16 value)
+  void   Mcu::RegW(uint32_t reg, uint16_t value)
   {
-    *(uint16*)(_reg + reg) = value ;
+    *(uint16_t*)(_reg + reg) = value ;
   }
-  uint8  Mcu::Io(uint32 io) const
+  uint8_t  Mcu::Io(uint32_t io) const
   {
     Io::Register *ioReg = _io[io] ;
     if (!ioReg)
@@ -313,7 +313,7 @@ namespace AVR
     }
     return ioReg->Get() ;
   }
-  void   Mcu::Io(uint32 io, uint8 value)
+  void   Mcu::Io(uint32_t io, uint8_t value)
   {
     Io::Register *ioReg = _io[io] ;
     if (!ioReg)
@@ -324,7 +324,7 @@ namespace AVR
     ioReg->Set(value) ;
   }
 
-  uint8  Mcu::Data(uint32 addr, bool resetOnError) const
+  uint8_t  Mcu::Data(uint32_t addr, bool resetOnError) const
   {
     if ((_regStart <= addr) && (addr <= _regEnd))
     {
@@ -345,7 +345,7 @@ namespace AVR
     return 0xff ;
   }
 
-  void Mcu::Data(uint32 addr, uint8 value, bool resetOnError)
+  void Mcu::Data(uint32_t addr, uint8_t value, bool resetOnError)
   {
     if ((_regStart <= addr) && (addr <= _regEnd))
     {
@@ -368,7 +368,7 @@ namespace AVR
       _pc = 0 ;
   }
 
-  void Mcu::Eeprom(size_t address, uint8 value, bool resetOnError)
+  void Mcu::Eeprom(size_t address, uint8_t value, bool resetOnError)
   {
     if (address < _eepromSize)
       _eeprom[address] = value ;
@@ -376,7 +376,7 @@ namespace AVR
       _pc = 0 ;
   }
   
-  uint8 Mcu::Eeprom(size_t address, bool resetOnError) const
+  uint8_t Mcu::Eeprom(size_t address, bool resetOnError) const
   {
     if (address < _eepromSize)
       return _eeprom[address] ;
@@ -386,7 +386,7 @@ namespace AVR
     return 0xff ;
   }  
   
-  Command  Mcu::Prog(uint32 addr) const
+  Command  Mcu::Prog(uint32_t addr) const
   {
     if (addr >= _programSize)
     {
@@ -396,7 +396,7 @@ namespace AVR
     return _program[addr] ;
   }
   
-  void Mcu::Prog(uint32 addr, Command cmd)
+  void Mcu::Prog(uint32_t addr, Command cmd)
   {
     if (addr >= _programSize)
     {
@@ -406,15 +406,15 @@ namespace AVR
     _program[addr] = cmd ;
   }
 
-  const Instruction* Mcu::Instr(uint32 addr) const
+  const Instruction* Mcu::Instr(uint32_t addr) const
   {
     Command cmd = Prog(addr) ;
     return _instructions[cmd] ;
   }
   
-  void  Mcu::Push(uint8 value)
+  void  Mcu::Push(uint8_t value)
   {
-    uint16 sp = _sp() ;
+    uint16_t sp = _sp() ;
     if ((sp < _dataStart) || (_dataEnd < sp))
     {
       fprintf(stderr, "stack underflow\n") ;
@@ -424,9 +424,9 @@ namespace AVR
     _sp() = sp - 1 ;
   }
 
-  uint8 Mcu::Pop()
+  uint8_t Mcu::Pop()
   {
-    uint16 sp = _sp() + 1 ;
+    uint16_t sp = _sp() + 1 ;
     if ((sp < _dataStart) || (_dataEnd < sp))
     {
       fprintf(stderr, "stack overflow\n") ;
@@ -503,7 +503,7 @@ namespace AVR
     return nCopy ;
   }
 
-  size_t Mcu::SetEeprom(size_t startAddress, const std::vector<uint8> &eeprom)
+  size_t Mcu::SetEeprom(size_t startAddress, const std::vector<uint8_t> &eeprom)
   {
     if (startAddress >= _eepromSize)
       return 0 ;
@@ -519,7 +519,7 @@ namespace AVR
     return nCopy ;
   }
 
-  const Mcu::Xref* Mcu::XrefByAddr(uint32 addr) const
+  const Mcu::Xref* Mcu::XrefByAddr(uint32_t addr) const
   {
     auto iXref = _xrefByAddr.find(addr) ;
     return (iXref != _xrefByAddr.end()) ? iXref->second : nullptr ;
@@ -535,21 +535,23 @@ namespace AVR
   {
     Xref *xref = nullptr ;
     
-    auto iXrefByAddr  = _xrefByAddr .find(xref0._addr ) ;
+    auto iXrefByAddr  = _xrefByAddr .find(xref0.Addr() ) ;
     if (iXrefByAddr != _xrefByAddr.end())
     {
       xref = iXrefByAddr->second ;
+
+      xref->Type(xref0.Type()) ;
+      _xrefByLabel.erase(xref->Label()) ;
+      xref->Label(xref0.Label()) ;
+      _xrefByLabel.insert(std::pair<std::string, Xref*>(xref->Label(), xref)) ;
     }
     else
     {
       xref = new Xref(xref0) ;
       _xrefs.push_back(xref) ;
-      _xrefByAddr .insert(std::pair<uint32, Xref*>(xref->_addr , xref)) ;
+      _xrefByAddr.insert(std::pair<uint32_t, Xref*>(xref->Addr() , xref)) ;
+      _xrefByLabel.insert(std::pair<std::string, Xref*>(xref->Label(), xref)) ;
     }
-
-    xref->_type |= xref0._type ;
-    xref->_label = xref0._label ;
-    _xrefByLabel.insert(std::pair<std::string, Xref*>(xref->_label, xref)) ;
 
     return true ;
   }
@@ -557,7 +559,7 @@ namespace AVR
   void Mcu::AddInstruction(const Instruction *instr)
   {
     // loop should be optimized considering mask()
-    for (uint32 m = 0 ; m < 0x10000 ; ++m)
+    for (uint32_t m = 0 ; m < 0x10000 ; ++m)
     {
       if (!(m & instr->Mask()))
       {
@@ -575,7 +577,7 @@ namespace AVR
     }
   }
 
-  bool Mcu::XrefAdd(XrefType type, uint32 target, uint32 source)
+  bool Mcu::XrefAdd(XrefType type, uint32_t target, uint32_t source)
   {
     Xref *xref = nullptr ;
           
@@ -588,25 +590,29 @@ namespace AVR
     {
       xref = new Xref(target) ;
       _xrefs.push_back(xref) ;
-      _xrefByAddr.insert(std::pair<uint32, Xref*>(target, xref)) ;
+      _xrefByAddr.insert(std::pair<uint32_t, Xref*>(target, xref)) ;
     }
 
-    xref->_type |= type ;
-    auto iPc = std::find(xref->_addrs.rbegin(), xref->_addrs.rend(), source) ;
-    if (iPc == xref->_addrs.rend())
-      xref->_addrs.push_back(source) ;
+    xref->Type(type) ;
+    auto iPc = std::find(xref->Sources().begin(), xref->Sources().end(), source) ;
+    if (iPc == xref->Sources().end())
+      xref->AddSource(source) ;
 
-    if (xref->_label.empty())
+    if (xref->Label().empty())
     {
-      if      (static_cast<uint32>(xref->_type & XrefType::call)) xref->_label.append("Fct_", 4) ;
-      else if (static_cast<uint32>(xref->_type & XrefType::jmp )) xref->_label.append("Lbl_", 4) ;
-      else if (static_cast<uint32>(xref->_type & XrefType::data)) xref->_label.append("Dat_", 4) ;
-      else printf("xref type %d unknown\n", (uint32)xref->_type) ;
+      std::string label ;
+      
+      if      (static_cast<uint32_t>(xref->Type() & XrefType::call)) label.append("Fct_", 4) ;
+      else if (static_cast<uint32_t>(xref->Type() & XrefType::jmp )) label.append("Lbl_", 4) ;
+      else if (static_cast<uint32_t>(xref->Type() & XrefType::data)) label.append("Dat_", 4) ;
+      else printf("xref type %d unknown\n", (uint32_t)xref->Type()) ;
 
-      char buff[32] ; sprintf(buff, "%05x", xref->_addr) ;
-      xref->_label.append(buff) ;
+      char buff[32] ; sprintf(buff, "%05x", xref->Addr()) ;
+      label.append(buff) ;
 
-      _xrefByLabel.insert(std::pair<std::string, Xref*>(xref->_label, xref)) ;
+      xref->Label(label) ;
+
+      _xrefByLabel.insert(std::pair<std::string, Xref*>(xref->Label(), xref)) ;
     }
     return true ;
   }
@@ -620,16 +626,16 @@ namespace AVR
     {
       Xref *xref = new Xref(iKnownAddr._addr, XrefType::jmp, iKnownAddr._label, iKnownAddr._description) ;
       _xrefs.push_back(xref) ;
-      _xrefByAddr[xref->_addr] = xref ;
-      _xrefByLabel[xref->_label] = xref ;
+      _xrefByAddr[xref->Addr()] = xref ;
+      _xrefByLabel[xref->Label()] = xref ;
     }
 
     // check branch instructions
-    uint32 pc0 = _pc ;
+    uint32_t pc0 = _pc ;
     for (_pc = 0 ; _pc < _programSize ; )
     {
-      uint32 pc = _pc ;
-      uint32 addr ;
+      uint32_t pc = _pc ;
+      uint32_t addr ;
       Command cmd = _program[_pc++] ;
 
       const Instruction *instr = _instructions[cmd] ;

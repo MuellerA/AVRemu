@@ -108,7 +108,7 @@ void ParseXrefFile(AVR::Mcu &mcu, const std::string &xrefFileName)
     case 'd': type = AVR::XrefType::data ; break ;
     }
     
-    AVR::uint32 addr = std::stoul(addrStr, nullptr, 0) ;
+    uint32_t addr = std::stoul(addrStr, nullptr, 0) ;
 
     mcu.XrefAdd(AVR::Mcu::Xref(addr, type, label, desc)) ;
   }
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
   
   if (eepromFileName.size())
   {
-    std::vector<AVR::uint8> eeprom ;
+    std::vector<uint8_t> eeprom ;
     eeprom.reserve(mcu->EepromSize()) ;
     FILE *ee = fopen(eepromFileName.c_str(), "rb") ;
     if (!ee)
@@ -202,8 +202,8 @@ int main(int argc, char *argv[])
     }
     while (true)
     {
-      AVR::uint8 bytes[0x100] ;
-      size_t nByte = fread(bytes, sizeof(AVR::uint8), 0x100, ee) ;
+      uint8_t bytes[0x100] ;
+      size_t nByte = fread(bytes, sizeof(uint8_t), 0x100, ee) ;
       if (!nByte)
         break ;
       eeprom.insert(eeprom.end(), bytes, bytes + nByte) ;
@@ -226,8 +226,16 @@ int main(int argc, char *argv[])
 
   if (disasm || !execute)
   {
+    const AVR::Instruction *instr  = nullptr ;
+    
     while (mcu->PC() < nCommand)
     {
+      const AVR::Mcu::Xref *xref = mcu->XrefByAddr(mcu->PC()) ;
+      if (xref && static_cast<uint32_t>(xref->Type() & AVR::XrefType::call) &&
+          (instr == &AVR::instrRET))
+        printf("\n////////////////////////////////////////////////////////////////////////////////\n\n") ;
+      instr = mcu->Instr(mcu->PC()) ;
+      
       std::string disasm = mcu->Disasm() ;
       printf("%s\n", disasm.c_str()) ;
       if (mcu->PC() == progEnd)
