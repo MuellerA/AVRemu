@@ -237,12 +237,14 @@ namespace AVR
     void     Prog(uint32_t addr, uint16_t Command) ;
     const Instruction* Instr(uint32_t addr) const ;
     
-    uint8_t GetSREG() const    { return _sreg.Get()  ; }
-    void    SetSREG(uint8_t v) { _sreg.Set(v)  ; }
-    uint8_t GetSPL()  const    { return _sp.GetLo() ; }
-    void    SetSPL(uint8_t v)  { _sp.SetLo(v) ; }
-    uint8_t GetSPH()  const    { return _sp.GetHi() ; }
-    void    SetSPH(uint8_t v)  { _sp.SetHi(v) ; }
+    uint8_t  GetSREG() const    { return _sreg.Get()  ; }
+    void     SetSREG(uint8_t v) { _sreg.Set(v)  ; }
+    uint16_t GetSP() const      { return _sp() ; }
+    void     SetSP(uint16_t v)  { _sp() = v ; }
+    uint8_t  GetSPL()  const    { return _sp.GetLo() ; }
+    void     SetSPL(uint8_t v)  { _sp.SetLo(v) ; }
+    uint8_t  GetSPH()  const    { return _sp.GetHi() ; }
+    void     SetSPH(uint8_t v)  { _sp.SetHi(v) ; }
 
     void    Push(uint8_t value) ;
     uint8_t Pop() ;

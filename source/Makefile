@@ -14,6 +14,8 @@ Clean:
 
 $(AllObj): avr.h instr.h io.h
 
+execute.o main.o: execute.h
+
 AVRemu:	$(EmuObj)
 	g++ -o AVRemu $(EmuObj)
 

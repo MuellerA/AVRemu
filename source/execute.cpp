@@ -30,6 +30,65 @@ static void SigIntHdl(int /*parameter*/)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Util
+////////////////////////////////////////////////////////////////////////////////
+
+std::ostream& operator<<(std::ostream& os, uint8_t v)
+{
+  os << std::setfill('0') << std::setw(sizeof(uint8_t)*2) << std::hex << (unsigned int)v ;
+  return os ;
+}
+
+void Data(AVR::Mcu &mcu, uint32_t addr, uint32_t len, char mode)
+{
+  uint32_t cnt = 0 ;
+  for (uint32_t iAddr = addr, eAddr = addr+len ; iAddr < eAddr ; )
+  {
+    std::cout << std::hex << std::setfill('0') << std::setw(4) << iAddr << ':' ;
+
+    unsigned char data[16] ;
+    for (cnt = 0 ; (cnt < 16) && (iAddr < eAddr) ; ++iAddr, ++cnt)
+    {
+      switch (mode)
+      {
+      case 'd': data[cnt] = mcu.Data  ((uint32_t)iAddr, (bool)false) ; break ;
+      case 'e': data[cnt] = mcu.Eeprom((size_t)  iAddr, (bool)false) ; break ;
+      }
+    }
+
+    for (unsigned int i = 0 ; i < 16 ; ++i)
+    {
+      if (i < cnt)
+        std::cout << ' ' << data[i] ;
+      else
+        std::cout << "   " ;
+      if ((i & 0x03) == 0x03) std::cout << ' ' ;
+    }
+    std::cout << "    " ;
+    for (unsigned int i = 0 ; i < cnt ; ++i)
+    {
+      unsigned char ch = data[i] ;
+      std::cout << (char)(((' ' <= ch) && (ch <= '~')) ? ch : '.') ;
+    }
+
+    std::cout << std::endl ;      
+  }
+
+  std::cout << std::endl ;
+}  
+
+void List(AVR::Mcu &mcu, uint32_t addr, uint32_t len)
+{
+  uint32_t pc0   = mcu.PC() ;
+  mcu.PC() = addr ;
+  for (uint32_t iAddr = addr, eAddr = addr + len ; iAddr < eAddr ; ++iAddr)
+    std::cout << mcu.Disasm() << std::endl ;
+  std::cout << std::endl ;
+  
+  mcu.PC() = pc0 ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Command
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -403,7 +462,7 @@ bool CommandAssign::Execute(AVR::Mcu &mcu)
 class CommandRead : public Command
 {
 public:
-  CommandRead() : Command(R"XXX(\d*([de])\s*(0x[0-9a-fA-F]+|[0-9]+)\s*\?\s*(0x[0-9a-fA-F]+|[0-9]+)?\s*)XXX") { }
+  CommandRead() : Command(R"XXX(\s*([de])\s*(0x[0-9a-fA-F]+|[0-9]+)\s*\?\s*(0x[0-9a-fA-F]+|[0-9]+)?\s*)XXX") { }
   ~CommandRead() { }
 
   virtual strings Help() const ;
@@ -413,12 +472,6 @@ public:
 strings CommandRead::Help() const
 {
   return strings { "d <addr> ? [<len>]      -- read memory content" } ;
-}
-
-std::ostream& operator<<(std::ostream& os, uint8_t v)
-{
-  os << std::setfill('0') << std::setw(sizeof(uint8_t)*2) << std::hex << (unsigned int)v ;
-  return os ;
 }
 
 bool CommandRead::Execute(AVR::Mcu &mcu)
@@ -431,40 +484,44 @@ bool CommandRead::Execute(AVR::Mcu &mcu)
   uint32_t addr = std::stoul(addrStr, nullptr, 0) ;
   uint32_t len = (lenStr.size()) ? std::stoul(lenStr, nullptr, 0) : 128 ;
 
-  uint32_t cnt = 0 ;
-  for (uint32_t iAddr = addr, eAddr = addr+len ; iAddr < eAddr ; )
-  {
-    std::cout << std::hex << std::setfill('0') << std::setw(4) << iAddr << ':' ;
+  Data(mcu, addr, len, mode) ;
+  
+  return true ;
+}
 
-    unsigned char data[16] ;
-    for (cnt = 0 ; (cnt < 16) && (iAddr < eAddr) ; ++iAddr, ++cnt)
-    {
-      switch (mode)
-      {
-      case 'd': data[cnt] = mcu.Data  ((uint32_t)iAddr, (bool)false) ; break ;
-      case 'e': data[cnt] = mcu.Eeprom((size_t)  iAddr, (bool)false) ; break ;
-      }
-    }
+////////////////////////////////////////////////////////////////////////////////
+// CommandReadDataIndirect
+////////////////////////////////////////////////////////////////////////////////
+class CommandReadDataIndirect : public Command
+{
+public:
+  CommandReadDataIndirect() : Command(R"XXX(\s*d\s*@\s*(X|Y|Z|SP|r[02468]|r[12][02468]|r30)\s*\?\s*(0x[0-9a-fA-F]+|[0-9]+)?\s*)XXX") { }
+  ~CommandReadDataIndirect() { }
 
-    for (unsigned int i = 0 ; i < 16 ; ++i)
-    {
-      if (i < cnt)
-        std::cout << ' ' << data[i] ;
-      else
-        std::cout << "   " ;
-      if ((i & 0x03) == 0x03) std::cout << ' ' ;
-    }
-    std::cout << "    " ;
-    for (unsigned int i = 0 ; i < cnt ; ++i)
-    {
-      unsigned char ch = data[i] ;
-      std::cout << (char)(((' ' <= ch) && (ch <= '~')) ? ch : '.') ;
-    }
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
 
-    std::cout << std::endl ;      
-  }
+strings CommandReadDataIndirect::Help() const
+{
+  return strings { "d @ <X|Y|Z|SP|rXX> ? [<len>]   -- read memory content" } ;
+}
 
-  std::cout << std::endl ;
+bool CommandReadDataIndirect::Execute(AVR::Mcu &mcu)
+{
+  const std::string &addrStr = _match[1] ;
+  const std::string &lenStr  = _match[2] ;
+
+  uint32_t addr = 0 ;
+  if      (addrStr == "X")  addr = mcu.RegW(26) ;
+  else if (addrStr == "Y")  addr = mcu.RegW(28) ;
+  else if (addrStr == "Z")  addr = mcu.RegW(30) ;
+  else if (addrStr == "SP") addr = mcu.GetSP() ;
+  else                      addr = mcu.RegW(std::stoul(addrStr.substr(1), nullptr, 10)) ;
+  
+  uint32_t len = (lenStr.size()) ? std::stoul(lenStr, nullptr, 0) : 128 ;
+
+  Data(mcu, addr, len, 'd') ;
 
   return true ;
 }
@@ -484,7 +541,7 @@ public:
 
 strings CommandList::Help() const
 {
-  return strings { "p [<addr>|<label>] ? [<count>]    -- list source"} ;
+  return strings { "p [<addr>|<label>] ? [<count>] -- list source"} ;
 }
 bool CommandList::Execute(AVR::Mcu &mcu)
 {
@@ -509,12 +566,44 @@ bool CommandList::Execute(AVR::Mcu &mcu)
   if (mCnt.size())
     Num(mCnt, count) ;
 
-  mcu.PC() = addr ;
-  for (uint32_t iAddr = addr, eAddr = addr+count ; iAddr < eAddr ; ++iAddr)
-    std::cout << mcu.Disasm() << std::endl ;
-  std::cout << std::endl ;
+  List(mcu, addr, count) ;
   
-  mcu.PC() = pc0 ;
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandListIndirect
+////////////////////////////////////////////////////////////////////////////////
+class CommandListIndirect : public Command
+{
+public:
+  CommandListIndirect() : Command(R"XXX(\s*p\s@\s*(X|Y|Z|r[02468]|r[12][02468]|r30)\s*\?\s*)XXX" + _reNum + R"XXX(?\s*)XXX") {}
+  ~CommandListIndirect() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandListIndirect::Help() const
+{
+  return strings { "p @ <X|Y|Z|rXX> ? [<count>]    -- list source"} ;
+}
+
+bool CommandListIndirect::Execute(AVR::Mcu &mcu)
+{
+  uint32_t pc0   = mcu.PC() ;
+  const std::string &mAddr = _match[1] ;
+  const std::string &mCnt  = _match[2] ;
+
+  uint32_t addr = 0 ;
+  if      (mAddr == "X")  addr = mcu.RegW(26) ;
+  else if (mAddr == "Y")  addr = mcu.RegW(28) ;
+  else if (mAddr == "Z")  addr = mcu.RegW(30) ;
+  else                    addr = mcu.RegW(std::stoul(mAddr.substr(1), nullptr, 10)) ;
+
+  uint32_t len = (mCnt.size()) ? std::stoul(mCnt, nullptr, 0) : 128 ;
+
+  List(mcu, addr, len) ;
   
   return true ;
 }
@@ -653,7 +742,7 @@ bool CommandIoAddAsc::Execute(AVR::Mcu &mcu)
 class CommandScript : public Command
 {
 public:
-  CommandScript(AVR::Execute &exec) : Command(R"XXX(\s*sc\s+(.*\S)\s*)XXX"), _exec(exec) {}
+  CommandScript(AVR::Execute &exec) : Command{R"XXX(\s*sc\s+(.*\S)\s*)XXX"}, _exec{exec}, _reEmpty{R"XXX(\s*(?:#.*)?)XXX"} {}
   ~CommandScript() {}
 
   virtual strings Help() const ;
@@ -661,14 +750,16 @@ public:
 
 private:
   AVR::Execute &_exec ;
+  std::regex _reEmpty ;
 } ;
 
 strings CommandScript::Help() const
 {
-  return strings { "sc <name>                 -- run script" } ;
+  return strings { "sc <name>               -- run script" } ;
 }
 bool CommandScript::Execute(AVR::Mcu &mcu)
 {
+  std::smatch match ;
   const std::string &script = _match[1] ;
 
   std::ifstream ifs ;
@@ -684,6 +775,10 @@ bool CommandScript::Execute(AVR::Mcu &mcu)
   {
     std::string cmd ;
     std::getline(ifs, cmd) ;
+
+    if (std::regex_match(cmd, match, _reEmpty))
+      continue ;
+    
     std::cout << std::endl << cmd << std::endl ;
     _exec.Do(cmd) ;
   }
@@ -827,9 +922,11 @@ namespace AVR
       new CommandGoto(),
       new CommandBreakpoint(),
       new CommandListBreakpoints(),
-      new CommandAssign(),
       new CommandRead(),
+      new CommandReadDataIndirect(),
       new CommandList(),
+      new CommandListIndirect(),
+      new CommandAssign(),
       new CommandListSymbols(),
       new CommandIoAddHex(),
       new CommandIoAddAsc(),
