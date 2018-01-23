@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <regex>
 #include <algorithm>
@@ -11,6 +12,7 @@
 
 #include "avr.h"
 #include "instr.h"
+#include "execute.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -349,9 +351,9 @@ strings CommandAssign::Help() const
 {
   return strings
   {
-    "r<d>     = byte          -- set register",
-    "d <addr> = byte          -- set data memory",
-    "p <addr> = word          -- set program memory"
+    "r<d>     = byte         -- set register",
+    "d <addr> = byte         -- set data memory",
+    "p <addr> = word         -- set program memory"
   } ;
 }
 
@@ -410,7 +412,7 @@ public:
 
 strings CommandRead::Help() const
 {
-  return strings { "d <addr> ? [<len>]        -- read memory content" } ;
+  return strings { "d <addr> ? [<len>]      -- read memory content" } ;
 }
 
 std::ostream& operator<<(std::ostream& os, uint8_t v)
@@ -561,7 +563,7 @@ bool CommandListSymbols::Execute(AVR::Mcu &mcu)
 class CommandIoAddHex : public Command
 {
 public:
-  CommandIoAddHex() : Command(R"XXX(\s*io\s*([_0-9a-zA-Z]+)\s*=((?:\s*[0-9a-fA-F]{2})+)\s*)XXX") {}
+  CommandIoAddHex() : Command(R"XXX(\s*io\s*([_0-9a-zA-Z]+)\s*=((?:\s*)XXX" + _reNum + R"XXX()+)\s*)XXX") {}
   ~CommandIoAddHex() {}
 
   virtual strings Help() const ;
@@ -589,9 +591,16 @@ bool CommandIoAddHex::Execute(AVR::Mcu &mcu)
   const char *str = hex.c_str() ;
   char *str_end = const_cast<char*>(str) ; ;
 
-  while (*str_end)
+  while (*str)
   {
-    data.push_back(strtoul(str, &str_end, 0)) ;
+    fprintf(stdout, "%s\n", str) ;
+    uint32_t ul = strtoul(str, &str_end, 0) ;
+    if (ul > 255)
+    {
+      std::cout << "illegal value " << ul << std::endl ;
+      return false ;
+    }
+    data.push_back(ul) ;
     str = str_end ;
   }
   (*iIo)->Add(data) ;
@@ -636,6 +645,50 @@ bool CommandIoAddAsc::Execute(AVR::Mcu &mcu)
   (*iIo)->Add(data) ;
   
   return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandScript
+////////////////////////////////////////////////////////////////////////////////
+class CommandScript : public Command
+{
+public:
+  CommandScript(AVR::Execute &exec) : Command(R"XXX(\s*sc\s+(.*\S)\s*)XXX"), _exec(exec) {}
+  ~CommandScript() {}
+
+  virtual strings Help() const ;
+  virtual bool Execute(AVR::Mcu &mcu) ;
+
+private:
+  AVR::Execute &_exec ;
+} ;
+
+strings CommandScript::Help() const
+{
+  return strings { "sc <name>                 -- run script" } ;
+}
+bool CommandScript::Execute(AVR::Mcu &mcu)
+{
+  const std::string &script = _match[1] ;
+
+  std::ifstream ifs ;
+
+  ifs.open(script.c_str()) ;
+  if (ifs.fail())
+  {
+    std::cout << "failed to read script " << script << std::endl ;
+    return false ;
+  }
+
+  while (!ifs.eof())
+  {
+    std::string cmd ;
+    std::getline(ifs, cmd) ;
+    std::cout << std::endl << cmd << std::endl ;
+    _exec.Do(cmd) ;
+  }
+
+  return false ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -761,14 +814,14 @@ bool CommandUnknown::Execute(AVR::Mcu &mcu)
 // Execute
 ////////////////////////////////////////////////////////////////////////////////
 
-void Execute(AVR::Mcu &mcu)
+namespace AVR
 {
-  bool quit = false ;
-  Command *lastCommand = nullptr ;
-  
-  std::vector<Command*> commands =
+
+  Execute::Execute(AVR::Mcu &mcu) :
+    _mcu{mcu},
+    _commands
     {
-      new CommandRepeat(lastCommand), // first!
+      new CommandRepeat(_lastCommand), // first!
       new CommandStep(),
       new CommandRun(),
       new CommandGoto(),
@@ -780,38 +833,54 @@ void Execute(AVR::Mcu &mcu)
       new CommandListSymbols(),
       new CommandIoAddHex(),
       new CommandIoAddAsc(),
-      new CommandQuit(quit),
-      new CommandHelp(commands),
+      new CommandScript(*this),
+      new CommandQuit(_quit),
+      new CommandHelp(_commands),
       new CommandUnknown(), // last!
-    } ;
-
-  std::cout << "type \"?\" for help" << std::endl ;
-  std::cout << std::endl ;
-  
-  std::string cmd ;
-
-  while (!quit)
+    },
+    _quit{false},
+    _lastCommand{nullptr}
   {
-    std::size_t pc0 = mcu.PC() ;
-    std::cout << mcu.Disasm() << std::endl << "> " << std::flush ;
-    mcu.PC() = pc0 ;
-    std::getline(std::cin, cmd) ;
+    std::cout << "type \"?\" for help" << std::endl ;
+    std::cout << std::endl ;
+  }
 
-    for (Command *command : commands)
+  Execute::~Execute()
+  {
+    for (auto command : _commands)
+      delete command ;
+  }
+
+  void Execute::Loop()
+  {
+    std::string cmd ;
+
+    while (!_quit)
+    {
+      std::size_t pc0 = _mcu.PC() ;
+      std::cout << _mcu.Disasm() << std::endl << "> " << std::flush ;
+      _mcu.PC() = pc0 ;
+      std::getline(std::cin, cmd) ;
+
+      Do(cmd) ;
+    }
+  }
+
+  void Execute::Do(const std::string &cmd)
+  {
+    for (::Command *command : _commands)
     {
       if (command->Match(cmd))
       {
-        if (command->Execute(mcu))
-          lastCommand = command ;
+        if (command->Execute(_mcu))
+          _lastCommand = command ;
         else
-          lastCommand = nullptr ;
+          _lastCommand = nullptr ;
         break ;
       }
     }
   }
-
-  for (auto command : commands)
-    delete command ;
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

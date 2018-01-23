@@ -14,7 +14,7 @@
 #include "avr.h"
 #include "instr.h"
 
-extern void Execute(AVR::Mcu &mcu) ;
+#include "execute.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // main
@@ -83,34 +83,36 @@ void ParseXrefFile(AVR::Mcu &mcu, const std::string &xrefFileName)
     return ;
   }
 
-  std::regex regex(R"XXX(([jcd])\s+(0x[0-9a-fA-F]+|[0-9]+)\s+([-_:*.a-zA-Z0-9]+)(?:\s+(.*?))?\s*)XXX", std::regex_constants::optimize) ;
+  std::regex reLine(R"XXX(([jcd])\s+(0x[0-9a-fA-F]+|[0-9]+)\s+([-_:*.a-zA-Z0-9]+)(?:\s+(.*?))?\s*)XXX", std::regex_constants::optimize) ;
+  std::regex reEmpty(R"XXX(\s*(?:#.*)?)XXX") ;
   std::smatch match ;
   std::string line ;
   while (!in.eof())
   {
     std::getline(in, line) ;
-    if (!std::regex_match(line, match, regex))
+    if (std::regex_match(line, match, reLine))
+    {
+      const std::string &typeStr = match[1] ;
+      const std::string &addrStr = match[2] ;
+      const std::string &label   = match[3] ;
+      const std::string &desc    = match[4] ;
+
+      AVR::XrefType type = AVR::XrefType::none ;
+      switch (typeStr[0])
+      {
+      case 'j': type = AVR::XrefType::jmp  ; break ;
+      case 'c': type = AVR::XrefType::call ; break ;
+      case 'd': type = AVR::XrefType::data ; break ;
+      }
+    
+      uint32_t addr = std::stoul(addrStr, nullptr, 0) ;
+
+      mcu.XrefAdd(AVR::Mcu::Xref(addr, type, label, desc)) ;
+    }
+    else if (!std::regex_match(line, match, reEmpty))
     {
       fprintf(stderr, "unknown line \"%s\"\n", line.c_str()) ;
-      continue ;
     }
-
-    const std::string &typeStr = match[1] ;
-    const std::string &addrStr = match[2] ;
-    const std::string &label   = match[3] ;
-    const std::string &desc    = match[4] ;
-
-    AVR::XrefType type = AVR::XrefType::none ;
-    switch (typeStr[0])
-    {
-    case 'j': type = AVR::XrefType::jmp  ; break ;
-    case 'c': type = AVR::XrefType::call ; break ;
-    case 'd': type = AVR::XrefType::data ; break ;
-    }
-    
-    uint32_t addr = std::stoul(addrStr, nullptr, 0) ;
-
-    mcu.XrefAdd(AVR::Mcu::Xref(addr, type, label, desc)) ;
   }
 }
 
@@ -244,7 +246,8 @@ int main(int argc, char *argv[])
   }
   if (execute)
   {
-    Execute(*mcu) ;
+    AVR::Execute exec(*mcu) ;
+    exec.Loop() ;
   }
 
   delete mcu ;

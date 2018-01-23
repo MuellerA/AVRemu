@@ -87,14 +87,6 @@ namespace AVR
   {
     _ticks += 1 ;
 
-#ifdef DEBUG
-    fprintf(_log, "PC: %05zx", _pc) ;
-    auto iXrefs = _xrefByAddr.find(_pc) ;
-    if (iXrefs != _xrefByAddr.end())
-      fprintf(_log, "   %s", iXrefs->second->Label().c_str()) ;
-    fprintf(_log, "\n") ;
-#endif
-    
     if (_pc >= _programSize)
     {
       fprintf(stderr, "program counter overflow\n") ;
@@ -102,6 +94,19 @@ namespace AVR
       return ;
     }
 
+#ifdef DEBUG
+    std::size_t pc0 = _pc ;
+
+    static struct
+    {
+      std::size_t src ;
+      std::size_t dst ;
+      uint32_t    cnt ;
+      bool        isRet ;
+      uint32_t    lvl ;
+    } trace{0, 0, 1, false, 0} ;
+#endif
+    
     Command cmd = _program[_pc++] ;
     const Instruction *instr = _instructions[cmd] ;
     
@@ -114,6 +119,56 @@ namespace AVR
 
     // todo Ticks
     instr->Execute(*this, cmd) ;
+
+#ifdef DEBUG
+    if (_pc != (pc0 + (instr->IsTwoWord() ? 2 : 1)))
+    {
+      if ((pc0 != trace.src) ||
+          (_pc != trace.dst))
+      {
+        for (uint32_t i = 0 ; i < trace.lvl ; ++i)
+          fputs("  ", _log) ;
+        fprintf(_log, "%05zx -> %05zx %4ux", trace.src, trace.dst, trace.cnt) ;
+        if (trace.isRet)
+          fprintf(_log, "   RET") ;
+        auto iXrefs = _xrefByAddr.find(trace.dst) ;
+        if (iXrefs != _xrefByAddr.end())
+        {
+          const Xref *xref = iXrefs->second ;
+          fprintf(_log, "   %s\n", xref->Label().c_str()) ;
+          
+          if (static_cast<uint32_t>(xref->Type() & XrefType::call))
+          {
+            if (trace.lvl < 20)
+              trace.lvl++ ;
+            fputc('\n', _log) ;
+            for (uint32_t i = 0 ; i < trace.lvl ; ++i)
+              fputs("  ", _log) ;
+            fprintf(_log, "%s", xref->Label().c_str()) ;
+            if (!xref->Description().empty())
+              fprintf(_log, " | %s", xref->Description().c_str()) ;
+            fprintf(_log, "\n") ;
+          }
+        }
+        else
+          fprintf(_log, "\n") ;
+        if (trace.isRet)
+        {
+          fprintf(_log, "\n") ;
+          if (trace.lvl > 0)
+            trace.lvl-- ;
+        }
+        trace.src = pc0 ;
+        trace.dst = _pc ;
+        trace.cnt = 1 ;
+        trace.isRet = instr == &instrRET ;
+      }
+      else
+      {
+        trace.cnt++ ;
+      }
+    }
+#endif
   }
 
   void Mcu::Status()
