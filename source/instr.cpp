@@ -630,7 +630,7 @@ namespace AVR
       sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
-    if (rHC && 0x80)
+    if (rHC & 0x80)
       sreg |= SREG::C ;
     if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
@@ -734,9 +734,9 @@ namespace AVR
       sreg |= SREG::V ;
     if (r & 0x80)
       sreg |= SREG::N ;
-    if (r == 0x00)
+    if ((r == 0x00) && (sreg0 && SREG::Z))
       sreg |= SREG::Z ;
-    if (rHC && 0x80)
+    if (rHC & 0x80)
       sreg |= SREG::C ;
     if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
@@ -787,7 +787,7 @@ namespace AVR
       sreg |= SREG::V ;
     if (r & 0x80)
       sreg |= SREG::N ;
-    if (r == 0x00)
+    if ((r == 0x00) && (sreg0 && SREG::Z))
       sreg |= SREG::Z ;
     if (rHC & 0x80)
       sreg |= SREG::C ;
@@ -831,7 +831,7 @@ namespace AVR
     uint8_t  sreg = mcu.GetSREG() & 0b11100000 ;
     uint16_t rd   = mcu.RegW(nd) ;
     uint16_t r    = rd - k ;
-    if (rd & ~r & 0x8000)
+    if (r & ~rd & 0x8000)
       sreg |= SREG::V ;
     if (r & 0x8000)
       sreg |= SREG::N ;
@@ -1868,7 +1868,7 @@ namespace AVR
       sreg |= SREG::N ;
     if (r == 0x00)
       sreg |= SREG::Z ;
-    if (rHC && 0x80)
+    if (rHC & 0x80)
       sreg |= SREG::C ;
     if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
@@ -1919,9 +1919,9 @@ namespace AVR
       sreg |= SREG::V ;
     if (r & 0x80)
       sreg |= SREG::N ;
-    if (r == 0x00)
+    if ((r == 0x00) && (sreg0 && SREG::Z))
       sreg |= SREG::Z ;
-    if (rHC && 0x80)
+    if (rHC & 0x80)
       sreg |= SREG::C ;
     if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
