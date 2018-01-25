@@ -1279,7 +1279,20 @@ namespace AVR
   }
   void InstrMUL::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrMUL
+    Command nr, nd ;
+    xxxxxxRxxxxxRRRR(cmd, nr) ;
+    xxxxxxxRRRRRxxxx(cmd, nd) ;
+
+    uint8_t sreg = mcu.GetSREG() & 0b11111100 ;
+    uint16_t rr = mcu.Reg(nr) ;
+    uint16_t rd = mcu.Reg(nd) ;
+    uint16_t r = rd * rr ;
+    if (r == 0x0000)
+      sreg |= SREG::Z ;
+    if (r & 0x8000)
+      sreg |= SREG::C ;
+    mcu.RegW(0, r) ;
+    mcu.SetSREG(sreg) ;
   }
   std::string InstrMUL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1309,7 +1322,20 @@ namespace AVR
   }
   void InstrMULS::Execute(Mcu &mcu, Command cmd) const
   {
-    // todo exec InstrMULS
+    Command nr, nd ;
+    xxxxxxxxRRRRxxxx1(cmd, nd) ;
+    xxxxxxxxxxxxRRRR1(cmd, nr) ;
+
+    uint8_t sreg = mcu.GetSREG() & 0b11111100 ;
+    int16_t rr = (int8_t)mcu.Reg(nr) ;
+    int16_t rd = (int8_t)mcu.Reg(nd) ;
+    int16_t r = rd * rr ;
+    if (r == 0x0000)
+      sreg |= SREG::Z ;
+    if (r & 0x8000)
+      sreg |= SREG::C ;
+    mcu.RegW(0, (uint16_t)r) ;
+    mcu.SetSREG(sreg) ;
   }
   std::string InstrMULS::Disasm(Mcu &mcu, Command cmd) const
   {

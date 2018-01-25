@@ -363,7 +363,7 @@ namespace AVR
     Io::Register *ioReg = _io[io] ;
     if (!ioReg)
     {
-      fprintf(stderr, "illegal IO Register access 0x%x\n", io) ;
+      fprintf(stderr, "illegal IO Register read at %05zx: 0x%02x\n", _pc, io) ;
       return 0xff ;
     }
     return ioReg->Get() ;
@@ -373,7 +373,7 @@ namespace AVR
     Io::Register *ioReg = _io[io] ;
     if (!ioReg)
     {
-      fprintf(stderr, "illegal IO Register access 0x%x\n", io) ;
+      fprintf(stderr, "illegal IO Register write at %05zx: 0x%02x\n", _pc, io) ;
       return ;
     }
     ioReg->Set(value) ;
