@@ -44,7 +44,7 @@ std::map<std::string, std::function<AVR::Mcu*()> > mcuFactory
 
 int usage(const char *name)
 {
-  fprintf(stderr, "usage: %s [-d] [-e] [-m <mcu>] [-x <xref>] [-p <eeProm>] <avr-bin>\n", name) ;
+  fprintf(stderr, "usage: %s [-d] [-e] [-ee <macro>] [-m <mcu>] [-x <xref>] [-p <eeProm>] <avr-bin>\n", name) ;
   fprintf(stderr, "       %s -h\n", name) ;
   fprintf(stderr, "use '-h' for a full list of MCUs\n") ;
   return 1 ;
@@ -58,6 +58,7 @@ int usageFull(const char *name)
   fprintf(stderr, "   -m <mcu>    MCU type, see below\n") ;
   fprintf(stderr, "   -d          disassemble file\n") ;
   fprintf(stderr, "   -e          execute file\n") ;
+  fprintf(stderr, "   -ee <macro> run macro file <macro>.aem (implies -e)\n") ;
   fprintf(stderr, "   -x <xref>   read/write xref file\n") ;
   fprintf(stderr, "   -p <eeProm> binary file of EEPROM memory\n") ;
   fprintf(stderr, "   <avr-bin>   binary file to be disassembled / executed\n") ;
@@ -132,6 +133,7 @@ int main(int argc, char *argv[])
   std::string mcuType = "ATany" ;
   std::string xrefFileName ;
   std::string eepromFileName ;
+  std::string macroFileName ;
   
   for (iArg = 1 ; iArg < argc ; ++iArg)
   {
@@ -143,6 +145,13 @@ int main(int argc, char *argv[])
       disasm = true ;
     else if (!strcmp(argv[iArg], "-e"))
       execute = true ;
+    else if (!strcmp(argv[iArg], "-ee"))
+    {
+      if (iArg >= argc-1)
+        return usage(argv[0]) ;
+      execute = true ;
+      macroFileName = argv[++iArg] ;
+    }
     else if (!strcmp(argv[iArg], "-m"))
     {
       if (iArg >= argc-1)
@@ -247,6 +256,8 @@ int main(int argc, char *argv[])
   if (execute)
   {
     AVR::Execute exec(*mcu) ;
+    if (!macroFileName.empty())
+      exec.Do(std::string("m ") + macroFileName) ;
     exec.Loop() ;
   }
 

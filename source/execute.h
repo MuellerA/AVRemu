@@ -19,6 +19,12 @@ namespace AVR
     void Loop() ;
     void Do(const std::string &cmd) ;
     
+    void Quit()   { _quit = true ; }
+    bool IsQuit() { return _quit ; }
+
+    const std::vector<::Command*>& Commands() const { return _commands ; }
+    ::Command* LastCommand() const { return _lastCommand ; }
+    
   private:
     Mcu &_mcu ;
     std::vector<::Command*> _commands ;

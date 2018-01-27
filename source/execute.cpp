@@ -126,7 +126,28 @@ protected:
     return true ;
   }
   
-  
+  bool AddrOpt(const AVR::Mcu &mcu, const std::string &matchNum, const std::string &matchLbl, uint32_t &addr, uint32_t defaultAddr)
+  {
+    if (matchLbl.size())
+    {
+      const AVR::Mcu::Xref *xref = mcu.XrefByLabel(matchLbl) ;
+      if (!xref)
+        return false ;
+
+      addr = xref->Addr() ;
+      return true ;
+    }
+
+    if (matchNum.size())
+    {
+      addr = std::stoul(matchNum, nullptr, 0) ;
+      return true ;
+    }
+
+    addr = defaultAddr ;
+    return true ;
+  }
+    
 protected:
   static const std::string _reNum  ;
   static const std::string _reAddr ;
@@ -552,16 +573,11 @@ bool CommandList::Execute(AVR::Mcu &mcu)
   const std::string &mLbl = _match[2] ;
   const std::string &mCnt = _match[3] ;
 
-  if (mNum.size() || mLbl.size())
+  if (!AddrOpt(mcu, mNum, mLbl, addr, mcu.PC()))
   {
-    if (!Addr(mcu, mNum, mLbl, addr))
-    {
-      std::cout << "illegal value" << std::endl ;
-      return false ;
-    } 
-  }
-  else
-    addr = mcu.PC() ;
+    std::cout << "illegal value" << std::endl ;
+    return false ;
+  } 
 
   if (mCnt.size())
     Num(mCnt, count) ;
@@ -591,7 +607,6 @@ strings CommandListIndirect::Help() const
 
 bool CommandListIndirect::Execute(AVR::Mcu &mcu)
 {
-  uint32_t pc0   = mcu.PC() ;
   const std::string &mAddr = _match[1] ;
   const std::string &mCnt  = _match[2] ;
 
@@ -737,13 +752,63 @@ bool CommandIoAddAsc::Execute(AVR::Mcu &mcu)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CommandScript
+// CommandTrace
 ////////////////////////////////////////////////////////////////////////////////
-class CommandScript : public Command
+class CommandTrace : public Command
 {
 public:
-  CommandScript(AVR::Execute &exec) : Command{R"XXX(\s*sc\s+(.*\S)\s*)XXX"}, _exec{exec}, _reEmpty{R"XXX(\s*(?:#.*)?)XXX"} {}
-  ~CommandScript() {}
+//CommandTrace() : Command{R"XXX(\s*t\s+(?:(?:on\s+([-_/.0-9a-zA-Z]+))?(?:)XXX)" + _reAddr + R"XXX()?|off)\s*)XXX"} {}
+//                              "       [  [       (                )] [  "                   "    ]     ]   "
+  CommandTrace() : Command{R"XXX(\s*t\s+(?:(?:on\s+([-_/.0-9a-zA-Z]+))?(?:\s+)XXX" + _reAddr + R"XXX()?|off)\s*)XXX"} {}
+  ~CommandTrace() {}
+
+  virtual strings Help() const ;
+  virtual bool Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandTrace::Help() const
+{
+  return strings
+  {
+    "t on <name> [addr]        -- log to trace file until addr is reached (default 0x00000)",
+    "t off                     -- close trace file",
+  } ;
+}
+bool CommandTrace::Execute(AVR::Mcu &mcu)
+{
+  const std::string &name = _match[1] ;
+  const std::string &num  = _match[2] ;
+  const std::string &lbl  = _match[3] ;
+
+  if (name.size())
+  {
+    uint32_t addr ;
+    if (!AddrOpt(mcu, num, lbl, addr, 0x0000))
+    {
+      std::cout << "illegal value" << std::endl ;
+      return false ;
+    }
+    std::cout << "N " << name ;
+    std::cout << "A " << addr ;
+    mcu.TraceOn(name, addr) ;
+  }
+  else
+  {
+    std::cout << "X " ;
+    mcu.TraceOff() ;
+  }
+  
+  return false ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandMacro
+////////////////////////////////////////////////////////////////////////////////
+class CommandMacro : public Command
+{
+public:
+  CommandMacro(AVR::Execute &exec) : Command{R"XXX(\s*m\s+([-_/.0-9a-zA-Z]+)\s*)XXX"}, _exec{exec}, _reEmpty{R"XXX(\s*(?:#.*)?)XXX"} {}
+  ~CommandMacro() {}
 
   virtual strings Help() const ;
   virtual bool Execute(AVR::Mcu &mcu) ;
@@ -753,25 +818,25 @@ private:
   std::regex _reEmpty ;
 } ;
 
-strings CommandScript::Help() const
+strings CommandMacro::Help() const
 {
-  return strings { "sc <name>               -- run script" } ;
+  return strings { "m <name>                -- run macro file <name>.aem" } ;
 }
-bool CommandScript::Execute(AVR::Mcu &mcu)
+bool CommandMacro::Execute(AVR::Mcu &mcu)
 {
   std::smatch match ;
-  const std::string &script = _match[1] ;
+  const std::string &macro = _match[1] ;
 
   std::ifstream ifs ;
 
-  ifs.open(script.c_str()) ;
+  ifs.open((macro + ".aem").c_str()) ;
   if (ifs.fail())
   {
-    std::cout << "failed to read script " << script << std::endl ;
+    std::cout << "failed to read macro file " << macro << std::endl ;
     return false ;
   }
 
-  while (!ifs.eof())
+  while (!ifs.eof() && !_exec.IsQuit())
   {
     std::string cmd ;
     std::getline(ifs, cmd) ;
@@ -792,14 +857,14 @@ bool CommandScript::Execute(AVR::Mcu &mcu)
 class CommandQuit : public Command
 {
 public:
-  CommandQuit(bool &quit) : Command(R"XXX(\s*q\s*)XXX"), _quit(quit) { }
+  CommandQuit(AVR::Execute &exec) : Command(R"XXX(\s*q\s*)XXX"), _exec(exec) { }
   ~CommandQuit() { }
 
   virtual strings Help() const ;
   virtual bool    Execute(AVR::Mcu &mcu) ;
 
 private:
-  bool &_quit ;
+  AVR::Execute &_exec ;
 } ;
 
 strings CommandQuit::Help() const
@@ -808,7 +873,7 @@ strings CommandQuit::Help() const
 }
 bool CommandQuit::Execute(AVR::Mcu &mcu)
 {
-  _quit = true ;
+  _exec.Quit() ;
   return true ;
 }
 
@@ -818,14 +883,14 @@ bool CommandQuit::Execute(AVR::Mcu &mcu)
 class CommandRepeat : public Command
 {
 public:
-  CommandRepeat(Command *&lastCommand) : Command(R"XXX(\s*)XXX"), _lastCommand(lastCommand), _lastCommand0(nullptr) { }
+  CommandRepeat(AVR::Execute &exec) : Command(R"XXX(\s*)XXX"), _exec(exec), _lastCommand0(nullptr) { }
   ~CommandRepeat() { }
 
   virtual strings Help() const ;
   virtual bool    Execute(AVR::Mcu &mcu) ;
 
 private:
-  Command *&_lastCommand ;
+  AVR::Execute& _exec ;
   Command *_lastCommand0 ;
 } ;
 
@@ -835,11 +900,11 @@ strings CommandRepeat::Help() const
 }
 bool CommandRepeat::Execute(AVR::Mcu &mcu)
 {
-  if ((_lastCommand == this) && _lastCommand0)
+  if ((_exec.LastCommand() == this) && _lastCommand0)
     return _lastCommand0->Execute(mcu) ;
-  if (_lastCommand)
+  if (_exec.LastCommand())
   {
-    _lastCommand0 = _lastCommand ;
+    _lastCommand0 = _exec.LastCommand() ;
     return _lastCommand0->Execute(mcu) ;
   }
   return false ;
@@ -851,14 +916,14 @@ bool CommandRepeat::Execute(AVR::Mcu &mcu)
 class CommandHelp : public Command
 {
 public:
-  CommandHelp(std::vector<Command*> &commands) : Command(R"XXX(\s*[?h]\s*)XXX"), _commands(commands) { }
+  CommandHelp(AVR::Execute &exec) : Command(R"XXX(\s*[?h]\s*)XXX"), _exec(exec) { }
   ~CommandHelp() { }
 
   virtual strings Help() const ;
   virtual bool    Execute(AVR::Mcu &mcu) ;
 
 private:
-  std::vector<Command*> &_commands ;
+  AVR::Execute &_exec ;
 } ;
 
 strings CommandHelp::Help() const
@@ -869,7 +934,7 @@ strings CommandHelp::Help() const
 bool CommandHelp::Execute(AVR::Mcu &mcu)
 {
   std::cout << std::endl ;
-  for (Command *command : _commands)
+  for (const Command *command : _exec.Commands())
   {
     for (const auto &help : command->Help())
       std::cout << help << std::endl ;
@@ -916,7 +981,7 @@ namespace AVR
     _mcu{mcu},
     _commands
     {
-      new CommandRepeat(_lastCommand), // first!
+      new CommandRepeat(*this), // first!
       new CommandStep(),
       new CommandRun(),
       new CommandGoto(),
@@ -930,9 +995,10 @@ namespace AVR
       new CommandListSymbols(),
       new CommandIoAddHex(),
       new CommandIoAddAsc(),
-      new CommandScript(*this),
-      new CommandQuit(_quit),
-      new CommandHelp(_commands),
+      new CommandMacro(*this),
+      new CommandTrace(),
+      new CommandQuit(*this),
+      new CommandHelp(*this),
       new CommandUnknown(), // last!
     },
     _quit{false},

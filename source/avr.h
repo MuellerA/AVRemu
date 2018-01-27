@@ -197,6 +197,23 @@ namespace AVR
     private:
       uint8_t _sreg ;
     } ;
+
+    class Trace
+    {
+    public:
+      Trace() : _file{0} {}
+
+      FILE        *_file ;
+      std::size_t _src ;
+      std::size_t _dst ;
+      uint32_t    _cnt ;
+      bool        _isRet ;
+      uint32_t    _lvl ;
+      std::size_t _stop ;
+
+      bool Open(const std::string &filename, std::size_t addr = 0) ;
+      bool Close() ;
+    } ;
     
   protected:
     Mcu(std::size_t programSize, bool isRegDataMapped, std::size_t ioSize, std::size_t dataStart, std::size_t dataSize, std::size_t eepromSize) ;
@@ -281,6 +298,9 @@ namespace AVR
     bool PcIs22bit()     const { return _pcIs22Bit     ; }
     bool IsXmega()       const { return _isXMega       ; }
     bool IsTinyReduced() const { return _isTinyReduced ; }
+
+    bool TraceOn(const std::string &filename, std::size_t addr = 0) { return _trace.Open(filename, addr) ; }
+    bool TraceOff()                                                 { return _trace.Close()              ; }
     
   protected:
     void AddInstruction(const Instruction *instr) ;
@@ -316,9 +336,7 @@ namespace AVR
     
     std::vector<const Instruction*> _instructions ;       // map cmd to instruction
 
-#ifdef DEBUG
-    FILE *_log ;
-#endif
+    Trace _trace ;
   } ;
 
   ////////////////////////////////////////////////////////////////////////////////
