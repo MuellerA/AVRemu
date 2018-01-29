@@ -831,7 +831,7 @@ namespace AVR
     uint8_t  sreg = mcu.GetSREG() & 0b11100000 ;
     uint16_t rd   = mcu.RegW(nd) ;
     uint16_t r    = rd - k ;
-    if (r & ~rd & 0x8000)
+    if (~r & rd & 0x8000) // bug in spec
       sreg |= SREG::V ;
     if (r & 0x8000)
       sreg |= SREG::N ;

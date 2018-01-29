@@ -389,8 +389,8 @@ namespace AVR
     }
 
     fprintf(stderr, "illegal data read at %05zx: %04x\n", _pc, addr) ;
-    if (resetOnError)
-      const_cast<Mcu*>(this)->_pc = 0 ;
+    //if (resetOnError)
+    //  const_cast<Mcu*>(this)->_pc = 0 ;
     return 0xff ;
   }
 
@@ -413,16 +413,21 @@ namespace AVR
     }
 
     fprintf(stderr, "illegal data write at %05zx: %04x, %02x\n", _pc, addr, value) ;
-    if (resetOnError)
-      _pc = 0 ;
+    //if (resetOnError)
+    //  _pc = 0 ;
   }
 
   void Mcu::Eeprom(size_t address, uint8_t value, bool resetOnError)
   {
     if (address < _eepromSize)
+    {
       _eeprom[address] = value ;
-    if (resetOnError)
-      _pc = 0 ;
+      return ;
+    }
+    
+    fprintf(stderr, "illegal eeprom write at %05zx: %04x, %02x\n", _pc, address, value) ;
+    //if (resetOnError)
+    //  _pc = 0 ;
   }
   
   uint8_t Mcu::Eeprom(size_t address, bool resetOnError) const
@@ -430,8 +435,9 @@ namespace AVR
     if (address < _eepromSize)
       return _eeprom[address] ;
 
-    if (resetOnError)
-      const_cast<Mcu*>(this)->_pc = 0 ;
+    fprintf(stderr, "illegal eeprom read at %05zx: %04x\n", _pc, address) ;
+    //if (resetOnError)
+    //  const_cast<Mcu*>(this)->_pc = 0 ;
     return 0xff ;
   }  
   
