@@ -697,7 +697,6 @@ bool CommandIoAddHex::Execute(AVR::Mcu &mcu)
 
   while (*str)
   {
-    fprintf(stdout, "%s\n", str) ;
     uint32_t ul = strtoul(str, &str_end, 0) ;
     if (ul > 255)
     {
@@ -757,8 +756,6 @@ bool CommandIoAddAsc::Execute(AVR::Mcu &mcu)
 class CommandTrace : public Command
 {
 public:
-//CommandTrace() : Command{R"XXX(\s*t\s+(?:(?:on\s+([-_/.0-9a-zA-Z]+))?(?:)XXX)" + _reAddr + R"XXX()?|off)\s*)XXX"} {}
-//                              "       [  [       (                )] [  "                   "    ]     ]   "
   CommandTrace() : Command{R"XXX(\s*t\s+(?:(?:on\s+([-_/.0-9a-zA-Z]+))?(?:\s+)XXX" + _reAddr + R"XXX()?|off)\s*)XXX"} {}
   ~CommandTrace() {}
 
@@ -770,8 +767,8 @@ strings CommandTrace::Help() const
 {
   return strings
   {
-    "t on <name> [addr]        -- log to trace file until addr is reached (default 0x00000)",
-    "t off                     -- close trace file",
+    "t on <name> [addr]      -- log to trace file until addr is reached (default 0x00000)",
+    "t off                   -- close trace file",
   } ;
 }
 bool CommandTrace::Execute(AVR::Mcu &mcu)
@@ -788,13 +785,10 @@ bool CommandTrace::Execute(AVR::Mcu &mcu)
       std::cout << "illegal value" << std::endl ;
       return false ;
     }
-    std::cout << "N " << name ;
-    std::cout << "A " << addr ;
     mcu.TraceOn(name, addr) ;
   }
   else
   {
-    std::cout << "X " ;
     mcu.TraceOff() ;
   }
   
@@ -849,6 +843,28 @@ bool CommandMacro::Execute(AVR::Mcu &mcu)
   }
 
   return false ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandEcho
+////////////////////////////////////////////////////////////////////////////////
+class CommandEcho : public Command
+{
+public:
+  CommandEcho() : Command{R"XXX(\s*\$\s*(.+?)\s*)XXX"} {}
+  ~CommandEcho() {}
+
+  virtual strings Help() const ;
+  virtual bool Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandEcho::Help() const
+{
+  return strings { "$ <text>                -- write text to output / only useful in macros" } ;
+}
+bool CommandEcho::Execute(AVR::Mcu &mcu)
+{
+  return true ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -997,6 +1013,7 @@ namespace AVR
       new CommandIoAddAsc(),
       new CommandMacro(*this),
       new CommandTrace(),
+      new CommandEcho(),
       new CommandQuit(*this),
       new CommandHelp(*this),
       new CommandUnknown(), // last!
@@ -1049,4 +1066,3 @@ namespace AVR
 ////////////////////////////////////////////////////////////////////////////////
 // EOF
 ////////////////////////////////////////////////////////////////////////////////
-
