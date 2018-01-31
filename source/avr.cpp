@@ -44,10 +44,10 @@ namespace AVR
   ////////////////////////////////////////////////////////////////////////////////
   // Mcu
   Mcu::Mcu(std::size_t programSize, bool isRegDataMapped, std::size_t ioSize, std::size_t dataStart, std::size_t dataSize, std::size_t eepromSize)
-    : _pc(0), _sp(dataStart+dataSize-1), _program(programSize), _io(ioSize), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
+    : _pc(0), _sp(dataStart+dataSize-1), _program(programSize), _loadedProgramSize(0), _io(ioSize), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
   {
     _programSize = programSize ;
-
+    
     _regSize  = 0x20 ;
     _regStart = (isRegDataMapped) ? 0 : 1 ;
     _regEnd   = (isRegDataMapped) ? _regStart + _regSize - 1 : 0 ;
@@ -85,19 +85,21 @@ namespace AVR
 
     if (_pc >= _programSize)
     {
-      fprintf(stderr, "program counter overflow\n") ;
+      fprintf(stderr, "invalid program memory read at %05zx\n", _pc) ;
       _pc = 0 ;
       return ;
     }
 
-    std::size_t pc0 = _pc ;
+    if (_pc >= _loadedProgramSize)
+      fprintf(stderr, "uninitialized program memory read at %05zx\n", _pc) ;
     
-    Command cmd = _program[_pc++] ;
+    std::size_t pc0 = _pc ;
+    Command cmd = (_pc < _loadedProgramSize) ? _program[_pc++] : 0x9508 ;
     const Instruction *instr = _instructions[cmd] ;
     
     if (!instr)
     {
-      fprintf(stderr, "illegal instruction\n") ;
+      fprintf(stderr, "illegal instruction at %05zx\n", _pc) ;
       _pc = 0 ;
       return ;
     }
@@ -199,7 +201,7 @@ namespace AVR
   {
     if (_pc >= _programSize)
     {
-      fprintf(stderr, "program counter overflow\n") ;
+      fprintf(stderr, "illegal program memory read at %05zx\n", _pc) ;
       _pc = 0 ;
       return ;
     }
@@ -209,7 +211,7 @@ namespace AVR
 
     if (!instr)
     {
-      fprintf(stderr, "illegal instruction\n") ;
+      fprintf(stderr, "illegal instruction at %05zx: %04x\n", _pc, cmd) ;
       _pc = 0 ;
       return ;
     }
@@ -231,7 +233,7 @@ namespace AVR
   {
     if (_pc >= _programSize)
     {
-      fprintf(stderr, "program counter overflow\n") ;
+      fprintf(stderr, "illegal program memory read at %05zx\n", _pc) ;
       return "" ;
     }
 
@@ -328,7 +330,7 @@ namespace AVR
   {
     if (_pc >= _programSize)
     {
-      fprintf(stderr, "program counter overflow\n") ;
+      fprintf(stderr, "illegal program memory read at %05zx\n", _pc) ;
       return 0 ;
     }
     Command cmd = _program[_pc++] ;
@@ -445,8 +447,13 @@ namespace AVR
   {
     if (addr >= _programSize)
     {
-      fprintf(stderr, "invalid program address\n") ;
+      fprintf(stderr, "invalid program memory read at %05zx\n", addr) ;
       return 0xffff ;
+    }
+    if (addr >= _loadedProgramSize)
+    {
+      fprintf(stderr, "uninitialized program memory read at %05zx\n", addr) ;
+      return 0x9508 ;
     }
     return _program[addr] ;
   }
@@ -455,7 +462,7 @@ namespace AVR
   {
     if (addr >= _programSize)
     {
-      fprintf(stderr, "invalid program address\n") ;
+      fprintf(stderr, "invalid program memory write at %05zx: %04x\n", addr, cmd) ;
       return ;
     }
     _program[addr] = cmd ;
@@ -472,7 +479,7 @@ namespace AVR
     uint16_t sp = _sp() ;
     if ((sp < _dataStart) || (_dataEnd < sp))
     {
-      fprintf(stderr, "stack underflow\n") ;
+      fprintf(stderr, "stack underflow at %05zx\n", _pc) ;
       return ;
     }
     _data[sp-_dataStart] = value ;
@@ -484,7 +491,7 @@ namespace AVR
     uint16_t sp = _sp() + 1 ;
     if ((sp < _dataStart) || (_dataEnd < sp))
     {
-      fprintf(stderr, "stack overflow\n") ;
+      fprintf(stderr, "stack overflow at %05zx\n", _pc) ;
       return 0xff ;
     }
     _sp() = sp ;
@@ -552,7 +559,8 @@ namespace AVR
     }
 
     std::copy(prg.begin(), prg.begin()+nCopy, _program.begin()+startAddress) ;
-
+    _loadedProgramSize = nCopy + startAddress ;
+    
     AnalyzeXrefs() ;
 
     return nCopy ;

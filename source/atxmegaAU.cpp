@@ -165,14 +165,14 @@ namespace AVR
       { 0x001f, new IoRegisterNotImplemented("VPORT3_INTFLAGS") },
                 
       { 0x0034, new IoRegisterNotImplemented("CPU_CCP") }, // CPU
-      { 0x0038, new IoRegisterNotImplemented("CPU_RAMPD") },
-      { 0x0039, new IoRegisterNotImplemented("CPU_RAMPX") },
-      { 0x003a, new IoRegisterNotImplemented("CPU_RAMPY") },
-      { 0x003b, new IoRegisterNotImplemented("CPU_RAMPZ") },
-      { 0x003c, new IoRegisterNotImplemented("CPU_EIND") },
-      //{ 0x003d, new IoRegisterNotImplemented("CPU_SPL") },
-      //{ 0x003e, new IoRegisterNotImplemented("CPU_SPH") },
-      //{ 0x003f, new IoRegisterNotImplemented("CPU_SREG") },
+      { 0x0038, new IoRamp::Ramp("RAMPD", _rampd) },
+      { 0x0039, new IoRamp::Ramp("RAMPX", _rampx) },
+      { 0x003a, new IoRamp::Ramp("RAMPY", _rampy) },
+      { 0x003b, new IoRamp::Ramp("RAMPZ", _rampz) },
+      { 0x003c, new IoRamp::Ramp("EIND" , _eind ) },
+      { 0x003d, new IoSP::SPL(_sp) },
+      { 0x003e, new IoSP::SPH(_sp) },
+      { 0x003f, new IoSREG::SREG(_sreg) },
         
       { 0x0040, new IoRegisterNotImplemented("CLK_CTRL") }, // Clock Control
       { 0x0042, new IoRegisterNotImplemented("CLK_PSCTRL") },
@@ -852,10 +852,6 @@ namespace AVR
     {
       _io[iIoReg.first] = iIoReg.second ;
     }
-
-    _io[0x3f] = new IoSREG::SREG(_sreg) ;
-    _io[0x3e] = new IoSP::SPH(_sp) ;
-    _io[0x3d] = new IoSP::SPL(_sp) ;
   }
 
   ATxmegaAU::~ATxmegaAU()

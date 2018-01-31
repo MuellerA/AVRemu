@@ -198,6 +198,28 @@ namespace AVR
       uint8_t _sreg ;
     } ;
 
+    class IoRamp : public Io
+    {
+    public:
+      class Ramp : public Io::Register
+      {
+      public:
+        Ramp(const std::string &name, IoRamp &ramp) : Register(name), _ramp(ramp) {}
+    
+        virtual uint8_t  Get() const    { return _ramp.Get() >> 16     ; }
+        virtual void     Set(uint8_t v) { _ramp.Set((uint32_t)v << 16) ; }
+      private:
+        IoRamp &_ramp ;
+      } ;
+
+      IoRamp() : _ramp(0) {}
+      uint32_t Get() const     { return _ramp         ; }
+      void     Set(uint32_t v) { _ramp = v & 0xff0000 ; }
+
+    private:      
+      uint32_t _ramp ;
+    } ;
+    
     class Trace
     {
     public:
@@ -254,15 +276,25 @@ namespace AVR
     void     Prog(uint32_t addr, uint16_t Command) ;
     const Instruction* Instr(uint32_t addr) const ;
     
-    uint8_t  GetSREG() const    { return _sreg.Get()  ; }
-    void     SetSREG(uint8_t v) { _sreg.Set(v)  ; }
-    uint16_t GetSP() const      { return _sp() ; }
-    void     SetSP(uint16_t v)  { _sp() = v ; }
-    uint8_t  GetSPL()  const    { return _sp.GetLo() ; }
-    void     SetSPL(uint8_t v)  { _sp.SetLo(v) ; }
-    uint8_t  GetSPH()  const    { return _sp.GetHi() ; }
-    void     SetSPH(uint8_t v)  { _sp.SetHi(v) ; }
-
+    uint8_t  GetSREG() const      { return _sreg.Get()  ; }
+    void     SetSREG(uint8_t v)   { _sreg.Set(v)        ; }
+    uint16_t GetSP() const        { return _sp()        ; }
+    void     SetSP(uint16_t v)    { _sp() = v           ; }
+    uint8_t  GetSPL()  const      { return _sp.GetLo()  ; }
+    void     SetSPL(uint8_t v)    { _sp.SetLo(v)        ; }
+    uint8_t  GetSPH()  const      { return _sp.GetHi()  ; }
+    void     SetSPH(uint8_t v)    { _sp.SetHi(v)        ; }
+    uint32_t GetRampX() const     { return _rampx.Get() ; }
+    void     SetRampX(uint32_t v) { _rampx.Set(v)       ; }
+    uint32_t GetRampY() const     { return _rampy.Get() ; }
+    void     SetRampY(uint32_t v) { _rampy.Set(v)       ; }
+    uint32_t GetRampZ() const     { return _rampz.Get() ; }
+    void     SetRampZ(uint32_t v) { _rampz.Set(v)       ; }
+    uint32_t GetRampD() const     { return _rampd.Get() ; }
+    void     SetRampD(uint32_t v) { _rampd.Set(v)       ; }
+    uint32_t GetEind() const      { return _eind.Get()  ; }
+    void     SetEind(uint32_t v)  { _eind.Set(v)        ; }
+    
     void    Push(uint8_t value) ;
     uint8_t Pop() ;
     virtual void  PushPC() ;
@@ -310,9 +342,12 @@ namespace AVR
     std::size_t _pc ;
     IoSP        _sp ;
     IoSREG      _sreg ;
+    IoRamp      _rampx, _rampy, _rampz ;
+    IoRamp      _rampd, _eind ;
     uint32_t    _ticks ;
     
     std::size_t _programSize ;
+    std::size_t _loadedProgramSize ;
 
     std::size_t _regSize, _regStart, _regEnd ;
     std::size_t _ioSize, _ioStart, _ioEnd ;

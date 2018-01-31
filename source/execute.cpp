@@ -830,7 +830,8 @@ bool CommandMacro::Execute(AVR::Mcu &mcu)
     return false ;
   }
 
-  while (!ifs.eof() && !_exec.IsQuit())
+  _exec.MacroQuit(false) ;
+  while (!ifs.eof() && !_exec.IsQuit() && !_exec.MacroQuit())
   {
     std::string cmd ;
     std::getline(ifs, cmd) ;
@@ -841,8 +842,35 @@ bool CommandMacro::Execute(AVR::Mcu &mcu)
     std::cout << std::endl << cmd << std::endl ;
     _exec.Do(cmd) ;
   }
+  _exec.MacroQuit(false) ;
 
   return false ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandMacroQuit
+////////////////////////////////////////////////////////////////////////////////
+class CommandMacroQuit : public Command
+{
+public:
+  CommandMacroQuit(AVR::Execute &exec) : Command(R"XXX(\s*mq\s*)XXX"), _exec(exec) { }
+  ~CommandMacroQuit() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+
+private:
+  AVR::Execute &_exec ;
+} ;
+
+strings CommandMacroQuit::Help() const
+{
+  return strings { "mq                      -- quit macro execution"} ;
+}
+bool CommandMacroQuit::Execute(AVR::Mcu &mcu)
+{
+  _exec.MacroQuit(true) ;
+  return true ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1012,6 +1040,7 @@ namespace AVR
       new CommandIoAddHex(),
       new CommandIoAddAsc(),
       new CommandMacro(*this),
+      new CommandMacroQuit(*this),
       new CommandTrace(),
       new CommandEcho(),
       new CommandQuit(*this),

@@ -21,6 +21,8 @@ namespace AVR
     
     void Quit()   { _quit = true ; }
     bool IsQuit() { return _quit ; }
+    void MacroQuit(bool quit) { _macroQuit = quit ; }
+    bool MacroQuit() const    { return _macroQuit ; }
 
     const std::vector<::Command*>& Commands() const { return _commands ; }
     ::Command* LastCommand() const { return _lastCommand ; }
@@ -30,6 +32,7 @@ namespace AVR
     std::vector<::Command*> _commands ;
   
     bool _quit ;
+    bool _macroQuit ;
     ::Command *_lastCommand ;
   } ;
 

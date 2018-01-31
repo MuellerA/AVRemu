@@ -1579,7 +1579,8 @@ namespace AVR
   }
   void InstrEIJMP::Execute(Mcu &mcu, Command cmd) const
   {
-    mcu.NotImplemented(*this) ;
+    mcu.XrefAdd(XrefType::jmp, mcu.GetEind() | mcu.RegW(30), mcu.PC()-1) ;
+    mcu.PC() = mcu.GetEind() | mcu.RegW(30) ;
   }
   std::string InstrEIJMP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1710,7 +1711,9 @@ namespace AVR
   }
   void InstrEICALL::Execute(Mcu &mcu, Command cmd) const
   {
-    mcu.NotImplemented(*this) ;
+    mcu.XrefAdd(XrefType::call, mcu.GetEind() | mcu.RegW(30), mcu.PC()-1) ;
+    mcu.PushPC() ;
+    mcu.PC() = mcu.GetEind() | mcu.RegW(30) ;
   }
   std::string InstrEICALL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2350,7 +2353,7 @@ namespace AVR
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    uint32_t addr = mcu.ProgramNext() ;
+    uint32_t addr = mcu.GetRampD() | mcu.ProgramNext() ;
     mcu.Reg(nd, mcu.Data(addr)) ;
   }
   std::string InstrLDS::Disasm(Mcu &mcu, Command cmd) const
@@ -2381,9 +2384,9 @@ namespace AVR
   }
   void InstrLDx1::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nd, x ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    x = mcu.RegW(26) ;
+    uint32_t x = mcu.GetRampX() | mcu.RegW(26) ;
     mcu.Reg(nd, mcu.Data(x)) ;
   }
   std::string InstrLDx1::Disasm(Mcu &mcu, Command cmd) const
@@ -2414,10 +2417,11 @@ namespace AVR
   }
   void InstrLDx2::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nd, x ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    x = mcu.RegW(26) ;
+    uint32_t x = mcu.GetRampX() | mcu.RegW(26) ;
     mcu.Reg(nd, mcu.Data(x++)) ;
+    mcu.SetRampX(x) ;
     mcu.RegW(26, x) ;
   }
   std::string InstrLDx2::Disasm(Mcu &mcu, Command cmd) const
@@ -2448,10 +2452,11 @@ namespace AVR
   }
   void InstrLDx3::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nd, x ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    x = mcu.RegW(26) ;
+    uint32_t x = mcu.GetRampX() | mcu.RegW(26) ;
     mcu.Reg(nd, mcu.Data(--x)) ;
+    mcu.SetRampX(x) ;
     mcu.RegW(26, x) ;
   }
   std::string InstrLDx3::Disasm(Mcu &mcu, Command cmd) const
@@ -2482,9 +2487,9 @@ namespace AVR
   }
   void InstrLDy1::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nd, y ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    y = mcu.RegW(28) ;
+    uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Reg(nd, mcu.Data(y)) ;
   }
   std::string InstrLDy1::Disasm(Mcu &mcu, Command cmd) const
@@ -2515,10 +2520,11 @@ namespace AVR
   }
   void InstrLDy2::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nd, y ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    y = mcu.RegW(28) ;
+    uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Reg(nd, mcu.Data(y++)) ;
+    mcu.SetRampY(y) ;
     mcu.RegW(28, y) ;
   }
   std::string InstrLDy2::Disasm(Mcu &mcu, Command cmd) const
@@ -2549,10 +2555,11 @@ namespace AVR
   }
   void InstrLDy3::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nd, y ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    y = mcu.RegW(28) ;
+    uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Reg(nd, mcu.Data(--y)) ;
+    mcu.SetRampY(y) ;
     mcu.RegW(28, y) ;
   }
   std::string InstrLDy3::Disasm(Mcu &mcu, Command cmd) const
@@ -2583,10 +2590,10 @@ namespace AVR
   }
   void InstrLDy4::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nd, q, y ;
+    Command nd, q ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     xxQxQQxxxxxxxQQQ(cmd, q) ;
-    y = mcu.RegW(28) ;
+    uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Reg(nd, mcu.Data(y+q)) ;
   }
   std::string InstrLDy4::Disasm(Mcu &mcu, Command cmd) const
@@ -2617,9 +2624,9 @@ namespace AVR
   }
   void InstrLDz1::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nd, z ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    z = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Reg(nd, mcu.Data(z)) ;
   }
   std::string InstrLDz1::Disasm(Mcu &mcu, Command cmd) const
@@ -2650,10 +2657,11 @@ namespace AVR
   }
   void InstrLDz2::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nd, z ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    z = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Reg(nd, mcu.Data(z++)) ;
+    mcu.SetRampZ(z) ;
     mcu.RegW(30, z) ;
   }
   std::string InstrLDz2::Disasm(Mcu &mcu, Command cmd) const
@@ -2684,10 +2692,11 @@ namespace AVR
   }
   void InstrLDz3::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nd, z ;
+    Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    z = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Reg(nd, mcu.Data(--z)) ;
+    mcu.SetRampZ(z) ;
     mcu.RegW(30, z) ;
   }
   std::string InstrLDz3::Disasm(Mcu &mcu, Command cmd) const
@@ -2718,10 +2727,10 @@ namespace AVR
   }
   void InstrLDz4::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nd, q, z ;
+    Command nd, q ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     xxQxQQxxxxxxxQQQ(cmd, q) ;
-    z = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Reg(nd, mcu.Data(z+q)) ;
   }
   std::string InstrLDz4::Disasm(Mcu &mcu, Command cmd) const
@@ -2755,7 +2764,7 @@ namespace AVR
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    uint32_t addr = mcu.ProgramNext() ;
+    uint32_t addr = mcu.GetRampD() | mcu.ProgramNext() ;
     mcu.Data(addr, mcu.Reg(nd)) ;
   }
   std::string InstrSTS::Disasm(Mcu &mcu, Command cmd) const
@@ -2786,9 +2795,9 @@ namespace AVR
   }
   void InstrSTx1::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, x ;
+    Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
-    x = mcu.RegW(26) ;
+    uint32_t x = mcu.GetRampX() | mcu.RegW(26) ;
     mcu.Data(x, mcu.Reg(nr)) ;
   }
   std::string InstrSTx1::Disasm(Mcu &mcu, Command cmd) const
@@ -2819,10 +2828,11 @@ namespace AVR
   }
   void InstrSTx2::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, x ;
+    Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
-    x = mcu.RegW(26) ;
+    uint32_t x = mcu.GetRampX() | mcu.RegW(26) ;
     mcu.Data(x++, mcu.Reg(nr)) ;
+    mcu.SetRampX(x) ;
     mcu.RegW(26, x) ;
   }
   std::string InstrSTx2::Disasm(Mcu &mcu, Command cmd) const
@@ -2853,10 +2863,11 @@ namespace AVR
   }
   void InstrSTx3::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, x ;
+    Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
-    x = mcu.RegW(26) ;
+    uint32_t x = mcu.GetRampX() | mcu.RegW(26) ;
     mcu.Data(--x, mcu.Reg(nr)) ;
+    mcu.SetRampX(x) ;
     mcu.RegW(26, x) ;
   }
   std::string InstrSTx3::Disasm(Mcu &mcu, Command cmd) const
@@ -2887,9 +2898,9 @@ namespace AVR
   }
   void InstrSTy1::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, y ;
+    Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
-    y = mcu.RegW(28) ;
+    uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Data(y, mcu.Reg(nr)) ;
   }
   std::string InstrSTy1::Disasm(Mcu &mcu, Command cmd) const
@@ -2920,10 +2931,11 @@ namespace AVR
   }
   void InstrSTy2::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, y ;
+    Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
-    y = mcu.RegW(28) ;
+    uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Data(y++, mcu.Reg(nr)) ;
+    mcu.SetRampY(y) ;
     mcu.RegW(28, y) ;
   }
   std::string InstrSTy2::Disasm(Mcu &mcu, Command cmd) const
@@ -2954,10 +2966,11 @@ namespace AVR
   }
   void InstrSTy3::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, y ;
+    Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
-    y = mcu.RegW(28) ;
+    uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Data(--y, mcu.Reg(nr)) ;
+    mcu.SetRampY(y) ;
     mcu.RegW(28, y) ;
   }
   std::string InstrSTy3::Disasm(Mcu &mcu, Command cmd) const
@@ -2988,10 +3001,10 @@ namespace AVR
   }
   void InstrSTy4::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, q, y ;
+    Command nr, q ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     xxQxQQxxxxxxxQQQ(cmd, q) ;
-    y = mcu.RegW(28) ;
+    uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Data(y+q, mcu.Reg(nr)) ;
   }
   std::string InstrSTy4::Disasm(Mcu &mcu, Command cmd) const
@@ -3022,9 +3035,9 @@ namespace AVR
   }
   void InstrSTz1::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, z ;
+    Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
-    z = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Data(z, mcu.Reg(nr)) ;
   }
   std::string InstrSTz1::Disasm(Mcu &mcu, Command cmd) const
@@ -3055,10 +3068,11 @@ namespace AVR
   }
   void InstrSTz2::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, z ;
+    Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
-    z = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Data(z++, mcu.Reg(nr)) ;
+    mcu.SetRampZ(z) ;
     mcu.RegW(30, z) ;
   }
   std::string InstrSTz2::Disasm(Mcu &mcu, Command cmd) const
@@ -3089,10 +3103,11 @@ namespace AVR
   }
   void InstrSTz3::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, z ;
+    Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
-    z = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Data(--z, mcu.Reg(nr)) ;
+    mcu.SetRampZ(z) ;
     mcu.RegW(30, z) ;
   }
   std::string InstrSTz3::Disasm(Mcu &mcu, Command cmd) const
@@ -3123,10 +3138,10 @@ namespace AVR
   }
   void InstrSTz4::Execute(Mcu &mcu, Command cmd) const
   {
-    Command nr, q, z ;
+    Command nr, q ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     xxQxQQxxxxxxxQQQ(cmd, q) ;
-    z = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Data(z+q, mcu.Reg(nr)) ;
   }
   std::string InstrSTz4::Disasm(Mcu &mcu, Command cmd) const
@@ -3268,10 +3283,9 @@ namespace AVR
   }
   void InstrELPM1::Execute(Mcu &mcu, Command cmd) const
   {
-    // TODO RAMPZ
-    mcu.XrefAdd(XrefType::data, mcu.RegW(30)>>1, mcu.PC()-1) ;
-    Command z, p ;
-    z = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
+    mcu.XrefAdd(XrefType::data, z>>1, mcu.PC()-1) ;
+    Command p ;
     p = mcu.Prog(z>>1) ;
     if (z&1)
       p >>= 8 ;
@@ -3305,11 +3319,10 @@ namespace AVR
   }
   void InstrELPM2::Execute(Mcu &mcu, Command cmd) const
   {
-    // TODO RAMPZ
-    mcu.XrefAdd(XrefType::data, mcu.RegW(30)>>1, mcu.PC()-1) ;
-    Command z, nd, p ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
+    mcu.XrefAdd(XrefType::data, z>>1, mcu.PC()-1) ;
+    Command nd, p ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    z = mcu.RegW(30) ;
     p = mcu.Prog(z>>1) ;
     if (z&1)
       p >>= 8 ;
@@ -3343,15 +3356,15 @@ namespace AVR
   }
   void InstrELPM3::Execute(Mcu &mcu, Command cmd) const
   {
-    //TODO RAMPZ
-    mcu.XrefAdd(XrefType::data, mcu.RegW(30)>>1, mcu.PC()-1) ;
-    Command z, nd, p ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
+    mcu.XrefAdd(XrefType::data, z>>1, mcu.PC()-1) ;
+    Command nd, p ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    z = mcu.RegW(30) ;
     p = mcu.Prog(z>>1) ;
     if (z&1)
       p >>= 8 ;
     mcu.Reg(nd, (uint8_t)p) ;
+    mcu.SetRampZ(z+1) ;
     mcu.RegW(30, z+1) ;
   }
   std::string InstrELPM3::Disasm(Mcu &mcu, Command cmd) const
@@ -3576,7 +3589,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
     uint8_t  rd = mcu.Reg(nd) ;
-    uint16_t z  = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, rd) ;
     mcu.Reg(nd, r) ;
@@ -3613,7 +3626,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
     uint8_t  rd = mcu.Reg(nd) ;
-    uint16_t z  = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, rd | z) ;
     mcu.Reg(nd, r) ;
@@ -3650,7 +3663,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
     uint8_t  rd = mcu.Reg(nd) ;
-    uint16_t z  = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, ~rd & r) ;
     mcu.Reg(nd, r) ;
@@ -3687,7 +3700,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, nd) ;
 
     uint8_t  rd = mcu.Reg(nd) ;
-    uint16_t z  = mcu.RegW(30) ;
+    uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, rd ^ r) ;
     mcu.Reg(nd, r) ;
