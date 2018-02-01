@@ -35,7 +35,7 @@ int main()
     }
 
     avr.PC() = 0 ;
-    size_t nCommand = avr.SetProgram(0, prog) ;
+    uint32_t nCommand = avr.SetProgram(0, prog) ;
     printf("prog size: %zd\n", prog.size()) ;
 
    FILE *fo = fopen("all.bin", "wb") ;
@@ -61,16 +61,16 @@ int main()
     while (true)
     {
       AVR::Command cmds[0x100] ;
-      size_t nCmd = fread(cmds, sizeof(AVR::Command), 0x100, f) ;
+      uint32_t nCmd = fread(cmds, sizeof(AVR::Command), 0x100, f) ;
       if (!nCmd)
         break ;
       prog.insert(prog.end(), cmds, cmds + nCmd) ;
     }
     avr.PC() = 0 ;
-    size_t nCommand = avr.SetProgram(0, prog) ;
+    uint32_t nCommand = avr.SetProgram(0, prog) ;
     printf("prog size: %zd\n", prog.size()) ;
 
-    for (size_t iCommand = 0 ; iCommand < nCommand ; ++iCommand)
+    for (uint32_t iCommand = 0 ; iCommand < nCommand ; ++iCommand)
     {
       std::string disasm = avr.Disasm() ;
       printf("%s\n", disasm.c_str()) ;

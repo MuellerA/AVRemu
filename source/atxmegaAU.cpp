@@ -8,7 +8,7 @@
 
 namespace AVR
 {
-  ATxmegaAU::ATxmegaAU(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize)
+  ATxmegaAU::ATxmegaAU(uint32_t programSize, uint32_t dataSize, uint32_t eepromSize)
     : Mcu(programSize, false, 0x1000, 0x2000, dataSize, eepromSize),
       _usartC0("USARTC0"), _usartC1("USARTC1"), _usartD0("USARTD0"), _usartD1("USARTD1"), _usartE0("USARTE0")
   {

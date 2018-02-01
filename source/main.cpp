@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
   while (true)
   {
     AVR::Command cmds[0x100] ;
-    size_t nCmd = fread(cmds, sizeof(AVR::Command), 0x100, f) ;
+    uint32_t nCmd = fread(cmds, sizeof(AVR::Command), 0x100, f) ;
     if (!nCmd)
       break ;
     prog.insert(prog.end(), cmds, cmds + nCmd) ;
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
     while (true)
     {
       uint8_t bytes[0x100] ;
-      size_t nByte = fread(bytes, sizeof(uint8_t), 0x100, ee) ;
+      uint32_t nByte = fread(bytes, sizeof(uint8_t), 0x100, ee) ;
       if (!nByte)
         break ;
       eeprom.insert(eeprom.end(), bytes, bytes + nByte) ;
@@ -229,11 +229,11 @@ int main(int argc, char *argv[])
   }
   
   mcu->PC() = 0 ;
-  size_t nCommand = mcu->SetProgram(0, prog) ;
+  uint32_t nCommand = mcu->SetProgram(0, prog) ;
   printf("prog size:   %zd\n", prog.size()) ;
-  printf("loaded size: %zd\n", nCommand) ;
+  printf("loaded size: %d\n" , nCommand) ;
 
-  size_t progEnd = nCommand % mcu->Program().size() ;
+  uint32_t progEnd = nCommand % mcu->Program().size() ;
 
   if (disasm || !execute)
   {
@@ -243,7 +243,9 @@ int main(int argc, char *argv[])
     {
       const AVR::Mcu::Xref *xref = mcu->XrefByAddr(mcu->PC()) ;
       if (xref && static_cast<uint32_t>(xref->Type() & AVR::XrefType::call) &&
-          (instr == &AVR::instrRET))
+          ((instr == &AVR::instrRET) || (instr == &AVR::instrRETI) ||
+           (instr == &AVR::instrJMP) || (instr == &AVR::instrRJMP) ||
+           (instr == &AVR::instrIJMP) || (instr == &AVR::instrEIJMP)))
         printf("\n////////////////////////////////////////////////////////////////////////////////\n\n") ;
       instr = mcu->Instr(mcu->PC()) ;
       

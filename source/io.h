@@ -159,7 +159,7 @@ namespace AVR
   private:
     std::string _name ;
     mutable std::vector<uint8_t> _rx ;
-    mutable size_t _rxPos ;
+    mutable uint32_t _rxPos ;
   } ;
 
   ////////////////////////////////////////////////////////////////////////////////

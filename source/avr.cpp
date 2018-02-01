@@ -43,11 +43,9 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // Mcu
-  Mcu::Mcu(std::size_t programSize, bool isRegDataMapped, std::size_t ioSize, std::size_t dataStart, std::size_t dataSize, std::size_t eepromSize)
-    : _pc(0), _sp(dataStart+dataSize-1), _program(programSize), _loadedProgramSize(0), _io(ioSize), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
+  Mcu::Mcu(uint32_t programSize, bool isRegDataMapped, uint32_t ioSize, uint32_t dataStart, uint32_t dataSize, uint32_t eepromSize)
+    : _pc(0), _sp(dataStart+dataSize-1), _programSize(programSize), _loadedProgramSize(0), _program(programSize), _io(ioSize), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
   {
-    _programSize = programSize ;
-    
     _regSize  = 0x20 ;
     _regStart = (isRegDataMapped) ? 0 : 1 ;
     _regEnd   = (isRegDataMapped) ? _regStart + _regSize - 1 : 0 ;
@@ -85,21 +83,21 @@ namespace AVR
 
     if (_pc >= _programSize)
     {
-      fprintf(stderr, "invalid program memory read at %05zx\n", _pc) ;
+      fprintf(stderr, "invalid program memory read at %05x\n", _pc) ;
       _pc = 0 ;
       return ;
     }
 
     if (_pc >= _loadedProgramSize)
-      fprintf(stderr, "uninitialized program memory read at %05zx\n", _pc) ;
+      fprintf(stderr, "uninitialized program memory read at %05x\n", _pc) ;
     
-    std::size_t pc0 = _pc ;
+    uint32_t pc0 = _pc ;
     Command cmd = (_pc < _loadedProgramSize) ? _program[_pc++] : 0x9508 ;
     const Instruction *instr = _instructions[cmd] ;
     
     if (!instr)
     {
-      fprintf(stderr, "illegal instruction at %05zx\n", _pc) ;
+      fprintf(stderr, "illegal instruction at %05x\n", _pc) ;
       _pc = 0 ;
       return ;
     }
@@ -117,7 +115,7 @@ namespace AVR
           fprintf(_trace._file, "%2d", _trace._lvl) ;
           for (uint32_t i = 0 ; i < _trace._lvl ; ++i)
             fputs("  ", _trace._file) ;
-          fprintf(_trace._file, "%05zx -> %05zx %4ux", _trace._src, _trace._dst, _trace._cnt) ;
+          fprintf(_trace._file, "%05x -> %05x %4ux", _trace._src, _trace._dst, _trace._cnt) ;
           if (_trace._isRet)
             fprintf(_trace._file, "   RET") ;
           auto iXrefs = _xrefByAddr.find(_trace._dst) ;
@@ -158,12 +156,12 @@ namespace AVR
           _trace._cnt++ ;
         }
       }
-    }
-    
-    if (_pc == _trace._stop)
-    {
-      fprintf(stderr, "trace file closed\n") ;
-      _trace.Close() ;
+
+      if (_pc == _trace._stop)
+      {
+        fprintf(stderr, "trace file closed\n") ;
+        _trace.Close() ;
+      }
     }
   }
 
@@ -180,28 +178,28 @@ namespace AVR
            (sreg && AVR::SREG::Z) ? 'Z' : '_',
            (sreg && AVR::SREG::C) ? 'C' : '_') ;
     
-    for (size_t iR =  0 ; iR < 8 ; ++iR)
-      printf(" %02x", _reg[iR]) ;
+    printf(" %02x %02x %02x %02x  %02x %02x %02x %02x\n",
+                _reg[0], _reg[1], _reg[2], _reg[3], _reg[4], _reg[5], _reg[6], _reg[7]) ;
 
-    printf("\n       SP: %04x ", _sp()) ;
+    printf("       SP: %04x ", _sp()) ;
 
-    for (size_t iR =  8 ; iR < 16 ; ++iR)
-      printf(" %02x", _reg[iR]) ;
-    printf("\n                ") ;
-    for (size_t iR = 16 ; iR < 24 ; ++iR)
-      printf(" %02x", _reg[iR]) ;
-    printf("\n                ") ;
-    for (size_t iR = 24 ; iR < 32 ; ++iR)
-      printf(" %02x", _reg[iR]) ;
+    printf(" %02x %02x %02x %02x  %02x %02x %02x %02x\n",
+                _reg[8], _reg[9], _reg[10], _reg[11], _reg[12], _reg[13], _reg[14], _reg[15]) ;
 
-    printf("\n") ;
+    printf("                ") ;
+
+    printf(" %02x %02x %02x %02x  %02x %02x %02x %02x\n",
+                _reg[16], _reg[17], _reg[18], _reg[21], _reg[20], _reg[21], _reg[22], _reg[23]) ;
+    printf("                ") ;
+    printf(" %02x %02x %02x %02x  %02x %02x %02x %02x\n",
+                _reg[24], _reg[25], _reg[26], _reg[27], _reg[28], _reg[29], _reg[30], _reg[31]) ;
   }
 
   void Mcu::Skip()
   {
     if (_pc >= _programSize)
     {
-      fprintf(stderr, "illegal program memory read at %05zx\n", _pc) ;
+      fprintf(stderr, "illegal program memory read at %05x\n", _pc) ;
       _pc = 0 ;
       return ;
     }
@@ -211,7 +209,7 @@ namespace AVR
 
     if (!instr)
     {
-      fprintf(stderr, "illegal instruction at %05zx: %04x\n", _pc, cmd) ;
+      fprintf(stderr, "illegal instruction at %05x: %04x\n", _pc, cmd) ;
       _pc = 0 ;
       return ;
     }
@@ -233,11 +231,11 @@ namespace AVR
   {
     if (_pc >= _programSize)
     {
-      fprintf(stderr, "illegal program memory read at %05zx\n", _pc) ;
+      fprintf(stderr, "illegal program memory read at %05x\n", _pc) ;
       return "" ;
     }
 
-    size_t pc = _pc ;
+    uint32_t pc = _pc ;
     Command cmd = _program[_pc++] ;
 
     std::string label ;
@@ -283,7 +281,7 @@ namespace AVR
     char buff[32] ;
     std::string str ;
     str += label ;
-    sprintf(buff, "%05zx:   ", pc) ;
+    sprintf(buff, "%05x:   ", pc) ;
     str += buff ;
     if (instr && instr->IsTwoWord())
     {
@@ -330,7 +328,7 @@ namespace AVR
   {
     if (_pc >= _programSize)
     {
-      fprintf(stderr, "illegal program memory read at %05zx\n", _pc) ;
+      fprintf(stderr, "illegal program memory read at %05x\n", _pc) ;
       return 0 ;
     }
     Command cmd = _program[_pc++] ;
@@ -359,7 +357,7 @@ namespace AVR
     Io::Register *ioReg = _io[io] ;
     if (!ioReg)
     {
-      fprintf(stderr, "illegal IO Register read at %05zx: 0x%02x\n", _pc, io) ;
+      fprintf(stderr, "illegal IO Register read at %05x: 0x%02x\n", _pc, io) ;
       return 0xff ;
     }
     return ioReg->Get() ;
@@ -369,7 +367,7 @@ namespace AVR
     Io::Register *ioReg = _io[io] ;
     if (!ioReg)
     {
-      fprintf(stderr, "illegal IO Register write at %05zx: 0x%02x\n", _pc, io) ;
+      fprintf(stderr, "illegal IO Register write at %05x: 0x%02x\n", _pc, io) ;
       return ;
     }
     ioReg->Set(value) ;
@@ -390,7 +388,7 @@ namespace AVR
       return _data[addr - _dataStart] ;
     }
 
-    fprintf(stderr, "illegal data read at %05zx: %04x\n", _pc, addr) ;
+    fprintf(stderr, "illegal data read at %05x: %04x\n", _pc, addr) ;
     //if (resetOnError)
     //  const_cast<Mcu*>(this)->_pc = 0 ;
     return 0xff ;
@@ -414,12 +412,12 @@ namespace AVR
       return ;
     }
 
-    fprintf(stderr, "illegal data write at %05zx: %04x, %02x\n", _pc, addr, value) ;
+    fprintf(stderr, "illegal data write at %05x: %05x, %02x\n", _pc, addr, value) ;
     //if (resetOnError)
     //  _pc = 0 ;
   }
 
-  void Mcu::Eeprom(size_t address, uint8_t value, bool resetOnError)
+  void Mcu::Eeprom(uint32_t address, uint8_t value, bool resetOnError)
   {
     if (address < _eepromSize)
     {
@@ -427,17 +425,17 @@ namespace AVR
       return ;
     }
     
-    fprintf(stderr, "illegal eeprom write at %05zx: %04x, %02x\n", _pc, address, value) ;
+    fprintf(stderr, "illegal eeprom write at %05x: %05x, %02x\n", _pc, address, value) ;
     //if (resetOnError)
     //  _pc = 0 ;
   }
   
-  uint8_t Mcu::Eeprom(size_t address, bool resetOnError) const
+  uint8_t Mcu::Eeprom(uint32_t address, bool resetOnError) const
   {
     if (address < _eepromSize)
       return _eeprom[address] ;
 
-    fprintf(stderr, "illegal eeprom read at %05zx: %04x\n", _pc, address) ;
+    fprintf(stderr, "illegal eeprom read at %05x: %04x\n", _pc, address) ;
     //if (resetOnError)
     //  const_cast<Mcu*>(this)->_pc = 0 ;
     return 0xff ;
@@ -447,12 +445,12 @@ namespace AVR
   {
     if (addr >= _programSize)
     {
-      fprintf(stderr, "invalid program memory read at %05zx\n", addr) ;
+      fprintf(stderr, "invalid program memory read at %05x\n", addr) ;
       return 0xffff ;
     }
     if (addr >= _loadedProgramSize)
     {
-      fprintf(stderr, "uninitialized program memory read at %05zx\n", addr) ;
+      fprintf(stderr, "uninitialized program memory read at %05x: %05x\n", _pc, addr) ;
       return 0x9508 ;
     }
     return _program[addr] ;
@@ -462,7 +460,7 @@ namespace AVR
   {
     if (addr >= _programSize)
     {
-      fprintf(stderr, "invalid program memory write at %05zx: %04x\n", addr, cmd) ;
+      fprintf(stderr, "invalid program memory write at %05x: %05x %04x\n", _pc, addr, cmd) ;
       return ;
     }
     _program[addr] = cmd ;
@@ -479,7 +477,7 @@ namespace AVR
     uint16_t sp = _sp() ;
     if ((sp < _dataStart) || (_dataEnd < sp))
     {
-      fprintf(stderr, "stack underflow at %05zx\n", _pc) ;
+      fprintf(stderr, "stack underflow at %05x\n", _pc) ;
       return ;
     }
     _data[sp-_dataStart] = value ;
@@ -491,7 +489,7 @@ namespace AVR
     uint16_t sp = _sp() + 1 ;
     if ((sp < _dataStart) || (_dataEnd < sp))
     {
-      fprintf(stderr, "stack overflow at %05zx\n", _pc) ;
+      fprintf(stderr, "stack overflow at %05x\n", _pc) ;
       return 0xff ;
     }
     _sp() = sp ;
@@ -531,7 +529,7 @@ namespace AVR
 
   void Mcu::NotImplemented(const Instruction &instr)
   {
-    fprintf(stderr, "not implemented instruction at %05zx: %s %s\n", _pc, instr.Mnemonic().c_str(), instr.Description().c_str()) ;
+    fprintf(stderr, "not implemented instruction at %05x: %s %s\n", _pc, instr.Mnemonic().c_str(), instr.Description().c_str()) ;
     // todo
   }
 
@@ -546,12 +544,12 @@ namespace AVR
     _xrefByLabel.clear() ;
   }
 
-  size_t Mcu::SetProgram(size_t startAddress, const std::vector<Command> &prg)
+  uint32_t Mcu::SetProgram(uint32_t startAddress, const std::vector<Command> &prg)
   {
     if (startAddress >= _programSize)
       return 0 ;
 
-    size_t nCopy = prg.size() ;
+    uint32_t nCopy = prg.size() ;
     if ((startAddress + nCopy) > _programSize)
     {
       fprintf(stderr, "Mcu::SetProgram(): data too big for program memory\n") ;
@@ -566,12 +564,12 @@ namespace AVR
     return nCopy ;
   }
 
-  size_t Mcu::SetEeprom(size_t startAddress, const std::vector<uint8_t> &eeprom)
+  uint32_t Mcu::SetEeprom(uint32_t startAddress, const std::vector<uint8_t> &eeprom)
   {
     if (startAddress >= _eepromSize)
       return 0 ;
 
-    size_t nCopy = eeprom.size() ;
+    uint32_t nCopy = eeprom.size() ;
     if ((startAddress + nCopy) > _eepromSize)
     {
       fprintf(stderr, "Mcu::SetEeprom(): data too big for eeprom memory\n") ;
@@ -722,7 +720,7 @@ namespace AVR
   // Trace
   ////////////////////////////////////////////////////////////////////////////////
   
-  bool Mcu::Trace::Open(const std::string &filename, std::size_t stopAddr)
+  bool Mcu::Trace::Open(const std::string &filename, uint32_t stopAddr)
   {
     if (_file)
     {

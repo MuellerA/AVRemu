@@ -225,29 +225,29 @@ namespace AVR
     public:
       Trace() : _file{0} {}
 
-      FILE        *_file ;
-      std::size_t _src ;
-      std::size_t _dst ;
-      uint32_t    _cnt ;
-      bool        _isRet ;
-      uint32_t    _lvl ;
-      std::size_t _stop ;
+      FILE    *_file ;
+      uint32_t _src ;
+      uint32_t _dst ;
+      uint32_t _cnt ;
+      bool     _isRet ;
+      uint32_t _lvl ;
+      uint32_t _stop ;
 
-      bool Open(const std::string &filename, std::size_t addr = 0) ;
+      bool Open(const std::string &filename, uint32_t addr = 0) ;
       bool Close() ;
     } ;
     
   protected:
-    Mcu(std::size_t programSize, bool isRegDataMapped, std::size_t ioSize, std::size_t dataStart, std::size_t dataSize, std::size_t eepromSize) ;
+    Mcu(uint32_t programSize, bool isRegDataMapped, uint32_t ioSize, uint32_t dataStart, uint32_t dataSize, uint32_t eepromSize) ;
     Mcu() = delete ;
     Mcu& operator=(const Mcu&) = delete ;
   public:
     virtual ~Mcu() ;
 
   public:
-    std::size_t ProgramSize() const { return _programSize ; }
-    std::size_t DataSize()    const { return _dataSize    ; }
-    std::size_t EepromSize()  const { return _eepromSize  ; }
+    uint32_t ProgramSize() const { return _programSize ; }
+    uint32_t DataSize()    const { return _dataSize    ; }
+    uint32_t EepromSize()  const { return _eepromSize  ; }
     
     void Execute() ;
     void Skip() ;
@@ -257,8 +257,8 @@ namespace AVR
     bool ProgAddrName(uint32_t addr, std::string &name) const ;
     Command ProgramNext() ;
 
-    std::size_t  PC() const { return _pc ; }
-    std::size_t& PC()       { return _pc ; }
+    uint32_t  PC() const { return _pc ; }
+    uint32_t& PC()       { return _pc ; }
 
     uint32_t  Ticks() const { return _ticks ; }
     
@@ -270,8 +270,8 @@ namespace AVR
     void     Io(uint32_t io, uint8_t value) ;
     uint8_t  Data(uint32_t addr, bool resetOnError = true) const ;
     void     Data(uint32_t addr, uint8_t value, bool resetOnError = true) ;
-    void     Eeprom(size_t address, uint8_t value, bool resetOnError = true) ;
-    uint8_t  Eeprom(size_t address, bool resetOnError = true) const ;
+    void     Eeprom(uint32_t address, uint8_t value, bool resetOnError = true) ;
+    uint8_t  Eeprom(uint32_t address, bool resetOnError = true) const ;
     Command  Prog(uint32_t addr) const ;
     void     Prog(uint32_t addr, uint16_t Command) ;
     const Instruction* Instr(uint32_t addr) const ;
@@ -310,8 +310,8 @@ namespace AVR
     const std::vector<Io::Register*>&      Io()           const { return _io           ; }
     
     void   ClearProgram() ;
-    size_t SetProgram(size_t address, const std::vector<Command> &prg) ;
-    size_t SetEeprom(size_t address, const std::vector<uint8_t> &eeprom) ;
+    uint32_t SetProgram(uint32_t address, const std::vector<Command> &prg) ;
+    uint32_t SetEeprom(uint32_t address, const std::vector<uint8_t> &eeprom) ;
 
     const Xref* XrefByAddr(uint32_t addr) const ;
     const Xref* XrefByLabel(const std::string &label) const ;
@@ -321,17 +321,17 @@ namespace AVR
     const std::map<uint32_t   , Xref*>& XrefByAddr()  const { return _xrefByAddr  ; }
     const std::map<std::string, Xref*>& XrefByLabel() const { return _xrefByLabel ; }
 
-    void AddBreakpoint(std::size_t addr) { _breakpoints.insert(addr) ; }
-    void DelBreakpoint(std::size_t addr) { _breakpoints.erase(addr) ; }
-    bool IsBreakpoint(std::size_t addr) const { return _breakpoints.find(addr) != _breakpoints.end() ; }
+    void AddBreakpoint(uint32_t addr) { _breakpoints.insert(addr) ; }
+    void DelBreakpoint(uint32_t addr) { _breakpoints.erase(addr) ; }
+    bool IsBreakpoint(uint32_t addr) const { return _breakpoints.find(addr) != _breakpoints.end() ; }
     bool IsBreakpoint()                 const { return _breakpoints.find(_pc ) != _breakpoints.end() ; }
-    const std::set<std::size_t>& Breakpoints() const { return _breakpoints ; }
+    const std::set<uint32_t>& Breakpoints() const { return _breakpoints ; }
     
     bool PcIs22bit()     const { return _pcIs22Bit     ; }
     bool IsXmega()       const { return _isXMega       ; }
     bool IsTinyReduced() const { return _isTinyReduced ; }
 
-    bool TraceOn(const std::string &filename, std::size_t addr = 0) { return _trace.Open(filename, addr) ; }
+    bool TraceOn(const std::string &filename, uint32_t addr = 0) { return _trace.Open(filename, addr) ; }
     bool TraceOff()                                                 { return _trace.Close()              ; }
     
   protected:
@@ -339,20 +339,20 @@ namespace AVR
     void AnalyzeXrefs() ;
 
   protected:
-    std::size_t _pc ;
+    uint32_t _pc ;
     IoSP        _sp ;
     IoSREG      _sreg ;
     IoRamp      _rampx, _rampy, _rampz ;
     IoRamp      _rampd, _eind ;
     uint32_t    _ticks ;
     
-    std::size_t _programSize ;
-    std::size_t _loadedProgramSize ;
+    uint32_t _programSize ;
+    uint32_t _loadedProgramSize ;
 
-    std::size_t _regSize, _regStart, _regEnd ;
-    std::size_t _ioSize, _ioStart, _ioEnd ;
-    std::size_t _dataSize, _dataStart, _dataEnd ;
-    std::size_t _eepromSize ;
+    uint32_t _regSize, _regStart, _regEnd ;
+    uint32_t _ioSize, _ioStart, _ioEnd ;
+    uint32_t _dataSize, _dataStart, _dataEnd ;
+    uint32_t _eepromSize ;
 
     bool _pcIs22Bit     ;
     bool _isXMega       ;
@@ -367,7 +367,7 @@ namespace AVR
     std::vector<Xref*>           _xrefs ;
     std::map<uint32_t, Xref*>    _xrefByAddr ;
     std::map<std::string, Xref*> _xrefByLabel ;
-    std::set<std::size_t>        _breakpoints ;
+    std::set<uint32_t>        _breakpoints ;
     
     std::vector<const Instruction*> _instructions ;       // map cmd to instruction
 
@@ -392,7 +392,7 @@ namespace AVR
   class ATmegaXX8 : public Mcu
   {
   protected:
-    ATmegaXX8(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
+    ATmegaXX8(uint32_t programSize, uint32_t dataSize, uint32_t eepromSize) ;
     virtual ~ATmegaXX8() ;
 
     IoEeprom ioEeprom ;
@@ -447,7 +447,7 @@ namespace AVR
   class ATtinyX4 : public Mcu
   {
   protected:
-    ATtinyX4(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
+    ATtinyX4(uint32_t programSize, uint32_t dataSize, uint32_t eepromSize) ;
     virtual ~ATtinyX4() ;
 
   protected:
@@ -482,7 +482,7 @@ namespace AVR
   class ATtinyX5 : public Mcu
   {
   protected:
-    ATtinyX5(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
+    ATtinyX5(uint32_t programSize, uint32_t dataSize, uint32_t eepromSize) ;
     virtual ~ATtinyX5() ;
 
   protected:
@@ -517,7 +517,7 @@ namespace AVR
   class ATxmegaAU : public Mcu
   {
   protected:
-    ATxmegaAU(std::size_t programSize, std::size_t dataSize, std::size_t eepromSize) ;
+    ATxmegaAU(uint32_t programSize, uint32_t dataSize, uint32_t eepromSize) ;
     virtual ~ATxmegaAU() ;
 
     IoXmegaUsart _usartC0 ;

@@ -51,8 +51,8 @@ void Data(AVR::Mcu &mcu, uint32_t addr, uint32_t len, char mode)
     {
       switch (mode)
       {
-      case 'd': data[cnt] = mcu.Data  ((uint32_t)iAddr, (bool)false) ; break ;
-      case 'e': data[cnt] = mcu.Eeprom((size_t)  iAddr, (bool)false) ; break ;
+      case 'd': data[cnt] = mcu.Data  (iAddr, (bool)false) ; break ;
+      case 'e': data[cnt] = mcu.Eeprom(iAddr, (bool)false) ; break ;
       }
     }
 
@@ -1066,7 +1066,7 @@ namespace AVR
 
     while (!_quit)
     {
-      std::size_t pc0 = _mcu.PC() ;
+      uint32_t pc0 = _mcu.PC() ;
       std::cout << _mcu.Disasm() << std::endl << "> " << std::flush ;
       _mcu.PC() = pc0 ;
       std::getline(std::cin, cmd) ;
