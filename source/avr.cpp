@@ -189,7 +189,7 @@ namespace AVR
     printf("                ") ;
 
     printf(" %02x %02x %02x %02x  %02x %02x %02x %02x\n",
-                _reg[16], _reg[17], _reg[18], _reg[21], _reg[20], _reg[21], _reg[22], _reg[23]) ;
+                _reg[16], _reg[17], _reg[18], _reg[19], _reg[20], _reg[21], _reg[22], _reg[23]) ;
     printf("                ") ;
     printf(" %02x %02x %02x %02x  %02x %02x %02x %02x\n",
                 _reg[24], _reg[25], _reg[26], _reg[27], _reg[28], _reg[29], _reg[30], _reg[31]) ;
