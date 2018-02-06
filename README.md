@@ -22,12 +22,13 @@ make -k
 
 Usage: 
 <pre>
-usage: AVRemu [-d] [-e] [-m &lt;mcu&gt;] [-x &lt;xref&gt;] [-p &lt;eeProm&gt;] &lt;avr-bin&gt;
-       AVRemu -h
+usage: /ei/home/am/c/AVRemu/source/AVRemu [-d] [-e] [-m &lt;mcu&gt;] [-x &lt;xref&gt;] [-p &lt;eeProm&gt;] &lt;avr-bin&gt;
+       /ei/home/am/c/AVRemu/source/AVRemu -h
 parameter:
    -m &lt;mcu&gt;    MCU type, see below
    -d          disassemble file
    -e          execute file
+   -ee &lt;macro&gt; run macro file &lt;macro&gt;.aem (implies -e)
    -x &lt;xref&gt;   read/write xref file
    -p &lt;eeProm&gt; binary file of EEPROM memory
    &lt;avr-bin&gt;   binary file to be disassembled / executed
@@ -133,22 +134,42 @@ External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset
 00000:   ..     c00e          RJMP   RESET		; 14 0x0000f Relative Jump
 &gt; ?
 
-&lt;empty line&gt;            -- repeat last command
-s [count]               -- step in count instructions
-n [count]               -- step over count instructions
-r                       -- run
-b + &lt;addr&gt;|&lt;label&gt;      -- add breakpoint
-b - &lt;addr&gt;|&lt;label&gt;      -- remove breakpoint
-g &lt;addr&gt;|&lt;label&gt;        -- goto address/label
-r&lt;d&gt;    = byte          -- set register
-d&lt;addr&gt; = byte          -- set data memory
-p&lt;addr&gt; = word          -- set program memory
-d ? &lt;addr&gt; &lt;len&gt;        -- read memory content
-l [[&lt;addr&gt;] &lt;count&gt;]    -- list source
-ll [pattern]            -- list labels
-q                       -- quit
-h                       -- help
-?                       -- help
+&lt;empty line&gt;                  repeat last command
+s [&lt;count&gt;]                   step in count instructions
+n [&lt;count&gt;]                   step over count instructions
+r                             run
+r &lt;label&gt;                     run to address
+g &lt;label&gt;                     set PC to address
+b + &lt;label&gt;                   add breakpoint
+b - &lt;label&gt;                   remove breakpoint
+b ?                           list breakpoints
+r ?                           read registers / useful in macros
+d &lt;addr&gt; ? [&lt;len&gt;]            read memory content
+d @ &lt;X|Y|Z|SP|r&lt;d&gt;&gt; ? [&lt;len&gt;] read memory content
+p [&lt;label&gt;] ? [&lt;len&gt;]         list source
+p @ &lt;X|Y|Z|r&lt;d&gt;&gt; ? [&lt;len&gt;]    list source
+r&lt;d&gt;     = &lt;bytes&gt;            set register
+d &lt;addr&gt; = &lt;bytes&gt;            set data memory
+p &lt;addr&gt; = &lt;words&gt;            set program memory
+ls [&lt;pattern&gt;]                list symbols containing &lt;pattern&gt;
+io &lt;name&gt; = &lt;bytes&gt;           set next io read values (num)
+io &lt;name&gt; = "&lt;asc&gt;"           set next io read values (str)
+io ?                          list io port names
+m &lt;name&gt;                      run macro file &lt;name&gt;.aem
+mq                            quit macro execution
+t on &lt;name&gt; [&lt;addr&gt;]          log to trace file until addr is reached (default 0x00000)
+t off                         close trace file
+$ &lt;text&gt;                      write text to output / useful in macros
+q                             quit
+h                             help
+?                             help
+&lt;label&gt; symbol or hex or dec address
+&lt;addr&gt;  hex or dec address
+&lt;count&gt; hex or dec number
+&lt;len&gt;   hex or dec number
+&lt;d&gt;     dec number 0 to 31
+&lt;bytes&gt; list of hex or dec bytes
+&lt;words&gt; list of hex or dec words
 
 RESET
 External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset
@@ -187,7 +208,7 @@ RESET: RESET
                  00 00 00 00 00 00 00 00
 Main: 00035
 00195:   ..     9ab8          SBI    DDRB, 0		; 0x17 Set Bit in I/O Register
-&gt; l 10
+&gt; p ? 10
 Main: 00035
 00195:   ..     9ab8          SBI    DDRB, 0		; 0x17 Set Bit in I/O Register
 00196:   ..     9ab9          SBI    DDRB, 1		; 0x17 Set Bit in I/O Register

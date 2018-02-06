@@ -77,7 +77,7 @@ void Data(AVR::Mcu &mcu, uint32_t addr, uint32_t len, char mode)
   std::cout << std::endl ;
 }  
 
-void List(AVR::Mcu &mcu, uint32_t addr, uint32_t len)
+void ReadProg(AVR::Mcu &mcu, uint32_t addr, uint32_t len)
 {
   uint32_t pc0   = mcu.PC() ;
   mcu.PC() = addr ;
@@ -107,6 +107,40 @@ protected:
   bool Num(const std::string matchNum, uint32_t &num)
   {
     num = std::stoul(matchNum, nullptr, 0) ;
+    return true ;
+  }
+
+  bool Nums(const std::string matchNums, std::vector<uint8_t> &nums)
+  {
+    const char *str = matchNums.c_str() ;
+    char *str_end = const_cast<char*>(str) ; ;
+
+    while (*str)
+    {
+      uint32_t ul = strtoul(str, &str_end, 0) ;
+      if (ul > 255)
+        return false ;
+      
+      nums.push_back(ul) ;
+      str = str_end ;
+    }
+    return true ;
+  }
+  
+  bool Nums(const std::string matchNums, std::vector<uint16_t> &nums)
+  {
+    const char *str = matchNums.c_str() ;
+    char *str_end = const_cast<char*>(str) ; ;
+
+    while (*str)
+    {
+      uint32_t ul = strtoul(str, &str_end, 0) ;
+      if (ul > 65535)
+        return false ;
+      
+      nums.push_back(ul) ;
+      str = str_end ;
+    }
     return true ;
   }
   
@@ -150,6 +184,7 @@ protected:
     
 protected:
   static const std::string _reNum  ;
+  static const std::string _reNums ;
   static const std::string _reAddr ;
 
   std::string _command ;
@@ -163,7 +198,8 @@ bool Command::Match(const std::string &command)
   return std::regex_match(_command, _match, _regex) ;
 }
 
-const std::string Command::_reNum{ R"XXX((?:(0x[0-9a-fA-F]+|[0-9]+)))XXX" } ;
+const std::string Command::_reNum{ R"XXX((0x[0-9a-fA-F]+|[0-9]+))XXX" } ;
+const std::string Command::_reNums{ R"XXX(((?:0x[0-9a-fA-F]+|[0-9]+)(?:\s+0x[0-9a-fA-F]+|\s+[0-9]+)*))XXX" } ;
 const std::string Command::_reAddr{ R"XXX((?:(0x[0-9a-fA-F]+|[0-9]+)|([_a-zA-Z][_0-9a-zA-Z]+)))XXX" } ;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -186,8 +222,8 @@ public:
 
 strings CommandStep::Help() const
 {
-  return strings { "s [count]               -- step in count instructions",
-                   "n [count]               -- step over count instructions" } ;
+  return strings { "s [<count>]                   step in count instructions",
+                   "n [<count>]                   step over count instructions" } ;
 }
 
 bool CommandStep::Execute(AVR::Mcu &mcu)
@@ -237,7 +273,6 @@ bool CommandStep::Execute(AVR::Mcu &mcu)
   }
   signal(SIGINT, prevIntHdl) ;
 
-  mcu.Status() ;
   return true ;
 }
 
@@ -263,8 +298,8 @@ strings CommandRun::Help() const
 {
   return strings
   {
-    "r                       -- run",
-    "r <addr>|<label>        -- run to address",
+    "r                             run",
+    "r <label>                     run to address",
   } ;
 }
 
@@ -295,7 +330,6 @@ bool CommandRun::Execute(AVR::Mcu &mcu)
   }
   signal(SIGINT, prevIntHdl) ;
 
-  mcu.Status() ;
   return true ;
 }
 
@@ -319,8 +353,8 @@ public:
 
 strings CommandBreakpoint::Help() const
 {
-  return strings { "b + <addr>|<label>      -- add breakpoint",
-                   "b - <addr>|<label>      -- remove breakpoint" } ;
+  return strings { "b + <label>                   add breakpoint",
+                   "b - <label>                   remove breakpoint" } ;
 }
 
 bool CommandBreakpoint::Execute(AVR::Mcu &mcu)
@@ -359,7 +393,7 @@ public:
 
 strings CommandListBreakpoints::Help() const
 {
-  return strings { "b ?                     -- list breakpoints" } ;
+  return strings { "b ?                           list breakpoints" } ;
 }
 bool CommandListBreakpoints::Execute(AVR::Mcu &mcu)
 {
@@ -398,7 +432,7 @@ public:
 
 strings CommandGoto::Help() const
 {
-  return strings { "g <addr>|<label>        -- set PC to address" } ;
+  return strings { "g <label>                     set PC to address" } ;
 }
 
 bool CommandGoto::Execute(AVR::Mcu &mcu)
@@ -415,87 +449,48 @@ bool CommandGoto::Execute(AVR::Mcu &mcu)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CommandAssign
+// CommandReadRegs
 ////////////////////////////////////////////////////////////////////////////////
-class CommandAssign : public Command
+class CommandReadRegs : public Command
 {
 public:
-  CommandAssign() : Command(R"XXX(\s*([rdp])\s*(0x[0-9a-fA-F]+|[0-9]+)\s*=\s*(0x[0-9a-fA-F]+|[0-9]+)\s*)XXX") { }
-  ~CommandAssign() { }
+  CommandReadRegs() : Command(R"XXX(\s*r\s*\?\s*)XXX") { }
+  ~CommandReadRegs() { }
 
   virtual strings Help() const ;
   virtual bool    Execute(AVR::Mcu &mcu) ;
 } ;
 
-strings CommandAssign::Help() const
+strings CommandReadRegs::Help() const
 {
-  return strings
-  {
-    "r<d>     = byte         -- set register",
-    "d <addr> = byte         -- set data memory",
-    "p <addr> = word         -- set program memory"
-  } ;
+  return strings { "r ?                           read registers / useful in macros" } ;
 }
 
-bool CommandAssign::Execute(AVR::Mcu &mcu)
+bool CommandReadRegs::Execute(AVR::Mcu &mcu)
 {
-  char typ = _match[1].str()[0] ;
-  uint32_t idx = std::stoul(_match[2], nullptr, 0) ;
-  uint32_t val = std::stoul(_match[3], nullptr, 0) ;
-
-  switch (typ)
-  {
-  case 'r':
-    if ((idx > 0x1f) || (val > 0xff))
-    {
-      std::cout << "illegal value" << std::endl ;
-      return false ;
-    }
-    mcu.Reg(idx, val) ;
-    break ;
-
-  case 'd':
-    if (val > 0xff)
-    {
-      std::cout << "illegal value" << std::endl ;
-      return false ;
-    }
-    mcu.Data(idx, val, false) ;
-    break ;
-    
-  case 'p':
-    if (val > 0xffff)
-    {
-      std::cout << "illegal value" << std::endl ;
-      return false ;
-    }
-    mcu.Prog(idx, val) ;
-    break ;
-  }
-
   mcu.Status() ;
   return true ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CommandRead
+// CommandReadData
 ////////////////////////////////////////////////////////////////////////////////
-class CommandRead : public Command
+class CommandReadData : public Command
 {
 public:
-  CommandRead() : Command(R"XXX(\s*([de])\s*(0x[0-9a-fA-F]+|[0-9]+)\s*\?\s*(0x[0-9a-fA-F]+|[0-9]+)?\s*)XXX") { }
-  ~CommandRead() { }
+  CommandReadData() : Command(R"XXX(\s*([de])\s*)XXX" + _reNum + R"XXX(\s*\?\s*)XXX" + _reNum + R"XXX(?\s*)XXX") { }
+  ~CommandReadData() { }
 
   virtual strings Help() const ;
   virtual bool    Execute(AVR::Mcu &mcu) ;
 } ;
 
-strings CommandRead::Help() const
+strings CommandReadData::Help() const
 {
-  return strings { "d <addr> ? [<len>]      -- read memory content" } ;
+  return strings { "d <addr> ? [<len>]            read memory content" } ;
 }
 
-bool CommandRead::Execute(AVR::Mcu &mcu)
+bool CommandReadData::Execute(AVR::Mcu &mcu)
 {
   const std::string &modeStr = _match[1] ;
   const std::string &addrStr = _match[2] ;
@@ -516,7 +511,7 @@ bool CommandRead::Execute(AVR::Mcu &mcu)
 class CommandReadDataIndirect : public Command
 {
 public:
-  CommandReadDataIndirect() : Command(R"XXX(\s*d\s*@\s*(X|Y|Z|SP|r[02468]|r[12][02468]|r30)\s*\?\s*(0x[0-9a-fA-F]+|[0-9]+)?\s*)XXX") { }
+  CommandReadDataIndirect() : Command(R"XXX(\s*d\s*@\s*(X|Y|Z|SP|r[02468]|r[12][02468]|r30)\s*\?\s*)XXX" + _reNum + R"XXX(?\s*)XXX") { }
   ~CommandReadDataIndirect() { }
 
   virtual strings Help() const ;
@@ -525,7 +520,7 @@ public:
 
 strings CommandReadDataIndirect::Help() const
 {
-  return strings { "d @ <X|Y|Z|SP|rXX> ? [<len>]   -- read memory content" } ;
+  return strings { "d @ <X|Y|Z|SP|r<d>> ? [<len>] read memory content" } ;
 }
 
 bool CommandReadDataIndirect::Execute(AVR::Mcu &mcu)
@@ -548,23 +543,23 @@ bool CommandReadDataIndirect::Execute(AVR::Mcu &mcu)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CommandList
+// CommandReadProg
 ////////////////////////////////////////////////////////////////////////////////
-class CommandList : public Command
+class CommandReadProg : public Command
 {
 public:
-  CommandList() : Command(R"XXX(\s*p\s*)XXX" + _reAddr + R"XXX(?\s*\?\s*)XXX" + _reNum + R"XXX(?\s*)XXX") {}
-  ~CommandList() { }
+  CommandReadProg() : Command(R"XXX(\s*p\s*)XXX" + _reAddr + R"XXX(?\s*\?\s*)XXX" + _reNum + R"XXX(?\s*)XXX") {}
+  ~CommandReadProg() { }
 
   virtual strings Help() const ;
   virtual bool    Execute(AVR::Mcu &mcu) ;
 } ;
 
-strings CommandList::Help() const
+strings CommandReadProg::Help() const
 {
-  return strings { "p [<addr>|<label>] ? [<count>] -- list source"} ;
+  return strings { "p [<label>] ? [<len>]         list source"} ;
 }
-bool CommandList::Execute(AVR::Mcu &mcu)
+bool CommandReadProg::Execute(AVR::Mcu &mcu)
 {
   uint32_t pc0   = mcu.PC() ;
   uint32_t addr  = pc0 ;
@@ -582,30 +577,30 @@ bool CommandList::Execute(AVR::Mcu &mcu)
   if (mCnt.size())
     Num(mCnt, count) ;
 
-  List(mcu, addr, count) ;
+  ReadProg(mcu, addr, count) ;
   
   return true ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CommandListIndirect
+// CommandReadProgIndirect
 ////////////////////////////////////////////////////////////////////////////////
-class CommandListIndirect : public Command
+class CommandReadProgIndirect : public Command
 {
 public:
-  CommandListIndirect() : Command(R"XXX(\s*p\s@\s*(X|Y|Z|r[02468]|r[12][02468]|r30)\s*\?\s*)XXX" + _reNum + R"XXX(?\s*)XXX") {}
-  ~CommandListIndirect() { }
+  CommandReadProgIndirect() : Command(R"XXX(\s*p\s@\s*(X|Y|Z|r[02468]|r[12][02468]|r30)\s*\?\s*)XXX" + _reNum + R"XXX(?\s*)XXX") {}
+  ~CommandReadProgIndirect() { }
 
   virtual strings Help() const ;
   virtual bool    Execute(AVR::Mcu &mcu) ;
 } ;
 
-strings CommandListIndirect::Help() const
+strings CommandReadProgIndirect::Help() const
 {
-  return strings { "p @ <X|Y|Z|rXX> ? [<count>]    -- list source"} ;
+  return strings { "p @ <X|Y|Z|r<d>> ? [<len>]    list source"} ;
 }
 
-bool CommandListIndirect::Execute(AVR::Mcu &mcu)
+bool CommandReadProgIndirect::Execute(AVR::Mcu &mcu)
 {
   const std::string &mAddr = _match[1] ;
   const std::string &mCnt  = _match[2] ;
@@ -618,8 +613,121 @@ bool CommandListIndirect::Execute(AVR::Mcu &mcu)
 
   uint32_t len = (mCnt.size()) ? std::stoul(mCnt, nullptr, 0) : 128 ;
 
-  List(mcu, addr, len) ;
+  ReadProg(mcu, addr, len) ;
   
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandWriteData
+////////////////////////////////////////////////////////////////////////////////
+class CommandWriteData : public Command
+{
+public:
+  CommandWriteData() : Command(R"XXX(\s*([rd])\s*)XXX" + _reNum + R"XXX(\s*=\s*)XXX" + _reNums + R"XXX(\s*)XXX") { }
+  ~CommandWriteData() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandWriteData::Help() const
+{
+  return strings
+  {
+    "r<d>     = <bytes>            set register",
+    "d <addr> = <bytes>            set data memory",
+  } ;
+}
+
+bool CommandWriteData::Execute(AVR::Mcu &mcu)
+{
+  char typ = _match[1].str()[0] ;
+  uint32_t idx = std::stoul(_match[2], nullptr, 0) ;
+  std::vector<uint8_t> bytes ;
+
+  if (!Nums(_match[3], bytes))
+  {
+    std::cout << "illegal value" << std::endl ;
+    return false ;
+  }
+
+  switch (typ)
+  {
+  case 'r':
+    for (auto val : bytes)
+    {
+      if ((idx > 0x1f) || (val > 0xff))
+      {
+        std::cout << "illegal value" << std::endl ;
+        return false ;
+      }
+      mcu.Reg(idx++, val) ;
+    }
+    break ;
+      
+  case 'd':
+    for (auto val : bytes)
+    {
+      if (val > 0xff)
+      {
+        std::cout << "illegal value" << std::endl ;
+        return false ;
+      }
+      mcu.Data(idx++, val, false) ;
+    }
+    break ;
+  }
+
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandWriteProg
+////////////////////////////////////////////////////////////////////////////////
+class CommandWriteProg : public Command
+{
+public:
+  CommandWriteProg() : Command(R"XXX(\s*p\s*)XXX" + _reAddr + R"XXX(\s*=\s*)XXX" + _reNums + R"XXX(\s*)XXX") { }
+  ~CommandWriteProg() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandWriteProg::Help() const
+{
+  return strings
+  {
+    "p <addr> = <words>            set program memory"
+  } ;
+}
+
+bool CommandWriteProg::Execute(AVR::Mcu &mcu)
+{
+  const std::string &mNum = _match[1] ;
+  const std::string &mLbl = _match[2] ;
+  const std::string &mVal = _match[3] ;
+  uint32_t addr ;
+  
+  if (!Addr(mcu, mNum, mLbl, addr))
+  {
+    std::cout << "illegal value" << std::endl ;
+    return false ;
+  }
+
+  std::vector<uint16_t> words ;
+  if (!Nums(mVal, words))
+  {
+    std::cout << "illegal value" << std::endl ;
+    return false ;
+  }
+  
+  for (auto val : words)
+  {
+    mcu.Prog(addr++, val) ;
+  }
+
   return true ;
 }
 
@@ -638,7 +746,7 @@ public:
 
 strings CommandListSymbols::Help() const
 {
-  return strings { "ls [pattern]            -- list symbols"} ;
+  return strings { "ls [<pattern>]                list symbols containing <pattern>" } ;
 }
 bool CommandListSymbols::Execute(AVR::Mcu &mcu)
 {
@@ -653,7 +761,7 @@ bool CommandListSymbols::Execute(AVR::Mcu &mcu)
       sprintf(buff, "[%05x] ", xref->Addr()) ;
       std::cout << buff << xref->Label() ;
       if (xref->Description().size())
-        std::cout << " -- " << xref->Description().c_str() ;
+        std::cout << "       " << xref->Description().c_str() ;
       std::cout << std::endl ;
     }
   }
@@ -667,7 +775,7 @@ bool CommandListSymbols::Execute(AVR::Mcu &mcu)
 class CommandIoAddHex : public Command
 {
 public:
-  CommandIoAddHex() : Command(R"XXX(\s*io\s*([_0-9a-zA-Z]+)\s*=((?:\s*)XXX" + _reNum + R"XXX()+)\s*)XXX") {}
+  CommandIoAddHex() : Command(R"XXX(\s*io\s*([_0-9a-zA-Z]+)\s*=\s*)XXX" + _reNums + R"XXX(\s*)XXX") {}
   ~CommandIoAddHex() {}
 
   virtual strings Help() const ;
@@ -676,13 +784,15 @@ public:
 
 strings CommandIoAddHex::Help() const
 {
-  return strings { "io <name> = <hex>       -- set next io read values (hex)" } ;
+  return strings { "io <name> = <bytes>           set next io read values (num)" } ;
 }
 bool CommandIoAddHex::Execute(AVR::Mcu &mcu)
 {
   const std::string &name = _match[1] ;
   const std::string &hex  = _match[2] ;
 
+ std::cout << name << " " << hex << std::endl ;
+  
   auto &io = mcu.Io() ;
   auto iIo = std::find_if(io.begin(), io.end(), [&name](const AVR::Io::Register *ioReg){ return ioReg && (ioReg->Name() == name) ; }) ;
   if (iIo == io.end())
@@ -692,22 +802,14 @@ bool CommandIoAddHex::Execute(AVR::Mcu &mcu)
   }
 
   std::vector<uint8_t> data ;
-  const char *str = hex.c_str() ;
-  char *str_end = const_cast<char*>(str) ; ;
 
-  while (*str)
+  if (!Nums(hex, data))
   {
-    uint32_t ul = strtoul(str, &str_end, 0) ;
-    if (ul > 255)
-    {
-      std::cout << "illegal value " << ul << std::endl ;
-      return false ;
-    }
-    data.push_back(ul) ;
-    str = str_end ;
+    std::cout << "illegal value " << std::endl ;
+    return false ;
   }
-  (*iIo)->Add(data) ;
   
+  (*iIo)->Add(data) ;
   return true ;
 }
 
@@ -726,7 +828,7 @@ public:
 
 strings CommandIoAddAsc::Help() const
 {
-  return strings { "io <name> = \"<asc>\"     -- set next io read values (asc)" } ;
+  return strings { "io <name> = \"<asc>\"           set next io read values (str)" } ;
 }
 bool CommandIoAddAsc::Execute(AVR::Mcu &mcu)
 {
@@ -751,6 +853,33 @@ bool CommandIoAddAsc::Execute(AVR::Mcu &mcu)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// CommandListIo
+////////////////////////////////////////////////////////////////////////////////
+class CommandListIo : public Command
+{
+public:
+  CommandListIo() : Command(R"XXX(\s*io\s*\?\s*)XXX") { }
+  ~CommandListIo() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandListIo::Help() const
+{
+  return strings { "io ?                          list io port names" } ;
+}
+bool CommandListIo::Execute(AVR::Mcu &mcu)
+{
+  for (const auto io : mcu.Io())
+  {
+    if (io)
+      std::cout << io->Name() << std::endl ;
+  }
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // CommandTrace
 ////////////////////////////////////////////////////////////////////////////////
 class CommandTrace : public Command
@@ -767,8 +896,8 @@ strings CommandTrace::Help() const
 {
   return strings
   {
-    "t on <name> [addr]      -- log to trace file until addr is reached (default 0x00000)",
-    "t off                   -- close trace file",
+    "t on <name> [<addr>]          log to trace file until addr is reached (default 0x00000)",
+    "t off                         close trace file",
   } ;
 }
 bool CommandTrace::Execute(AVR::Mcu &mcu)
@@ -814,7 +943,7 @@ private:
 
 strings CommandMacro::Help() const
 {
-  return strings { "m <name>                -- run macro file <name>.aem" } ;
+  return strings { "m <name>                      run macro file <name>.aem" } ;
 }
 bool CommandMacro::Execute(AVR::Mcu &mcu)
 {
@@ -865,7 +994,7 @@ private:
 
 strings CommandMacroQuit::Help() const
 {
-  return strings { "mq                      -- quit macro execution"} ;
+  return strings { "mq                            quit macro execution"} ;
 }
 bool CommandMacroQuit::Execute(AVR::Mcu &mcu)
 {
@@ -888,7 +1017,7 @@ public:
 
 strings CommandEcho::Help() const
 {
-  return strings { "$ <text>                -- write text to output / only useful in macros" } ;
+  return strings { "$ <text>                      write text to output / useful in macros" } ;
 }
 bool CommandEcho::Execute(AVR::Mcu &mcu)
 {
@@ -913,7 +1042,7 @@ private:
 
 strings CommandQuit::Help() const
 {
-  return strings { "q                       -- quit"} ;
+  return strings { "q                             quit"} ;
 }
 bool CommandQuit::Execute(AVR::Mcu &mcu)
 {
@@ -940,7 +1069,7 @@ private:
 
 strings CommandRepeat::Help() const
 {
-  return strings { "<empty line>            -- repeat last command"} ;
+  return strings { "<empty line>                  repeat last command"} ;
 }
 bool CommandRepeat::Execute(AVR::Mcu &mcu)
 {
@@ -972,8 +1101,8 @@ private:
 
 strings CommandHelp::Help() const
 {
-  return strings { "h                       -- help",
-                   "?                       -- help"} ;
+  return strings { "h                             help",
+                   "?                             help"} ;
 }
 bool CommandHelp::Execute(AVR::Mcu &mcu)
 {
@@ -983,6 +1112,13 @@ bool CommandHelp::Execute(AVR::Mcu &mcu)
     for (const auto &help : command->Help())
       std::cout << help << std::endl ;
   }
+  std::cout << "<label> symbol or hex or dec address" << std::endl ;
+  std::cout << "<addr>  hex or dec address" << std::endl ;
+  std::cout << "<count> hex or dec number" << std::endl ;
+  std::cout << "<len>   hex or dec number" << std::endl ;
+  std::cout << "<d>     dec number 0 to 31" << std::endl ;
+  std::cout << "<bytes> list of hex or dec bytes" << std::endl ;
+  std::cout << "<words> list of hex or dec words" << std::endl ;
   std::cout << std::endl ;
   
   return true ;
@@ -1031,14 +1167,17 @@ namespace AVR
       new CommandGoto(),
       new CommandBreakpoint(),
       new CommandListBreakpoints(),
-      new CommandRead(),
+      new CommandReadRegs(),
+      new CommandReadData(),
       new CommandReadDataIndirect(),
-      new CommandList(),
-      new CommandListIndirect(),
-      new CommandAssign(),
+      new CommandReadProg(),
+      new CommandReadProgIndirect(),
+      new CommandWriteData(),
+      new CommandWriteProg(),
       new CommandListSymbols(),
       new CommandIoAddHex(),
       new CommandIoAddAsc(),
+      new CommandListIo(),
       new CommandMacro(*this),
       new CommandMacroQuit(*this),
       new CommandTrace(),
@@ -1066,10 +1205,15 @@ namespace AVR
 
     while (!_quit)
     {
+      std::cout << std::endl ;
+      _mcu.Status() ;
+      std::cout << std::endl ;
+      
       uint32_t pc0 = _mcu.PC() ;
-      std::cout << _mcu.Disasm() << std::endl << "> " << std::flush ;
+      std::cout << _mcu.Disasm() << std::endl << std::endl << "> " << std::flush ;
       _mcu.PC() = pc0 ;
       std::getline(std::cin, cmd) ;
+      std::cout << std::endl ;
 
       Do(cmd) ;
     }

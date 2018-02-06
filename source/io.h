@@ -92,8 +92,8 @@ namespace AVR
     {
     public:
       Status(IoXmegaUsart &port) : Register(port.Name() + "_STATUS"), _port(port), _value(0x20) {}
-      virtual uint8_t Get() const    { return (_port.RxAvail() ? 0x80 : 0x00) | 0x40 | 0x20 ; }
-      virtual void    Set(uint8_t v) { ; }
+      virtual uint8_t Get() const    { fprintf(stdout, "%s get\n", _name.c_str()) ; return (_port.RxAvail() ? 0x80 : 0x00) | 0x40 | 0x20 ; }
+      virtual void    Set(uint8_t v) { fprintf(stdout, "%s set\n", _name.c_str()) ; }
     private:
       IoXmegaUsart &_port ;
       uint8_t       _value ;

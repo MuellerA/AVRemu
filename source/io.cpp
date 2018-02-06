@@ -48,8 +48,7 @@ namespace AVR
     {
       unsigned char c = (unsigned char) _rx[_rxPos++] ;
       fprintf(stdout, "%s Rx %02x", _name.c_str(), c) ;
-      if ((' ' < c) && (c < '~'))
-        fprintf(stdout, " %c", c) ;
+      fprintf(stdout, " %c", ((' ' <= c) && (c <= '~')) ? c : ' ') ;
       fprintf(stdout, "\n") ;
       return c ;
     }
@@ -60,8 +59,7 @@ namespace AVR
   void IoXmegaUsart::Tx(uint8_t c) const
   {
     fprintf(stdout, "%s Tx %02x", _name.c_str(), c) ;
-    if ((' ' < c) && (c < '~'))
-      fprintf(stdout, " %c", c) ;
+    fprintf(stdout, " %c", ((' ' <= c) && (c <= '~')) ? c : ' ') ;
     fprintf(stdout, "\n") ;
   }
   void IoXmegaUsart::Add(const std::vector<uint8_t> &data)
