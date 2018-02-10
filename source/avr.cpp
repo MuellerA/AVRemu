@@ -43,26 +43,17 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // Mcu
-  Mcu::Mcu(uint32_t programSize, bool isRegDataMapped, uint32_t ioSize, uint32_t dataStart, uint32_t dataSize, uint32_t eepromSize)
-    : _pc(0), _sp(dataStart+dataSize-1), _programSize(programSize), _loadedProgramSize(0), _program(programSize), _io(ioSize), _data(dataSize), _eeprom(eepromSize), _instructions(0x10000)
+  Mcu::Mcu(uint32_t flashSize, uint32_t ioSize, uint32_t ramSize, uint32_t eepromSize, uint32_t sp)
+    : _pc(0), _sp(sp),
+      _flashSize(flashSize), _loadedFlashSize(0), _flash(_flashSize),
+      _ioSize(ioSize), _io(_ioSize),
+      _ramSize(ramSize), _ram(_ramSize),
+      _eepromSize(eepromSize), _eeprom(_eepromSize),
+      _instructions(0x10000)
   {
-    _regSize  = 0x20 ;
-    _regStart = (isRegDataMapped) ? 0 : 1 ;
-    _regEnd   = (isRegDataMapped) ? _regStart + _regSize - 1 : 0 ;
-    
-    _ioSize  = ioSize ;
-    _ioStart = (isRegDataMapped) ? _regEnd + 1 : 0 ;
-    _ioEnd   = _ioStart + _ioSize - 1 ;
-    
-    _dataSize  = dataSize ;
-    _dataStart = dataStart ;
-    _dataEnd   = _dataStart + _dataSize - 1 ;
-
     _pcIs22Bit     = false ;
     _isXMega       = false ;
     _isTinyReduced = false ;
-    
-    _eepromSize = eepromSize ;
   }
 
   Mcu::~Mcu()
@@ -81,18 +72,18 @@ namespace AVR
   {
     _ticks += 1 ;
 
-    if (_pc >= _programSize)
+    if (_pc >= _flashSize)
     {
       fprintf(stderr, "invalid program memory read at %05x\n", _pc) ;
       _pc = 0 ;
       return ;
     }
 
-    if (_pc >= _loadedProgramSize)
+    if (_pc >= _loadedFlashSize)
       fprintf(stderr, "uninitialized program memory read at %05x\n", _pc) ;
     
     uint32_t pc0 = _pc ;
-    Command cmd = (_pc < _loadedProgramSize) ? _program[_pc++] : 0x9508 ;
+    Command cmd = (_pc < _loadedFlashSize) ? _flash[_pc++] : 0x9508 ;
     const Instruction *instr = _instructions[cmd] ;
     
     if (!instr)
@@ -197,14 +188,14 @@ namespace AVR
 
   void Mcu::Skip()
   {
-    if (_pc >= _programSize)
+    if (_pc >= _flashSize)
     {
       fprintf(stderr, "illegal program memory read at %05x\n", _pc) ;
       _pc = 0 ;
       return ;
     }
 
-    Command cmd = _program[_pc++] ;
+    Command cmd = _flash[_pc++] ;
     const Instruction *instr = _instructions[cmd] ;
 
     if (!instr)
@@ -229,14 +220,14 @@ namespace AVR
 
   std::string Mcu::Disasm()
   {
-    if (_pc >= _programSize)
+    if (_pc >= _flashSize)
     {
       fprintf(stderr, "illegal program memory read at %05x\n", _pc) ;
       return "" ;
     }
 
     uint32_t pc = _pc ;
-    Command cmd = _program[_pc++] ;
+    Command cmd = _flash[_pc++] ;
 
     std::string label ;
     auto iXrefs = _xrefByAddr.find(pc) ;
@@ -285,16 +276,16 @@ namespace AVR
     str += buff ;
     if (instr && instr->IsTwoWord())
     {
-      str += Disasm_ASC(_program[pc]) ;
-      str += Disasm_ASC(_program[pc+1]) ;
-      sprintf(buff, "   %04x %04x     ", _program[pc], _program[pc+1]) ;
+      str += Disasm_ASC(_flash[pc]) ;
+      str += Disasm_ASC(_flash[pc+1]) ;
+      sprintf(buff, "   %04x %04x     ", _flash[pc], _flash[pc+1]) ;
       str += buff ;
     }
     else
     {
-      str += Disasm_ASC(_program[pc]) ;
+      str += Disasm_ASC(_flash[pc]) ;
       str += "  " ;
-      sprintf(buff, "   %04x          ", _program[pc]) ;
+      sprintf(buff, "   %04x          ", _flash[pc]) ;
       str += buff ;
     }
 
@@ -303,11 +294,11 @@ namespace AVR
     return str ;
   }
 
-  bool Mcu::DataAddrName(uint32_t addr, std::string &name) const
+  bool Mcu::IoName(uint32_t addr, std::string &name) const
   {
     static std::string reserved("Reserved") ;
 
-    if (addr >_ioEnd)
+    if (addr >_ioSize)
       return false ;
 
     name = _io[addr] ? _io[addr]->Name() : reserved ;
@@ -326,12 +317,12 @@ namespace AVR
 
   Command Mcu::ProgramNext()
   {
-    if (_pc >= _programSize)
+    if (_pc >= _flashSize)
     {
       fprintf(stderr, "illegal program memory read at %05x\n", _pc) ;
       return 0 ;
     }
-    Command cmd = _program[_pc++] ;
+    Command cmd = _flash[_pc++] ;
 
     return cmd ;
   }
@@ -373,48 +364,24 @@ namespace AVR
     ioReg->Set(value) ;
   }
 
-  uint8_t  Mcu::Data(uint32_t addr, bool resetOnError) const
+  uint8_t  Mcu::Ram(uint32_t addr) const
   {
-    if ((_regStart <= addr) && (addr <= _regEnd))
-    {
-      return Reg(addr) ;
-    }
-    if ((_ioStart <= addr) && (addr <= _ioEnd))
-    {
-      return Io(addr - _ioStart) ;
-    }
-    else if ((_dataStart <= addr) && (addr <= _dataEnd))
-    {
-      return _data[addr - _dataStart] ;
-    }
+    if (addr < _ramSize)
+      return _ram[addr] ;
 
-    fprintf(stderr, "illegal data read at %05x: %04x\n", _pc, addr) ;
-    //if (resetOnError)
-    //  const_cast<Mcu*>(this)->_pc = 0 ;
+    fprintf(stderr, "illegal RAM read at %05x: %04x\n", _pc, addr) ;
     return 0xff ;
   }
 
-  void Mcu::Data(uint32_t addr, uint8_t value, bool resetOnError)
+  void     Mcu::Ram(uint32_t addr, uint8_t value)
   {
-    if ((_regStart <= addr) && (addr <= _regEnd))
+    if (addr < _ramSize)
     {
-      Reg(addr, value) ;
-      return ;
-    }
-    else if ((_ioStart <= addr) && (addr <= _ioEnd))
-    {
-      Io(addr - _ioStart, value) ;
-      return ;
-    }
-    else if ((_dataStart <= addr) && (addr <= _dataEnd))
-    {
-      _data[addr - _dataStart] = value ;
+      _ram[addr] = value ;
       return ;
     }
 
-    fprintf(stderr, "illegal data write at %05x: %05x, %02x\n", _pc, addr, value) ;
-    //if (resetOnError)
-    //  _pc = 0 ;
+    fprintf(stderr, "illegal RAM write at %05x: %05x, %02x\n", _pc, addr, value) ;
   }
 
   void Mcu::Eeprom(uint32_t address, uint8_t value, bool resetOnError)
@@ -440,60 +407,118 @@ namespace AVR
     //  const_cast<Mcu*>(this)->_pc = 0 ;
     return 0xff ;
   }  
-  
-  Command  Mcu::Prog(uint32_t addr) const
+
+  Command  Mcu::Flash(uint32_t addr) const
   {
-    if (addr >= _programSize)
-    {
-      fprintf(stderr, "invalid program memory read at %05x\n", addr) ;
-      return 0xffff ;
-    }
-    if (addr >= _loadedProgramSize)
-    {
+    if (addr < _loadedFlashSize)
+      return _flash[addr] ;
+
+    if (addr < _flashSize)
       fprintf(stderr, "uninitialized program memory read at %05x: %05x\n", _pc, addr) ;
-      return 0x9508 ;
-    }
-    return _program[addr] ;
+    else
+      fprintf(stderr, "invalid program memory read at %05x\n", addr) ;
+    
+    return 0xffff ;
   }
   
-  void Mcu::Prog(uint32_t addr, Command cmd)
+  void     Mcu::Flash(uint32_t addr, Command cmd)
   {
-    if (addr >= _programSize)
+    if (addr < _flashSize)
     {
-      fprintf(stderr, "invalid program memory write at %05x: %05x %04x\n", _pc, addr, cmd) ;
+      _flash[addr] = cmd ;
       return ;
     }
-    _program[addr] = cmd ;
+
+    fprintf(stderr, "invalid program memory write at %05x: %05x %04x\n", _pc, addr, cmd) ;
   }
 
+  uint8_t  Mcu::Data(uint32_t addr, bool resetOnError) const
+  {
+    if (addr < 0x32)
+    {
+      return Reg(addr) ;
+    }
+    if (addr < (0x32 + _ioSize))
+    {
+      return Io(addr - 0x32) ;
+    }
+    else if (addr <= (0x32 + _ioSize + _ramSize))
+    {
+      return _ram[addr - 0x32 - _ioSize] ;
+    }
+
+    fprintf(stderr, "illegal data read at %05x: %04x\n", _pc, addr) ;
+    //if (resetOnError)
+    //  const_cast<Mcu*>(this)->_pc = 0 ;
+    return 0xff ;
+  }
+
+  void Mcu::Data(uint32_t addr, uint8_t value, bool resetOnError)
+  {
+    if (addr < 0x32)
+    {
+      Reg(addr, value) ;
+      return ;
+    }
+    if (addr < (0x32 + _ioSize))
+    {
+      Io(addr - 0x32, value) ;
+      return ;
+    }
+    else if (addr <= (0x32 + _ioSize + _ramSize))
+    {
+      _ram[addr - 0x32 - _ioSize] = value ;
+      return ;
+    }
+
+    fprintf(stderr, "illegal data write at %05x: %05x, %02x\n", _pc, addr, value) ;
+    //if (resetOnError)
+    //  _pc = 0 ;
+  }
+
+  Command  Mcu::Program(uint32_t addr) const
+  {
+    return Flash(addr) ;
+  }
+  
+  void Mcu::Program(uint32_t addr, Command cmd)
+  {
+    Flash(addr, cmd) ;
+  }
+
+  bool Mcu::InRam(uint32_t addr) const
+  {
+    return (0x32 + _ioSize <= addr) && (addr < 0x32 + _ioSize + _ramSize) ;
+  }  
+  
   const Instruction* Mcu::Instr(uint32_t addr) const
   {
-    Command cmd = Prog(addr) ;
+    Command cmd = Flash(addr) ;
     return _instructions[cmd] ;
   }
   
   void  Mcu::Push(uint8_t value)
   {
     uint16_t sp = _sp() ;
-    if ((sp < _dataStart) || (_dataEnd < sp))
+    if (!InRam(sp))
     {
       fprintf(stderr, "stack underflow at %05x\n", _pc) ;
       return ;
     }
-    _data[sp-_dataStart] = value ;
+    Data(sp, value) ;
     _sp() = sp - 1 ;
   }
 
   uint8_t Mcu::Pop()
   {
     uint16_t sp = _sp() + 1 ;
-    if ((sp < _dataStart) || (_dataEnd < sp))
+    if (!InRam(sp))
     {
       fprintf(stderr, "stack overflow at %05x\n", _pc) ;
       return 0xff ;
     }
     _sp() = sp ;
-    return _data[sp-_dataStart] ;
+    return Data(sp) ;
   }
 
   void Mcu::PushPC()
@@ -533,9 +558,9 @@ namespace AVR
     // todo
   }
 
-  void Mcu::ClearProgram()
+  void Mcu::ClearFlash()
   {
-    for (auto &iPrg :_program)
+    for (auto &iPrg :_flash)
       iPrg = 0 ;
     for (auto iXref : _xrefs)
       delete iXref ;
@@ -544,20 +569,20 @@ namespace AVR
     _xrefByLabel.clear() ;
   }
 
-  uint32_t Mcu::SetProgram(uint32_t startAddress, const std::vector<Command> &prg)
+  uint32_t Mcu::SetFlash(uint32_t startAddress, const std::vector<Command> &prg)
   {
-    if (startAddress >= _programSize)
+    if (startAddress >= _flashSize)
       return 0 ;
 
     uint32_t nCopy = prg.size() ;
-    if ((startAddress + nCopy) > _programSize)
+    if ((startAddress + nCopy) > _flashSize)
     {
       fprintf(stderr, "Mcu::SetProgram(): data too big for program memory\n") ;
-      nCopy = _programSize - startAddress ;
+      nCopy = _flashSize - startAddress ;
     }
 
-    std::copy(prg.begin(), prg.begin()+nCopy, _program.begin()+startAddress) ;
-    _loadedProgramSize = nCopy + startAddress ;
+    std::copy(prg.begin(), prg.begin()+nCopy, _flash.begin()+startAddress) ;
+    _loadedFlashSize = nCopy + startAddress ;
     
     AnalyzeXrefs() ;
 
@@ -693,11 +718,11 @@ namespace AVR
 
     // check branch instructions
     uint32_t pc0 = _pc ;
-    for (_pc = 0 ; _pc < _programSize ; )
+    for (_pc = 0 ; _pc < _flashSize ; )
     {
       uint32_t pc = _pc ;
       uint32_t addr ;
-      Command cmd = _program[_pc++] ;
+      Command cmd = _flash[_pc++] ;
 
       const Instruction *instr = _instructions[cmd] ;
       if (instr)
@@ -760,7 +785,7 @@ namespace AVR
   // ATany
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATany::ATany() : Mcu(0x40000, true, 0x1000, 0x1000, 0x1000, 0x1000)
+  ATany::ATany() : Mcu(0x40000, 0x1000, 0x1000, 0x1000, 0x1fff)
   {
     const Instruction *instructions[]
     {

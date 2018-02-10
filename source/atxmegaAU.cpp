@@ -8,8 +8,85 @@
 
 namespace AVR
 {
-  ATxmegaAU::ATxmegaAU(uint32_t programSize, uint32_t dataSize, uint32_t eepromSize)
-    : Mcu(programSize, false, 0x1000, 0x2000, dataSize, eepromSize),
+  uint8_t  ATxmegaAU::Data(uint32_t addr, bool resetOnError) const
+  {
+    if (addr < _ioSize)
+    {
+      return Io(addr) ;
+    }
+    else if (_isEepromMapped &&
+             (0x1000 <= addr) && (addr < 0x2000))
+    {
+      return Eeprom((addr - 0x1000) % _eepromSize) ;
+    }
+    else if ((0x2000 <= addr) && (addr < (0x2000 + _ramSize)))
+    {
+      return _ram[addr - 0x2000] ;
+    }
+
+    fprintf(stderr, "illegal data read at %05x: %04x\n", _pc, addr) ;
+    //if (resetOnError)
+    //  const_cast<Mcu*>(this)->_pc = 0 ;
+    return 0xff ;
+  }
+
+  void ATxmegaAU::Data(uint32_t addr, uint8_t value, bool resetOnError)
+  {
+    if (addr < _ioSize)
+    {
+      Io(addr, value) ;
+      return ;
+    }
+//    else if (_isEepromMapped &&
+//             (0x1000 <= addr) && (addr < 0x2000))
+//    {
+//      Eeprom((addr - 0x1000) % eepromSize, value) ;
+//      return ;
+//    }
+    else if ((0x2000 <= addr) && (addr < (0x2000 + _ramSize)))
+    {
+      _ram[addr - 0x2000] = value ;
+      return ;
+    }
+    fprintf(stderr, "%d\n", _ramSize) ;
+    fprintf(stderr, "illegal data write at %05x: %05x, %02x\n", _pc, addr, value) ;
+    //if (resetOnError)
+    //  _pc = 0 ;
+  }
+
+  Command  ATxmegaAU::Program(uint32_t addr) const
+  {
+    if (addr >= _flashSize)
+    {
+      fprintf(stderr, "invalid program memory read at %05x\n", addr) ;
+      return 0xffff ;
+    }
+    if (addr >= _loadedFlashSize)
+    {
+      fprintf(stderr, "uninitialized program memory read at %05x: %05x\n", _pc, addr) ;
+      return 0x9508 ;
+    }
+    return _flash[addr] ;
+  }
+  
+  void ATxmegaAU::Program(uint32_t addr, Command cmd)
+  {
+    if (addr >= _flashSize)
+    {
+      fprintf(stderr, "invalid program memory write at %05x: %05x %04x\n", _pc, addr, cmd) ;
+      return ;
+    }
+    _flash[addr] = cmd ;
+  }
+
+  bool ATxmegaAU::InRam(uint32_t addr) const
+  {
+    return (0x2000 <= addr) && (addr < (0x2000 + _ramSize)) ;
+  }  
+  
+  ATxmegaAU::ATxmegaAU(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
+    : Mcu(flashSize, 0x1000, ramSize, eepromSize, 0x3fff),
+      _isEepromMapped(true),
       _usartC0("USARTC0"), _usartC1("USARTC1"), _usartD0("USARTD0"), _usartD1("USARTD1"), _usartE0("USARTE0")
   {
     _isXMega = true ;

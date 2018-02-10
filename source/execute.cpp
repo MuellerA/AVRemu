@@ -725,7 +725,7 @@ bool CommandWriteProg::Execute(AVR::Mcu &mcu)
   
   for (auto val : words)
   {
-    mcu.Prog(addr++, val) ;
+    mcu.Flash(addr++, val) ;
   }
 
   return true ;

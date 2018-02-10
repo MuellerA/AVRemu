@@ -9,8 +9,9 @@
 namespace AVR
 {
 
-  ATtinyX4::ATtinyX4(uint32_t programSize, uint32_t dataSize, uint32_t eepromSize)
-    : Mcu(programSize, true, 0x40, 0x60, dataSize, eepromSize), ioEeprom(*this)
+  ATtinyX4::ATtinyX4(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
+    : Mcu(flashSize, 0x40, ramSize, eepromSize, ramSize + 0x5F),
+      ioEeprom(*this)
   {
     const Instruction *instructions[]
     {

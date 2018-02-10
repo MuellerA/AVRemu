@@ -229,11 +229,11 @@ int main(int argc, char *argv[])
   }
   
   mcu->PC() = 0 ;
-  uint32_t nCommand = mcu->SetProgram(0, prog) ;
+  uint32_t nCommand = mcu->SetFlash(0, prog) ;
   printf("prog size:   %zd\n", prog.size()) ;
   printf("loaded size: %d\n" , nCommand) ;
 
-  uint32_t progEnd = nCommand % mcu->Program().size() ;
+  uint32_t progEnd = nCommand % mcu->Flash().size() ;
 
   if (disasm || !execute)
   {

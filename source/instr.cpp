@@ -275,7 +275,7 @@ namespace AVR
     xxxxxxxxAAAAAxxx(cmd, a) ;
     xxxxxxxxxxxxxBBB(cmd, b) ;
     std::string ioRegName ;
-    mcu.DataAddrName(a, ioRegName) ;
+    mcu.IoName(a, ioRegName) ;
     char buff[1024] ;
     sprintf(buff, "%-6s %s, %d\t\t; 0x%02x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), b, a, instr.Description().c_str()) ;
     return std::string(buff) ;
@@ -359,7 +359,7 @@ namespace AVR
     uint32_t addr = mcu.ProgramNext() ;
     char buff[1024] ;
     std::string ioRegName ;
-    if (mcu.DataAddrName(addr, ioRegName))
+    if (mcu.IoName(addr, ioRegName))
       sprintf(buff, "%-6s r%d, %s\t\t; 0x%04x %s", instr.Mnemonic().c_str(), d, ioRegName.c_str(), addr, instr.Description().c_str()) ;
     else
       sprintf(buff, "%-6s r%d, 0x%04x\t\t; %s", instr.Mnemonic().c_str(), d, addr, instr.Description().c_str()) ;
@@ -372,7 +372,7 @@ namespace AVR
     uint32_t addr = mcu.ProgramNext() ;
     char buff[1024] ;
     std::string ioRegName ;
-    if (mcu.DataAddrName(addr, ioRegName))
+    if (mcu.IoName(addr, ioRegName))
       sprintf(buff, "%-6s %s, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), r, addr, instr.Description().c_str()) ;
     else
       sprintf(buff, "%-6s 0x%04x, r%d\t\t; %s", instr.Mnemonic().c_str(), addr, r, instr.Description().c_str()) ;
@@ -386,7 +386,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, d) ;
     char buff[1024] ;
     std::string ioRegName  ;
-    mcu.DataAddrName(a, ioRegName) ;
+    mcu.IoName(a, ioRegName) ;
     sprintf(buff, "%-6s r%d, %s\t\t; 0x%02x %s", instr.Mnemonic().c_str(), d, ioRegName.c_str(), a, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
@@ -397,7 +397,7 @@ namespace AVR
     xxxxxxxRRRRRxxxx(cmd, r) ;
     char buff[1024] ;
     std::string ioRegName ;
-    mcu.DataAddrName(a, ioRegName) ;
+    mcu.IoName(a, ioRegName) ;
     sprintf(buff, "%-6s %s, r%d\t\t; 0x%02x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), r, a, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
@@ -3175,7 +3175,7 @@ namespace AVR
     mcu.XrefAdd(XrefType::data, mcu.RegW(30)>>1, mcu.PC()-1) ;
     Command z, p ;
     z = mcu.RegW(30) ;
-    p = mcu.Prog(z>>1) ;
+    p = mcu.Program(z>>1) ;
     if (z&1)
       p >>= 8 ;
     mcu.Reg(0, (uint8_t)p) ;
@@ -3212,7 +3212,7 @@ namespace AVR
     Command z, nd, p ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     z = mcu.RegW(30) ;
-    p = mcu.Prog(z>>1) ;
+    p = mcu.Program(z>>1) ;
     if (z&1)
       p >>= 8 ;
     mcu.Reg(nd, (uint8_t)p) ;
@@ -3249,7 +3249,7 @@ namespace AVR
     Command z, nd, p ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     z = mcu.RegW(30) ;
-    p = mcu.Prog(z>>1) ;
+    p = mcu.Program(z>>1) ;
     if (z&1)
       p >>= 8 ;
     mcu.Reg(nd, (uint8_t)p) ;
@@ -3286,7 +3286,7 @@ namespace AVR
     uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.XrefAdd(XrefType::data, z>>1, mcu.PC()-1) ;
     Command p ;
-    p = mcu.Prog(z>>1) ;
+    p = mcu.Program(z>>1) ;
     if (z&1)
       p >>= 8 ;
     mcu.Reg(0, (uint8_t)p) ;
@@ -3323,7 +3323,7 @@ namespace AVR
     mcu.XrefAdd(XrefType::data, z>>1, mcu.PC()-1) ;
     Command nd, p ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    p = mcu.Prog(z>>1) ;
+    p = mcu.Program(z>>1) ;
     if (z&1)
       p >>= 8 ;
     mcu.Reg(nd, (uint8_t)p) ;
@@ -3360,7 +3360,7 @@ namespace AVR
     mcu.XrefAdd(XrefType::data, z>>1, mcu.PC()-1) ;
     Command nd, p ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
-    p = mcu.Prog(z>>1) ;
+    p = mcu.Program(z>>1) ;
     if (z&1)
       p >>= 8 ;
     mcu.Reg(nd, (uint8_t)p) ;

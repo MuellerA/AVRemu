@@ -35,7 +35,7 @@ int main()
     }
 
     avr.PC() = 0 ;
-    uint32_t nCommand = avr.SetProgram(0, prog) ;
+    uint32_t nCommand = avr.SetFlash(0, prog) ;
     printf("prog size: %zd\n", prog.size()) ;
 
    FILE *fo = fopen("all.bin", "wb") ;
@@ -67,7 +67,7 @@ int main()
       prog.insert(prog.end(), cmds, cmds + nCmd) ;
     }
     avr.PC() = 0 ;
-    uint32_t nCommand = avr.SetProgram(0, prog) ;
+    uint32_t nCommand = avr.SetFlash(0, prog) ;
     printf("prog size: %zd\n", prog.size()) ;
 
     for (uint32_t iCommand = 0 ; iCommand < nCommand ; ++iCommand)

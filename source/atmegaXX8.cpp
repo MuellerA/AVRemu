@@ -9,8 +9,9 @@
 namespace AVR
 {
 
-  ATmegaXX8::ATmegaXX8(uint32_t programSize, uint32_t dataSize, uint32_t eepromSize)
-    : Mcu(programSize, true, 0xe0, 0x100, dataSize, eepromSize), ioEeprom(*this)
+  ATmegaXX8::ATmegaXX8(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
+    : Mcu(flashSize, 0xe0, ramSize, eepromSize, ramSize + 0xff),
+      ioEeprom(*this)
   {
     const Instruction *instructions[]
     {
