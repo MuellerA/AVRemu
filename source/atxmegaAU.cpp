@@ -49,7 +49,7 @@ namespace AVR
       return ;
     }
     fprintf(stderr, "%d\n", _ramSize) ;
-    fprintf(stderr, "illegal data write at %05x: %05x, %02x\n", _pc, addr, value) ;
+    fprintf(stderr, "illegal data write at %05x: %04x %02x\n", _pc, addr, value) ;
     //if (resetOnError)
     //  _pc = 0 ;
   }

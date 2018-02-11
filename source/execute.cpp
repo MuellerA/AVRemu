@@ -88,6 +88,22 @@ void ReadProg(AVR::Mcu &mcu, uint32_t addr, uint32_t len)
   mcu.PC() = pc0 ;
 }
 
+class VerbositySilencer
+{
+public:
+  VerbositySilencer(AVR::Mcu &mcu) : _mcu(mcu), _vt(_mcu.Verbose())
+  {
+    _mcu.Verbose() = AVR::VerboseType::None ;
+  }
+  ~VerbositySilencer()
+  {
+    _mcu.Verbose() = _vt ;
+  }
+private:
+  AVR::Mcu        &_mcu ;
+  AVR::VerboseType _vt  ;
+} ;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Command
 ////////////////////////////////////////////////////////////////////////////////
@@ -500,6 +516,7 @@ bool CommandReadData::Execute(AVR::Mcu &mcu)
   uint32_t addr = std::stoul(addrStr, nullptr, 0) ;
   uint32_t len = (lenStr.size()) ? std::stoul(lenStr, nullptr, 0) : 128 ;
 
+  VerbositySilencer vs(mcu) ;
   Data(mcu, addr, len, mode) ;
   
   return true ;
@@ -537,6 +554,7 @@ bool CommandReadDataIndirect::Execute(AVR::Mcu &mcu)
   
   uint32_t len = (lenStr.size()) ? std::stoul(lenStr, nullptr, 0) : 128 ;
 
+  VerbositySilencer vs(mcu) ;
   Data(mcu, addr, len, 'd') ;
 
   return true ;
@@ -652,6 +670,7 @@ bool CommandWriteData::Execute(AVR::Mcu &mcu)
     return false ;
   }
 
+  VerbositySilencer vs(mcu) ;
   switch (typ)
   {
   case 'r':

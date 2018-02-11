@@ -83,7 +83,7 @@ namespace AVR
       _flashSize(flashSize), _loadedFlashSize(0), _flash(_flashSize),
       _ioSize(ioSize), _io(_ioSize),
       _ramSize(ramSize), _ram(_ramSize),
-      _eepromSize(eepromSize), _eeprom(_eepromSize),
+      _eepromSize(eepromSize), _eeprom(_eepromSize, 0xff),
       _instructions(0x10000),
       _verbose(VerboseType::None)
   {
@@ -524,7 +524,7 @@ namespace AVR
       return ;
     }
 
-    fprintf(stderr, "illegal data write at %05x: %05x, %02x\n", _pc, addr, value) ;
+    fprintf(stderr, "illegal data write at %05x: %04x %02x\n", _pc, addr, value) ;
     //if (resetOnError)
     //  _pc = 0 ;
   }
