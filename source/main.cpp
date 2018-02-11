@@ -52,7 +52,7 @@ int usage(const char *name)
 
 int usageFull(const char *name)
 {
-  fprintf(stderr, "usage: %s [-d] [-e] [-m <mcu>] [-x <xref>] [-p <eeProm>] <avr-bin>\n", name) ;
+  fprintf(stderr, "usage: %s [-d] [-e] [-ee <macro>] [-m <mcu>] [-x <xref>] [-p <eeProm>] <avr-bin>\n", name) ;
   fprintf(stderr, "       %s -h\n", name) ;
   fprintf(stderr, "parameter:\n") ;
   fprintf(stderr, "   -m <mcu>    MCU type, see below\n") ;
@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
   std::string xrefFileName ;
   std::string eepromFileName ;
   std::string macroFileName ;
+  bool verbose = false ;
   
   for (iArg = 1 ; iArg < argc ; ++iArg)
   {

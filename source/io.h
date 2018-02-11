@@ -25,7 +25,8 @@ namespace AVR
     class Register
     {
     public:
-      Register(const std::string &name) : _name(name) {}
+      Register(const Mcu &mcu, const std::string &name, bool ascii = false, bool notImplemented = false)
+        : _mcu(mcu), _name(name), _ascii(ascii), _notImplemented(notImplemented) {}
       virtual ~Register() {} ;
       virtual const std::string& Name() const { return _name ; }
       virtual uint8_t  Get() const    = 0 ;
@@ -34,7 +35,13 @@ namespace AVR
       virtual void     Add(const std::vector<uint8_t> &data) { ; }
       
     protected:
+      uint8_t VG(uint8_t v) const ;
+      uint8_t VS(uint8_t v) const ;
+
+      const Mcu &_mcu ;
       std::string _name ;
+      bool _ascii ;
+      bool _notImplemented ;
     } ;
 
   } ;
@@ -46,10 +53,10 @@ namespace AVR
   class IoRegisterValue : public Io::Register
   {
   public:
-    IoRegisterValue(const std::string &name, uint8_t &value) : Register(name), _value(value) {}
+    IoRegisterValue(const Mcu &mcu, const std::string &name, uint8_t &value) : Register(mcu, name), _value(value) {}
     
-    virtual uint8_t  Get() const    { return _value ; }
-    virtual void     Set(uint8_t v) { _value = v    ; }
+    virtual uint8_t  Get() const    { return VG(_value) ; }
+    virtual void     Set(uint8_t v) { _value = VS(v)    ; }
   private:
     uint8_t &_value ;
   } ;
@@ -61,13 +68,12 @@ namespace AVR
   class IoRegisterNotImplemented : public Io::Register
   {
   public:
-    IoRegisterNotImplemented(const std::string &name, uint8_t init = 0) : Register(name), _value(init), _errorMsgIssued(false) {}
+    IoRegisterNotImplemented(const Mcu &mcu, const std::string &name, uint8_t init = 0) : Register(mcu, name, false, true), _value(init) {}
 
-    virtual uint8_t  Get() const  ;
-    virtual void     Set(uint8_t v) ;
+    virtual uint8_t  Get() const    { return VG(_value) ; }
+    virtual void     Set(uint8_t v) { _value = VS(v)    ; }
   private:
     uint8_t       _value ;
-    mutable bool  _errorMsgIssued ;
   } ;
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +86,7 @@ namespace AVR
     class Data : public Io::Register
     {
     public:
-      Data(IoXmegaUsart &port) : Register(port.Name() + "_DATA"), _port(port) {}
+      Data(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_DATA", true), _port(port) {}
       virtual uint8_t Get() const  ;
       virtual void    Set(uint8_t v) ;
       virtual void    Add(const std::vector<uint8_t> &data) { _port.Add(data) ; }
@@ -91,9 +97,9 @@ namespace AVR
     class Status : public Io::Register
     {
     public:
-      Status(IoXmegaUsart &port) : Register(port.Name() + "_STATUS"), _port(port), _value(0x20) {}
-      virtual uint8_t Get() const    { fprintf(stdout, "%s get\n", _name.c_str()) ; return (_port.RxAvail() ? 0x80 : 0x00) | 0x40 | 0x20 ; }
-      virtual void    Set(uint8_t v) { fprintf(stdout, "%s set\n", _name.c_str()) ; }
+      Status(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_STATUS"), _port(port), _value(0x20) {}
+      virtual uint8_t Get() const    { return VG((_port.RxAvail() ? 0x80 : 0x00) | 0x40 | 0x20) ; }
+      virtual void    Set(uint8_t v) { VS(v) ; }
     private:
       IoXmegaUsart &_port ;
       uint8_t       _value ;
@@ -101,9 +107,9 @@ namespace AVR
     class CtrlA : public Io::Register
     {
     public:
-      CtrlA(IoXmegaUsart &port) : Register(port.Name() + "_CTRLA"), _port(port), _value(0x00) {}
-      virtual uint8_t Get() const    { return _value ; }
-      virtual void    Set(uint8_t v) { _value = v & 0x3f ; }
+      CtrlA(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_CTRLA"), _port(port), _value(0x00) {}
+      virtual uint8_t Get() const    { return VG(_value) ; }
+      virtual void    Set(uint8_t v) { _value = VS(v) & 0x3f ; }
     private:
       IoXmegaUsart &_port ;
       uint8_t       _value ;
@@ -111,9 +117,9 @@ namespace AVR
     class CtrlB : public Io::Register
     {
     public:
-      CtrlB(IoXmegaUsart &port) : Register(port.Name() + "_CTRLB"), _port(port), _value(0x00) {}
-      virtual uint8_t Get() const    { return _value ; }
-      virtual void    Set(uint8_t v) { _value = v & 0x1f ; }
+      CtrlB(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_CTRLB"), _port(port), _value(0x00) {}
+      virtual uint8_t Get() const    { return VG(_value) ; }
+      virtual void    Set(uint8_t v) { _value = VS(v) & 0x1f ; }
     private:
       IoXmegaUsart &_port ;
       uint8_t       _value ;
@@ -121,9 +127,9 @@ namespace AVR
     class CtrlC : public Io::Register
     {
     public:
-      CtrlC(IoXmegaUsart &port) : Register(port.Name() + "_CTRLC"), _port(port), _value(0x02) {}
-      virtual uint8_t Get() const    { return _value ; }
-      virtual void    Set(uint8_t v) { _value = v ; }
+      CtrlC(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_CTRLC"), _port(port), _value(0x02) {}
+      virtual uint8_t Get() const    { return VG(_value) ; }
+      virtual void    Set(uint8_t v) { _value = VS(v) ; }
     private:
       IoXmegaUsart &_port ;
       uint8_t       _value ;
@@ -131,9 +137,9 @@ namespace AVR
     class BaudCtrlA : public Io::Register
     {
     public:
-      BaudCtrlA(IoXmegaUsart &port) : Register(port.Name() + "_BAUDCTRLA"), _port(port), _value(0x00) {}
-      virtual uint8_t Get() const    { return _value ; }
-      virtual void    Set(uint8_t v) { _value = v ; }
+      BaudCtrlA(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_BAUDCTRLA"), _port(port), _value(0x00) {}
+      virtual uint8_t Get() const    { return VG(_value) ; }
+      virtual void    Set(uint8_t v) { _value = VS(v) ; }
     private:
       IoXmegaUsart &_port ;
       uint8_t       _value ;
@@ -141,9 +147,9 @@ namespace AVR
     class BaudCtrlB : public Io::Register
     {
     public:
-      BaudCtrlB(IoXmegaUsart &port) : Register(port.Name() + "_BAUDCTRLB"), _port(port), _value(0x00) {}
-      virtual uint8_t Get() const    { return _value ; }
-      virtual void    Set(uint8_t v) { _value = v ; }
+      BaudCtrlB(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_BAUDCTRLB"), _port(port), _value(0x00) {}
+      virtual uint8_t Get() const    { return VG(_value) ; }
+      virtual void    Set(uint8_t v) { _value = VS(v) ; }
     private:
       IoXmegaUsart &_port ;
       uint8_t       _value ;
@@ -163,6 +169,231 @@ namespace AVR
   } ;
 
   ////////////////////////////////////////////////////////////////////////////////
+  // IoXmegaCpu
+  ////////////////////////////////////////////////////////////////////////////////
+
+  class IoXmegaCpu : public Io
+  {
+  public:
+    class Ccp : public Io::Register
+    {
+    public:
+      Ccp(const Mcu &mcu, IoXmegaCpu &cpu) : Register(mcu, "CPU_CCP"), _cpu(cpu) {}
+      virtual uint8_t Get() const    { return VG(_cpu.GetCcp()) ; }
+      virtual void    Set(uint8_t v) { _cpu.SetCcp(VS(v))       ; }
+
+    private:
+      IoXmegaCpu &_cpu ;
+    } ;
+
+    IoXmegaCpu(Mcu &mcu) ;
+
+    uint8_t GetCcp() const ;
+    void SetCcp(uint8_t v) ;
+    
+  private:
+    Mcu     &_mcu ;
+    uint8_t  _value ;
+    uint32_t _ticks ;
+  } ;
+  
+  ////////////////////////////////////////////////////////////////////////////////
+  // IoXmegaNvm
+  ////////////////////////////////////////////////////////////////////////////////
+
+  class IoXmegaNvm : public Io
+  {
+  public:
+    class Addr0 : public Io::Register
+    {
+    public:
+      Addr0(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_ADDR0"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetAddr0()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetAddr0(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+
+    class Addr1 : public Io::Register
+    {
+    public:
+      Addr1(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_ADDR1"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetAddr1()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetAddr1(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+    
+    class Addr2 : public Io::Register
+    {
+    public:
+      Addr2(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_ADDR2"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetAddr2()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetAddr2(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+    
+    class Data0 : public Io::Register
+    {
+    public:
+      Data0(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_DATA0"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetData0()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetData0(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+    
+    class Data1 : public Io::Register
+    {
+    public:
+      Data1(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_DATA1"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetData1()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetData1(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+    
+    class Data2 : public Io::Register
+    {
+    public:
+      Data2(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_DATA2"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetData2()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetData2(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+    
+    class Cmd : public Io::Register
+    {
+    public:
+      Cmd(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_CMD"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetCmd()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetCmd(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+    
+    class CtrlA : public Io::Register
+    {
+    public:
+      CtrlA(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_CTRLA"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetCtrlA()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetCtrlA(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+    
+    class CtrlB : public Io::Register
+    {
+    public:
+      CtrlB(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_CTRLB"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetCtrlB()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetCtrlB(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+    
+    class IntCtrl : public Io::Register
+    {
+    public:
+      IntCtrl(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_INTCTRL"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetIntCtrl()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetIntCtrl(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+    
+    class Status : public Io::Register
+    {
+    public:
+      Status(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_STATUS"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetStatus()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetStatus(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+    
+    class LockBits : public Io::Register
+    {
+    public:
+      LockBits(const Mcu &mcu, IoXmegaNvm &nvm) : Register(mcu, "NVM_LockBits"), _nvm(nvm) {}
+      virtual uint8_t Get() const    { return VG(_nvm.GetLockBits()) ; }
+      virtual void    Set(uint8_t v) { _nvm.SetLockBits(VS(v))       ; }
+
+    private:
+      IoXmegaNvm &_nvm ;
+    } ;
+
+    enum class LpmType
+    {
+      Flash,
+      UserSignature,        
+      ProductionSignature,
+    } ;
+    
+    IoXmegaNvm(Mcu &mcu, IoXmegaCpu &cpu) ;
+
+    uint8_t  GetAddr0() ;
+    void     SetAddr0(uint8_t v) ;
+    uint8_t  GetAddr1() ;
+    void     SetAddr1(uint8_t v) ;
+    uint8_t  GetAddr2() ;
+    void     SetAddr2(uint8_t v) ;
+    uint32_t GetAddr() ;
+    void     SetAddr(uint32_t v) ;
+
+    uint8_t  GetData0() ;
+    void     SetData0(uint8_t v) ;
+    uint8_t  GetData1() ;
+    void     SetData1(uint8_t v) ;
+    uint8_t  GetData2() ;
+    void     SetData2(uint8_t v) ;
+    uint32_t GetData() ;
+    void     SetData(uint32_t v) ;
+
+    uint8_t GetCmd() ;
+    void    SetCmd(uint8_t v) ;
+    uint8_t GetCtrlA() ;
+    void    SetCtrlA(uint8_t v) ;
+    uint8_t GetCtrlB() ;
+    void    SetCtrlB(uint8_t v) ;
+    uint8_t GetIntCtrl() ;
+    void    SetIntCtrl(uint8_t v) ;
+    uint8_t GetStatus() ;
+    void    SetStatus(uint8_t v) ;
+    uint8_t GetLockBits() ;
+    void    SetLockBits(uint8_t v) ;
+
+    LpmType Lpm() const ;
+    bool    EepromMapped() const ;
+    
+  private:
+    Mcu        &_mcu ;
+    IoXmegaCpu &_cpu ;
+    
+    uint32_t _addr ;
+    uint32_t _data ;
+    uint8_t  _cmd ;
+    uint8_t  _ctrlB ;
+    uint8_t  _intCtrl ;
+    uint8_t  _lockBits ;
+
+    LpmType  _lpm ;
+  } ;
+  
+  ////////////////////////////////////////////////////////////////////////////////
   // IoEeprom (tiny, mega)
   ////////////////////////////////////////////////////////////////////////////////
   
@@ -172,36 +403,36 @@ namespace AVR
     class EEARH : public Io::Register
     {
     public:
-      EEARH(IoEeprom &eeprom) : Register("EEARH"), _eeprom(eeprom) {} ;
-      virtual uint8_t Get() const    { return _eeprom.GetAddrHi() ; }
-      virtual void    Set(uint8_t v) { _eeprom.SetAddrHi(v) ; }
+      EEARH(const Mcu &mcu, IoEeprom &eeprom) : Register(mcu, "EEARH"), _eeprom(eeprom) {} ;
+      virtual uint8_t Get() const    { return VG(_eeprom.GetAddrHi()) ; }
+      virtual void    Set(uint8_t v) { _eeprom.SetAddrHi(VS(v))       ; }
     private:
       IoEeprom &_eeprom ;
     } ;
     class EEARL : public Io::Register
     {
     public:
-      EEARL(IoEeprom &eeprom) : Register("EEARL"), _eeprom(eeprom) {} ;
-      virtual uint8_t Get() const    { return _eeprom.GetAddrLo() ; }
-      virtual void    Set(uint8_t v) { _eeprom.SetAddrLo(v) ; }
+      EEARL(const Mcu &mcu, IoEeprom &eeprom) : Register(mcu, "EEARL"), _eeprom(eeprom) {} ;
+      virtual uint8_t Get() const    { return VG(_eeprom.GetAddrLo()) ; }
+      virtual void    Set(uint8_t v) { _eeprom.SetAddrLo(VS(v))       ; }
     private:
       IoEeprom &_eeprom ;
     } ;
     class EEDR : public Io::Register
     {
     public:
-      EEDR(IoEeprom &eeprom) : Register("EEDR"), _eeprom(eeprom) {} ;
-      virtual uint8_t Get() const    { return _eeprom.GetData() ; }
-      virtual void    Set(uint8_t v) { _eeprom.SetData(v) ; }
+      EEDR(const Mcu &mcu, IoEeprom &eeprom) : Register(mcu, "EEDR"), _eeprom(eeprom) {} ;
+      virtual uint8_t Get() const    { return VG(_eeprom.GetData()) ; }
+      virtual void    Set(uint8_t v) { _eeprom.SetData(VS(v))       ; }
     private:
       IoEeprom &_eeprom ;
     } ;
     class EECR : public Io::Register
     {
     public:
-      EECR(IoEeprom &eeprom) : Register("EECR"), _eeprom(eeprom) {} ;
-      virtual uint8_t Get() const    { return _eeprom.GetControl() ; }
-      virtual void    Set(uint8_t v) { _eeprom.SetControl(v) ; }
+      EECR(const Mcu &mcu, IoEeprom &eeprom) : Register(mcu, "EECR"), _eeprom(eeprom) {} ;
+      virtual uint8_t Get() const    { return VG(_eeprom.GetControl()) ; }
+      virtual void    Set(uint8_t v) { _eeprom.SetControl(VS(v))       ; }
     private:
       IoEeprom &_eeprom ;
     } ;
@@ -218,7 +449,7 @@ namespace AVR
     void     SetData(uint8_t v)    ;
     uint8_t  GetControl() const    ;
     void     SetControl(uint8_t v) ;
-    
+
   private:
     static const uint8_t kEEPM  = 0b00110000 ;
     static const uint8_t kEERIE = 0b00001000 ;

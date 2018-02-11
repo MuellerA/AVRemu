@@ -7,26 +7,35 @@
 namespace AVR
 {
   ////////////////////////////////////////////////////////////////////////////////
-  // IoRegisterNotImplemented
+  // Io::Register
   ////////////////////////////////////////////////////////////////////////////////
-  
-  uint8_t IoRegisterNotImplemented::Get() const
+
+  uint8_t Io::Register::VG(uint8_t v) const
   {
-    if (!_errorMsgIssued)
+    if (_ascii || (_mcu.Verbose() && VerboseType::Io))
     {
-      fprintf(stderr, "not implemented IO %s read\n", _name.c_str()) ;
-      //_errorMsgIssued = true ;
+      if (_notImplemented)
+        fprintf(stdout, "not implemented ") ;
+      fprintf(stdout, "IO %s read at %05x: %02x", _name.c_str(), _mcu.PC(), v) ;
+      if (_ascii && (' ' < v) && (v <= '~'))
+        fprintf(stdout, " %c", v) ;
+      fprintf(stdout, "\n") ;
     }
-    return _value ;
+    return v ;
   }
-  void  IoRegisterNotImplemented::Set(uint8_t v)
+  
+  uint8_t Io::Register::VS(uint8_t v) const
   {
-    if (!_errorMsgIssued)
+    if (_ascii || (_mcu.Verbose() && VerboseType::Io))
     {
-      fprintf(stderr, "not implemented IO %s write 0x%02x\n", _name.c_str(), v) ;
-      //_errorMsgIssued = true ;
+      if (_notImplemented)
+        fprintf(stdout, "not implemented ") ;
+      fprintf(stdout, "IO %s write at %05x: %02x", _name.c_str(), _mcu.PC(), v) ;
+      if (_ascii && (' ' < v) && (v <= '~'))
+        fprintf(stdout, " %c", v) ;
+      fprintf(stdout, "\n") ;
     }
-    _value = v ;
+    return v  ;
   }
   
   ////////////////////////////////////////////////////////////////////////////////
@@ -35,36 +44,243 @@ namespace AVR
 
   uint8_t IoXmegaUsart::Data::Get() const
   {
-    return _port.Rx() ;
+    return VG(_port.Rx()) ;
   }
   void IoXmegaUsart::Data::Set(uint8_t v)
   {
-    _port.Tx(v) ;
+    _port.Tx(VS(v)) ;
   }
   
   uint8_t IoXmegaUsart::Rx() const
   {
     if (_rxPos < _rx.size())
-    {
-      unsigned char c = (unsigned char) _rx[_rxPos++] ;
-      fprintf(stdout, "%s Rx %02x", _name.c_str(), c) ;
-      fprintf(stdout, " %c", ((' ' <= c) && (c <= '~')) ? c : ' ') ;
-      fprintf(stdout, "\n") ;
-      return c ;
-    }
+      return (unsigned char) _rx[_rxPos++] ;
+
     _rx.clear() ;
     _rxPos = 0 ;
     return 0 ;
   }
   void IoXmegaUsart::Tx(uint8_t c) const
   {
-    fprintf(stdout, "%s Tx %02x", _name.c_str(), c) ;
-    fprintf(stdout, " %c", ((' ' <= c) && (c <= '~')) ? c : ' ') ;
-    fprintf(stdout, "\n") ;
   }
   void IoXmegaUsart::Add(const std::vector<uint8_t> &data)
   {
     _rx.insert(std::end(_rx), std::begin(data), std::end(data));
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // IoXmegaCpu
+  ////////////////////////////////////////////////////////////////////////////////
+
+  IoXmegaCpu::IoXmegaCpu(Mcu &mcu) : _mcu(mcu), _value(0), _ticks(0)
+  {
+  }
+
+  uint8_t IoXmegaCpu::GetCcp() const
+  {
+    uint8_t v = (_ticks + 4 > _mcu.Ticks()) ? _value : 0x00 ;
+    return v ;
+  }
+  
+  void IoXmegaCpu::SetCcp(uint8_t v)
+  {
+    _ticks = _mcu.Ticks() ;
+    switch (v)
+    {
+    case 0xd8: _value = 0x01 ; return ;
+    case 0x9d: _value = 0x02 ; return ;
+    }
+  }  
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // IoXmegaNvm
+  ////////////////////////////////////////////////////////////////////////////////
+
+  IoXmegaNvm::IoXmegaNvm(Mcu &mcu, IoXmegaCpu &cpu)
+    : _mcu(mcu), _cpu(cpu), _lpm(LpmType::Flash)
+  {
+  }
+  
+  uint8_t  IoXmegaNvm::GetAddr0()
+  {
+    return _addr >>  0 ;
+  }
+
+  void     IoXmegaNvm::SetAddr0(uint8_t v)
+  {
+    _addr &= ~(0xff <<  0) ;
+    _addr |= v      <<  0  ;
+  }
+
+  uint8_t  IoXmegaNvm::GetAddr1()
+  {
+    return _addr >>  8 ;
+  }
+
+  void     IoXmegaNvm::SetAddr1(uint8_t v)
+  {
+    _addr &= ~(0xff <<  8) ;
+    _addr |= v      <<  8  ;
+  }
+
+  uint8_t  IoXmegaNvm::GetAddr2()
+  {
+    return _addr >> 16 ;
+  }
+
+  void     IoXmegaNvm::SetAddr2(uint8_t v)
+  {
+    _addr &= ~(0xff << 16) ;
+    _addr |= v      << 16  ;
+  }
+
+  uint32_t IoXmegaNvm::GetAddr()
+  {
+    return _addr ;
+  }
+
+  void     IoXmegaNvm::SetAddr(uint32_t v)
+  {
+    _addr = v ;
+  }
+
+  uint8_t  IoXmegaNvm::GetData0()
+  {
+    return _data >>  0 ;
+  }
+
+  void     IoXmegaNvm::SetData0(uint8_t v)
+  {
+    _data &= ~(0xff <<  0) ;
+    _data |= v      <<  0  ;
+  }
+
+  uint8_t  IoXmegaNvm::GetData1()
+  {
+    return _data >>  8 ;
+  }
+
+  void     IoXmegaNvm::SetData1(uint8_t v)
+  {
+    _data &= ~(0xff <<  8) ;
+    _data |= v      <<  8  ;
+  }
+
+  uint8_t  IoXmegaNvm::GetData2()
+  {
+    return _data >> 16 ;
+  }
+
+  void     IoXmegaNvm::SetData2(uint8_t v)
+  {
+    _data &= ~(0xff << 16) ;
+    _data |= v      << 16  ;
+  }
+
+  uint32_t IoXmegaNvm::GetData()
+  {
+    return _data ;
+  }
+
+  void     IoXmegaNvm::SetData(uint32_t v)
+  {
+    _data = v ;
+  }
+
+
+  uint8_t IoXmegaNvm::GetCmd()
+  {
+    return _cmd ;
+  }
+
+  void    IoXmegaNvm::SetCmd(uint8_t v)
+  {
+    _cmd = v & 0x7f ;
+    switch (_cmd)
+    {
+    case 0x00: _lpm = LpmType::Flash               ; return ;
+    case 0x01: _lpm = LpmType::UserSignature       ; return ;
+    case 0x02: _lpm = LpmType::ProductionSignature ; return ;
+
+    case 0x33: // Load EEPROM page buffer
+      if (EepromMapped())
+        return ;
+      
+      return ;
+      
+    case 0x35: // Erase and write EEPROM page
+      if (EepromMapped())
+        return ;
+      
+      return ;
+
+    default:
+      fprintf(stderr, "unsupported NVM command at %05x %02x\n", _mcu.PC(), v) ;
+      return ;
+    }
+  }
+
+  uint8_t IoXmegaNvm::GetCtrlA()
+  {
+    return 0 ;
+  }
+
+  void    IoXmegaNvm::SetCtrlA(uint8_t v)
+  {
+    if (v & 1)
+    {
+      // todo
+    }
+  }
+
+  uint8_t IoXmegaNvm::GetCtrlB()
+  {
+    return _ctrlB ;
+  }
+
+  void    IoXmegaNvm::SetCtrlB(uint8_t v)
+  {
+    _ctrlB = v & 0x0f ;
+  }
+
+  uint8_t IoXmegaNvm::GetIntCtrl()
+  {
+    return _intCtrl ;
+  }
+
+  void    IoXmegaNvm::SetIntCtrl(uint8_t v)
+  {
+    _intCtrl = v & 0x0f ;
+  }
+
+  uint8_t IoXmegaNvm::GetStatus()
+  {
+    return 0 ;
+  }
+
+  void    IoXmegaNvm::SetStatus(uint8_t v)
+  {
+    // nothing
+  }
+
+  uint8_t IoXmegaNvm::GetLockBits()
+  {
+    return _lockBits ;
+  }
+
+  void    IoXmegaNvm::SetLockBits(uint8_t v)
+  {
+    _lockBits = v ;
+  }
+
+  IoXmegaNvm::LpmType IoXmegaNvm::Lpm() const
+  {
+    return _lpm ;
+  }
+  
+  bool IoXmegaNvm::EepromMapped() const
+  {
+    return _ctrlB & 0x08 ;
   }
   
   ////////////////////////////////////////////////////////////////////////////////

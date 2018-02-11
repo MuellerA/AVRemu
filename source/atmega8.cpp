@@ -121,16 +121,16 @@ namespace AVR
     } ;
     for (const auto &iIoReg: ioRegs)
     {
-      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
+      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(*this, iIoReg.second) ;
     }
-    _io[0x3f] = new IoSREG::SREG(_sreg) ;
-    _io[0x3e] = new IoSP::SPH(_sp) ;
-    _io[0x3d] = new IoSP::SPL(_sp) ;
+    _io[0x3f] = new IoSREG::SREG(*this, _sreg) ;
+    _io[0x3e] = new IoSP::SPH(*this, _sp) ;
+    _io[0x3d] = new IoSP::SPL(*this, _sp) ;
 
-    _io[0x22] = new IoEeprom::EEARH(ioEeprom) ;
-    _io[0x21] = new IoEeprom::EEARL(ioEeprom) ;
-    _io[0x20] = new IoEeprom::EEDR (ioEeprom) ;
-    _io[0x1f] = new IoEeprom::EECR (ioEeprom) ;
+    _io[0x22] = new IoEeprom::EEARH(*this, ioEeprom) ;
+    _io[0x21] = new IoEeprom::EEARL(*this, ioEeprom) ;
+    _io[0x20] = new IoEeprom::EEDR (*this, ioEeprom) ;
+    _io[0x1f] = new IoEeprom::EECR (*this, ioEeprom) ;
   }
 
   ATmega8A::~ATmega8A()

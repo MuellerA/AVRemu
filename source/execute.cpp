@@ -880,6 +880,36 @@ bool CommandListIo::Execute(AVR::Mcu &mcu)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// CommandVerbose
+////////////////////////////////////////////////////////////////////////////////
+
+class CommandVerbose : public Command
+{
+public:
+  CommandVerbose() : Command(R"XXX(\s*v\s*io\s*=\s*(on|off)\s*)XXX") { }
+  ~CommandVerbose() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandVerbose::Help() const
+{
+  return strings { "v io = <on|off>               verbose io on/off" } ;
+}
+bool CommandVerbose::Execute(AVR::Mcu &mcu)
+{
+  const std::string &onOff = _match[1] ;
+
+  if (onOff == "on")
+    mcu.Verbose() |= AVR::VerboseType::Io ;
+  if (onOff == "off")
+    mcu.Verbose() &= ~AVR::VerboseType::Io ;
+
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // CommandTrace
 ////////////////////////////////////////////////////////////////////////////////
 class CommandTrace : public Command
@@ -1180,6 +1210,7 @@ namespace AVR
       new CommandListIo(),
       new CommandMacro(*this),
       new CommandMacroQuit(*this),
+      new CommandVerbose(),
       new CommandTrace(),
       new CommandEcho(),
       new CommandQuit(*this),

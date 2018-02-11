@@ -110,11 +110,11 @@ namespace AVR
     } ;
     for (const auto &iIoReg: ioRegs)
     {
-      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(iIoReg.second) ;
+      _io[iIoReg.first-0x20] = new IoRegisterNotImplemented(*this, iIoReg.second) ;
     }
-    _io[0x3f] = new IoSREG::SREG(_sreg) ;
-    _io[0x3e] = new IoSP::SPH(_sp) ;
-    _io[0x3d] = new IoSP::SPL(_sp) ;
+    _io[0x3f] = new IoSREG::SREG(*this, _sreg) ;
+    _io[0x3e] = new IoSP::SPH(*this, _sp) ;
+    _io[0x3d] = new IoSP::SPL(*this, _sp) ;
   }
   ATtinyX5::~ATtinyX5()
   {
@@ -124,10 +124,10 @@ namespace AVR
 
   ATtiny85::ATtiny85() : ATtinyX5(0x2000/2, 0x200, 0x200)
   {
-    _io[0x1f] = new IoEeprom::EEARH(ioEeprom) ;
-    _io[0x1e] = new IoEeprom::EEARL(ioEeprom) ;
-    _io[0x1d] = new IoEeprom::EEDR (ioEeprom) ;
-    _io[0x1c] = new IoEeprom::EECR (ioEeprom) ;
+    _io[0x1f] = new IoEeprom::EEARH(*this, ioEeprom) ;
+    _io[0x1e] = new IoEeprom::EEARL(*this, ioEeprom) ;
+    _io[0x1d] = new IoEeprom::EEDR (*this, ioEeprom) ;
+    _io[0x1c] = new IoEeprom::EECR (*this, ioEeprom) ;
   }
   ATtiny85::~ATtiny85()
   {
@@ -137,9 +137,9 @@ namespace AVR
 
   ATtiny45::ATtiny45() : ATtinyX5(0x1000/2, 0x100, 0x100)
   {
-    _io[0x1e] = new IoEeprom::EEARL(ioEeprom) ;
-    _io[0x1d] = new IoEeprom::EEDR (ioEeprom) ;
-    _io[0x1c] = new IoEeprom::EECR (ioEeprom) ;
+    _io[0x1e] = new IoEeprom::EEARL(*this, ioEeprom) ;
+    _io[0x1d] = new IoEeprom::EEDR (*this, ioEeprom) ;
+    _io[0x1c] = new IoEeprom::EECR (*this, ioEeprom) ;
   }
   ATtiny45::~ATtiny45()
   {
@@ -149,9 +149,9 @@ namespace AVR
 
   ATtiny25::ATtiny25() : ATtinyX5(0x800/2, 0x80, 0x80)
   {
-    _io[0x1e] = new IoEeprom::EEARL(ioEeprom) ;
-    _io[0x1d] = new IoEeprom::EEDR (ioEeprom) ;
-    _io[0x1c] = new IoEeprom::EECR (ioEeprom) ;
+    _io[0x1e] = new IoEeprom::EEARL(*this, ioEeprom) ;
+    _io[0x1d] = new IoEeprom::EEDR (*this, ioEeprom) ;
+    _io[0x1c] = new IoEeprom::EECR (*this, ioEeprom) ;
   }
   ATtiny25::~ATtiny25()
   {

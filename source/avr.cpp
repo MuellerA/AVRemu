@@ -11,6 +11,41 @@
 namespace AVR
 {
   ////////////////////////////////////////////////////////////////////////////////
+  // VerboseType
+
+  bool operator&&(VerboseType a, VerboseType b)
+  {
+    return (unsigned int)a & (unsigned int)b ;
+  }
+  
+  VerboseType operator&(VerboseType a, VerboseType b)
+  {
+    return (VerboseType)((unsigned int)a & (unsigned int)b) ;
+  }
+
+  VerboseType operator|(VerboseType a, VerboseType b)
+  {
+    return (VerboseType)((unsigned int)a | (unsigned int)b) ;
+  }
+
+  VerboseType operator~(VerboseType a)
+  {
+    return (VerboseType)~(unsigned int)a ;
+  }
+  
+  VerboseType operator|=(VerboseType &a, VerboseType b)
+  {
+    a = a | b ;
+    return a ;
+  }
+  
+  VerboseType operator&=(VerboseType &a, VerboseType b)
+  {
+    a = a & b ;
+    return a ;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
   // Instruction
   Instruction::Instruction(Command pattern, Command mask, const std::string &mnemonic, const std::string &description, bool isTwoWord, bool isCall) : _pattern(pattern), _mask(mask), _mnemonic(mnemonic), _description(description), _isTwoWord(isTwoWord), _isCall(isCall)
   {
@@ -49,7 +84,8 @@ namespace AVR
       _ioSize(ioSize), _io(_ioSize),
       _ramSize(ramSize), _ram(_ramSize),
       _eepromSize(eepromSize), _eeprom(_eepromSize),
-      _instructions(0x10000)
+      _instructions(0x10000),
+      _verbose(VerboseType::None)
   {
     _pcIs22Bit     = false ;
     _isXMega       = false ;

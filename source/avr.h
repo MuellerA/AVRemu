@@ -24,6 +24,23 @@ namespace AVR
   using Command = uint16_t ; // 16 bit instruction
 
   ////////////////////////////////////////////////////////////////////////////////
+  // VerboseType
+  ////////////////////////////////////////////////////////////////////////////////
+
+  enum class VerboseType
+  {
+    None = 0x0000,
+    Io   = 0x0001,
+  } ;
+
+  bool operator&&(VerboseType a, VerboseType b) ;
+  
+  VerboseType operator&(VerboseType a, VerboseType b) ;
+  VerboseType operator~(VerboseType a) ;
+  VerboseType operator|=(VerboseType &a, VerboseType b) ;
+  VerboseType operator&=(VerboseType &a, VerboseType b) ;
+
+  ////////////////////////////////////////////////////////////////////////////////
   // Xref
   ////////////////////////////////////////////////////////////////////////////////
   
@@ -142,7 +159,7 @@ namespace AVR
       class SPH : public Io::Register
       {
       public:
-        SPH(IoSP &sp) : Register("SPH"), _sp(sp) {}
+        SPH(const Mcu &mcu, IoSP &sp) : Register(mcu, "SPH"), _sp(sp) {}
         virtual uint8_t  Get() const    { return _sp.GetHi() ; }
         virtual void     Set(uint8_t v) { _sp.SetHi(v) ; }
         virtual uint8_t  Init() const   { return _sp.Init() >> 8 ; }
@@ -152,7 +169,7 @@ namespace AVR
       class SPL : public Io::Register
       {
       public:
-        SPL(IoSP &sp) : Register("SPL"), _sp(sp) {}
+        SPL(const Mcu &mcu, IoSP &sp) : Register(mcu, "SPL"), _sp(sp) {}
         virtual uint8_t  Get() const    { return _sp.GetLo() ; }
         virtual void     Set(uint8_t v) { _sp.SetLo(v) ; }
         virtual uint8_t  Init() const   { return _sp.Init() >> 0 ; }
@@ -183,7 +200,7 @@ namespace AVR
       class SREG : public Io::Register
       {
       public:
-        SREG(IoSREG &sreg) : Register("SREG"), _sreg(sreg) {}
+        SREG(const Mcu &mcu, IoSREG &sreg) : Register(mcu, "SREG"), _sreg(sreg) {}
         virtual uint8_t  Get() const    { return _sreg.Get() ; }
         virtual void     Set(uint8_t v) { _sreg.Set(v) ; }
       private:
@@ -204,7 +221,7 @@ namespace AVR
       class Ramp : public Io::Register
       {
       public:
-        Ramp(const std::string &name, IoRamp &ramp) : Register(name), _ramp(ramp) {}
+        Ramp(const Mcu &mcu, const std::string &name, IoRamp &ramp) : Register(mcu, name), _ramp(ramp) {}
     
         virtual uint8_t  Get() const    { return _ramp.Get() >> 16     ; }
         virtual void     Set(uint8_t v) { _ramp.Set((uint32_t)v << 16) ; }
@@ -339,6 +356,9 @@ namespace AVR
 
     bool TraceOn(const std::string &filename, uint32_t addr = 0) { return _trace.Open(filename, addr) ; }
     bool TraceOff()                                                 { return _trace.Close()              ; }
+
+    VerboseType  Verbose() const { return _verbose ; }
+    VerboseType& Verbose()       { return _verbose ; }
     
   protected:
     void AddInstruction(const Instruction *instr) ;
@@ -379,6 +399,8 @@ namespace AVR
     std::vector<const Instruction*> _instructions ; // map cmd to instruction
 
     Trace _trace ;
+
+    VerboseType _verbose ;
   } ;
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -529,11 +551,15 @@ namespace AVR
     virtual void    Program(uint32_t addr, Command cmd) ;
     virtual bool    InRam(uint32_t addr) const ;
 
+    uint8_t UserSignature(uint32_t addr) const ;
+    uint8_t ProductionSignature(uint32_t addr) const ;
+    
   protected:
     ATxmegaAU(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize) ;
     virtual ~ATxmegaAU() ;
 
-    bool         _isEepromMapped ;
+    IoXmegaCpu   _cpu ;
+    IoXmegaNvm   _nvm ;
     IoXmegaUsart _usartC0 ;
     IoXmegaUsart _usartC1 ;
     IoXmegaUsart _usartD0 ;
