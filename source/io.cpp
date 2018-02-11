@@ -203,19 +203,12 @@ namespace AVR
     case 0x02: _lpm = LpmType::ProductionSignature ; return ;
 
     case 0x33: // Load EEPROM page buffer
-      if (EepromMapped())
-        return ;
-      
-      return ;
-      
     case 0x35: // Erase and write EEPROM page
-      if (EepromMapped())
-        return ;
-      
       return ;
 
     default:
-      fprintf(stderr, "unsupported NVM command at %05x %02x\n", _mcu.PC(), v) ;
+      if (_mcu.Verbose() && VerboseType::Io)
+        fprintf(stdout, "unsupported NVM command at %05x %02x\n", _mcu.PC(), v) ;
       return ;
     }
   }
@@ -229,7 +222,22 @@ namespace AVR
   {
     if (v & 1)
     {
-      // todo
+      switch (_cmd)
+      {
+      case 0x33:  // Load EEPROM page buffer
+        return ;
+        
+      case 0x35: // Erase and write EEPROM page
+        if (!(_cpu.GetCcp() & 0x01))
+        {
+          if (_mcu.Verbose() && VerboseType::Io)
+            fprintf(stdout, "unset CCP on Erase and write EEPROM page at %05x\n", _mcu.PC()) ;
+          return ;
+        }
+        
+        _mcu.Eeprom(_addr, _data, false) ;
+        return ;        
+      }
     }
   }
 

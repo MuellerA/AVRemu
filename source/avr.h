@@ -29,8 +29,10 @@ namespace AVR
 
   enum class VerboseType
   {
-    None = 0x0000,
-    Io   = 0x0001,
+    None   = 0x0000,
+    Io     = 0x0001,
+    Eeprom = 0x0002,
+    All    = 0xffff,
   } ;
 
   bool operator&&(VerboseType a, VerboseType b) ;

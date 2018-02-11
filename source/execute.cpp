@@ -886,7 +886,7 @@ bool CommandListIo::Execute(AVR::Mcu &mcu)
 class CommandVerbose : public Command
 {
 public:
-  CommandVerbose() : Command(R"XXX(\s*v\s*io\s*=\s*(on|off)\s*)XXX") { }
+  CommandVerbose() : Command(R"XXX(\s*v\s*(io|eeprom|all)\s*=\s*(on|off)\s*)XXX") { }
   ~CommandVerbose() { }
 
   virtual strings Help() const ;
@@ -895,17 +895,28 @@ public:
 
 strings CommandVerbose::Help() const
 {
-  return strings { "v io = <on|off>               verbose io on/off" } ;
+  return strings
+  {
+    "v io = <on|off>               verbose io on/off",
+    "v eeprom = <on|off>           verbose eeprom on/off",
+    "v all = <on|off>              verbose all on/off",
+  } ;
 }
 bool CommandVerbose::Execute(AVR::Mcu &mcu)
 {
-  const std::string &onOff = _match[1] ;
+  const std::string &verbose = _match[1] ;
+  const std::string &onOff   = _match[2] ;
 
-  if (onOff == "on")
-    mcu.Verbose() |= AVR::VerboseType::Io ;
-  if (onOff == "off")
-    mcu.Verbose() &= ~AVR::VerboseType::Io ;
+  AVR::VerboseType vt ;
 
+  if      (verbose == "io"    ) vt = AVR::VerboseType::Io     ;
+  else if (verbose == "eeprom") vt = AVR::VerboseType::Eeprom ;
+  else if (verbose == "all"   ) vt = AVR::VerboseType::All    ;
+  else return false ;
+  
+  if (onOff == "on")  mcu.Verbose() |=  vt ;
+  else                mcu.Verbose() &= ~vt ;
+  
   return true ;
 }
 
@@ -1024,7 +1035,7 @@ private:
 
 strings CommandMacroQuit::Help() const
 {
-  return strings { "mq                            quit macro execution"} ;
+  return strings { "mq                            quit macro execution / useful in macros"} ;
 }
 bool CommandMacroQuit::Execute(AVR::Mcu &mcu)
 {

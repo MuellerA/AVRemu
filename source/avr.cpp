@@ -422,26 +422,43 @@ namespace AVR
 
   void Mcu::Eeprom(uint32_t address, uint8_t value, bool resetOnError)
   {
-    if (address < _eepromSize)
+    if (address >= _eepromSize)
     {
-      _eeprom[address] = value ;
-      return ;
+      fprintf(stdout, "illegal eeprom write at %05x: %05x, %02x\n", _pc, address, value) ;
+      address %= _eepromSize ;
     }
-    
-    fprintf(stderr, "illegal eeprom write at %05x: %05x, %02x\n", _pc, address, value) ;
-    //if (resetOnError)
-    //  _pc = 0 ;
+
+    if (_verbose && VerboseType::Eeprom)
+    {
+      fprintf(stdout, "EEPROM write at %05x: %04x %02x", _pc, address, value) ;
+      if ((' ' < value) && (value <= '~'))
+        fprintf(stdout, " %c", value) ;
+      fprintf(stdout, "\n") ;
+    }
+      
+    _eeprom[address] = value ;
+    return ;
   }
   
   uint8_t Mcu::Eeprom(uint32_t address, bool resetOnError) const
   {
-    if (address < _eepromSize)
-      return _eeprom[address] ;
+    if (address >= _eepromSize)
+    {
+      fprintf(stdout, "illegal eeprom read at %05x: %04x\n", _pc, address) ;
+      address %= _eepromSize ;
+    }
 
-    fprintf(stderr, "illegal eeprom read at %05x: %04x\n", _pc, address) ;
-    //if (resetOnError)
-    //  const_cast<Mcu*>(this)->_pc = 0 ;
-    return 0xff ;
+    uint8_t v = _eeprom[address] ;
+      
+    if (_verbose && VerboseType::Eeprom)
+    {
+      fprintf(stdout, "EEPROM read at %05x: %04x %02x", _pc, address, v) ;
+      if ((' ' < v) && (v <= '~'))
+        fprintf(stdout, " %c", v) ;
+      fprintf(stdout, "\n") ;
+    }
+
+    return v ;
   }  
 
   Command  Mcu::Flash(uint32_t addr) const

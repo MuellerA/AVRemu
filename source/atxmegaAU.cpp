@@ -774,7 +774,7 @@ namespace AVR
 
       { 0x08C0, new IoRegisterNotImplemented(*this, "SPIC_CTRL") }, // Serial Peripheral Interface on port C
       { 0x08C1, new IoRegisterNotImplemented(*this, "SPIC_INTCTRL") },
-      { 0x08C2, new IoRegisterNotImplemented(*this, "SPIC_STATUS") },
+      { 0x08C2, new IoRegisterNotImplemented(*this, "SPIC_STATUS", 0x80) },
       { 0x08C3, new IoRegisterNotImplemented(*this, "SPIC_DATA") },
 
       { 0x08F8, new IoRegisterNotImplemented(*this, "IRCOM_CTRL") }, // Infrared Communication Module
@@ -873,7 +873,7 @@ namespace AVR
 
       { 0x09C0, new IoRegisterNotImplemented(*this, "SPID_CTRL") }, // Serial Peripheral Interface on port D
       { 0x09C1, new IoRegisterNotImplemented(*this, "SPID_INTCTRL") },
-      { 0x09C2, new IoRegisterNotImplemented(*this, "SPID_STATUS") },
+      { 0x09C2, new IoRegisterNotImplemented(*this, "SPID_STATUS", 0x80) },
       { 0x09C3, new IoRegisterNotImplemented(*this, "SPID_DATA") },
 
       { 0x0A00, new IoRegisterNotImplemented(*this, "TCE0_CTRLA") }, // Timer/Counter 0 on port E
