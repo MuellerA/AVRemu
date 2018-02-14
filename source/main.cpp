@@ -134,7 +134,6 @@ int main(int argc, char *argv[])
   std::string xrefFileName ;
   std::string eepromFileName ;
   std::string macroFileName ;
-  bool verbose = false ;
   
   for (iArg = 1 ; iArg < argc ; ++iArg)
   {

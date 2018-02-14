@@ -20,6 +20,7 @@ namespace AVR
   
   class Mcu ;
   class Instruction ;
+  class Filter ;
 
   using Command = uint16_t ; // 16 bit instruction
 
@@ -287,6 +288,7 @@ namespace AVR
     uint16_t RegW(uint32_t reg) const ;
     void     RegW(uint32_t reg, uint16_t value) ;
     uint8_t  Io(uint32_t io) const ;
+    bool     Io(uint32_t io, uint8_t &byte) const ;
     void     Io(uint32_t io, uint8_t value) ;
     uint8_t  Ram(uint32_t addr) const ;
     void     Ram(uint32_t addr, uint8_t value) ;
@@ -295,6 +297,7 @@ namespace AVR
     Command  Flash(uint32_t addr) const ;
     void     Flash(uint32_t addr, Command cmd) ;
     virtual uint8_t Data(uint32_t addr, bool resetOnError = true) const ;
+    virtual bool    Data(uint32_t addr, uint8_t &byte) const ;
     virtual void    Data(uint32_t addr, uint8_t value, bool resetOnError = true) ;
     virtual Command Program(uint32_t addr) const ;
     virtual void    Program(uint32_t addr, Command cmd) ;
@@ -361,6 +364,10 @@ namespace AVR
 
     VerboseType  Verbose() const { return _verbose ; }
     VerboseType& Verbose()       { return _verbose ; }
+    void Verbose(VerboseType vt, const std::string &text) const ;
+    void AddFilter(VerboseType vt, const std::string &command) ;
+    void DelFilter(pid_t pid) ;
+    const std::vector<Filter*>& Filters() const { return _filters ; }
     
   protected:
     void AddInstruction(const Instruction *instr) ;
@@ -400,6 +407,7 @@ namespace AVR
     std::set<uint32_t>               _breakpoints ;
     std::vector<const Instruction*> _instructions ; // map cmd to instruction
 
+    std::vector<Filter*> _filters ;
     Trace _trace ;
 
     VerboseType _verbose ;
@@ -548,6 +556,7 @@ namespace AVR
   class ATxmegaAU : public Mcu
   {
     virtual uint8_t Data(uint32_t addr, bool resetOnError = true) const ;
+    virtual bool    Data(uint32_t addr, uint8_t &byte) const ;
     virtual void    Data(uint32_t addr, uint8_t value, bool resetOnError = true) ;
     virtual Command Program(uint32_t addr) const ;
     virtual void    Program(uint32_t addr, Command cmd) ;

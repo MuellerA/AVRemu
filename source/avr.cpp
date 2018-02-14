@@ -7,6 +7,7 @@
 
 #include "avr.h"
 #include "instr.h"
+#include "filter.h"
 
 namespace AVR
 {
@@ -100,6 +101,9 @@ namespace AVR
     for (auto iXref : _xrefs)
       delete iXref ;
 
+    for (auto iF : _filters)
+      delete iF ;
+    
     if (_trace._file)
       _trace.Close() ;
   }
@@ -192,8 +196,26 @@ namespace AVR
     }
   }
 
+  void StatusBytes(const Mcu &mcu, uint32_t addr)
+  {
+    for (unsigned int i = 0 ; i < 0x10 ; ++i)
+    {
+      uint8_t b ;
+
+      if (mcu.Data(addr+i, b))
+        printf(" %02x", b) ;
+      else
+        printf(" --") ;
+    }
+  }
+  
   void Mcu::Status()
-  {    
+  {
+    /*
+    VerboseType vt = _verbose ;
+    _verbose = VerboseType::None ;
+    */
+    
     uint8_t sreg = _sreg.Get() ;
     printf("       %c%c%c%c%c%c%c%c ",
            (sreg && AVR::SREG::I) ? 'I' : '_',
@@ -205,21 +227,50 @@ namespace AVR
            (sreg && AVR::SREG::Z) ? 'Z' : '_',
            (sreg && AVR::SREG::C) ? 'C' : '_') ;
     
-    printf(" %02x %02x %02x %02x  %02x %02x %02x %02x\n",
+    printf(" [ 0] %02x %02x [ 2] %02x %02x [ 4] %02x %02x [ 6] %02x %02x\n",
                 _reg[0], _reg[1], _reg[2], _reg[3], _reg[4], _reg[5], _reg[6], _reg[7]) ;
 
     printf("       SP: %04x ", _sp()) ;
 
-    printf(" %02x %02x %02x %02x  %02x %02x %02x %02x\n",
+    printf(" [ 8] %02x %02x [10] %02x %02x [12] %02x %02x [14] %02x %02x\n",
                 _reg[8], _reg[9], _reg[10], _reg[11], _reg[12], _reg[13], _reg[14], _reg[15]) ;
 
     printf("                ") ;
-
-    printf(" %02x %02x %02x %02x  %02x %02x %02x %02x\n",
+    printf(" [16] %02x %02x [18] %02x %02x [20] %02x %02x [22] %02x %02x\n",
                 _reg[16], _reg[17], _reg[18], _reg[19], _reg[20], _reg[21], _reg[22], _reg[23]) ;
+
     printf("                ") ;
-    printf(" %02x %02x %02x %02x  %02x %02x %02x %02x\n",
+    printf(" [24] %02x %02x [26] %02x %02x [28] %02x %02x [30] %02x %02x\n",
                 _reg[24], _reg[25], _reg[26], _reg[27], _reg[28], _reg[29], _reg[30], _reg[31]) ;
+
+    /*
+    if (_pcIs22Bit)
+      printf("       RAMPX: %02x   X:", GetRampX()) ;
+    else
+      printf("       X: ") ;
+    StatusBytes(*this, GetRampX() | RegW(26)) ;
+    printf("\n") ;
+
+    if (_pcIs22Bit)
+      printf("       RAMPY: %02x   Y:", GetRampY()) ;
+    else
+      printf("       Y: ") ;
+    StatusBytes(*this, GetRampY() | RegW(28)) ;
+    printf("\n") ;
+
+    if (_pcIs22Bit)
+      printf("       RAMPZ: %02x   Z:", GetRampZ()) ;
+    else
+      printf("       Z: ") ;
+    StatusBytes(*this, GetRampZ() | RegW(30)) ;
+    printf("\n") ;
+
+    printf("      SP: ") ;
+    StatusBytes(*this, GetSP()) ;
+    printf("\n") ;
+
+    _verbose = vt ;
+    */
   }
 
   void Mcu::Skip()
@@ -389,6 +440,17 @@ namespace AVR
     }
     return ioReg->Get() ;
   }
+  bool Mcu::Io(uint32_t addr, uint8_t &byte) const
+  {
+    Io::Register *ioReg = _io[addr] ;
+    if (!ioReg)
+    {
+      return false ;
+    }
+    byte = ioReg->Get() ;
+    return true ;
+  }
+  
   void   Mcu::Io(uint32_t io, uint8_t value)
   {
     Io::Register *ioReg = _io[io] ;
@@ -428,12 +490,15 @@ namespace AVR
       address %= _eepromSize ;
     }
 
-    if (_verbose && VerboseType::Eeprom)
     {
-      fprintf(stdout, "EEPROM write at %05x: %04x %02x", _pc, address, value) ;
+      char buff[1024] ;
+      char *ptr = buff ;
+      
+      ptr += sprintf(ptr, "EEPROM write at %05x: %04x %02x", _pc, address, value) ;
       if ((' ' < value) && (value <= '~'))
-        fprintf(stdout, " %c", value) ;
-      fprintf(stdout, "\n") ;
+        ptr += sprintf(ptr, " %c", value) ;
+      ptr += sprintf(ptr, "\n") ;
+      Verbose(VerboseType::Eeprom, buff) ;
     }
       
     _eeprom[address] = value ;
@@ -450,12 +515,15 @@ namespace AVR
 
     uint8_t v = _eeprom[address] ;
       
-    if (_verbose && VerboseType::Eeprom)
     {
-      fprintf(stdout, "EEPROM read at %05x: %04x %02x", _pc, address, v) ;
+      char buff[1024] ;
+      char *ptr = buff ;
+      
+      ptr += sprintf(ptr, "EEPROM read at %05x: %04x %02x", _pc, address, v) ;
       if ((' ' < v) && (v <= '~'))
-        fprintf(stdout, " %c", v) ;
-      fprintf(stdout, "\n") ;
+        ptr += sprintf(ptr, " %c", v) ;
+      ptr += sprintf(ptr, "\n") ;
+      Verbose(VerboseType::Eeprom, buff) ;
     }
 
     return v ;
@@ -506,6 +574,27 @@ namespace AVR
     return 0xff ;
   }
 
+  bool Mcu::Data(uint32_t addr, uint8_t &byte) const
+  {
+    if (addr < 0x32)
+    {
+      byte = Reg(addr) ;
+      return true ;
+    }
+    if (addr < (0x32 + _ioSize))
+    {
+      byte = Io(addr - 0x32) ;
+      return true ;
+    }
+    else if (addr <= (0x32 + _ioSize + _ramSize))
+    {
+      byte = _ram[addr - 0x32 - _ioSize] ;
+      return true ;
+    }
+
+    return false ;
+  }
+  
   void Mcu::Data(uint32_t addr, uint8_t value, bool resetOnError)
   {
     if (addr < 0x32)
@@ -694,6 +783,33 @@ namespace AVR
 
     return true ;
   }
+
+  void Mcu::Verbose(VerboseType vt, const std::string &text) const
+  {
+    if (_verbose && vt)
+      fprintf(stdout, text.c_str()) ;
+
+    for (auto filter : _filters)
+    {
+      if (filter->Verbose() && vt)
+      {
+        std::string fromFilter ;
+        (*filter)(text, fromFilter) ;
+        if (fromFilter.size())
+          fprintf(stdout, "=> %s\n", fromFilter.c_str()) ;
+      }
+    }
+  }
+
+  void Mcu::AddFilter(VerboseType vt, const std::string &command)
+  {
+    _filters.push_back(new Filter(command, vt)) ;
+  }
+  
+  void Mcu::DelFilter(pid_t pid)
+  {
+    _filters.erase(std::find_if(_filters.begin(), _filters.end(), [pid](const Filter *f){ return f->Pid() == pid ; })) ;    
+  }  
   
   void Mcu::AddInstruction(const Instruction *instr)
   {

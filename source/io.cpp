@@ -12,29 +12,33 @@ namespace AVR
 
   uint8_t Io::Register::VG(uint8_t v) const
   {
-    if (_ascii || (_mcu.Verbose() && VerboseType::Io))
-    {
-      if (_notImplemented)
-        fprintf(stdout, "not implemented ") ;
-      fprintf(stdout, "IO %s read at %05x: %02x", _name.c_str(), _mcu.PC(), v) ;
-      if (_ascii && (' ' < v) && (v <= '~'))
-        fprintf(stdout, " %c", v) ;
-      fprintf(stdout, "\n") ;
-    }
+    char buff[1024] ;
+    char *ptr = buff ;
+    
+    if (_notImplemented)
+      ptr += sprintf(ptr, "not implemented ") ;
+    ptr += sprintf(ptr, "IO %s read at %05x: %02x", _name.c_str(), _mcu.PC(), v) ;
+    if ((' ' < v) && (v <= '~'))
+      ptr += sprintf(ptr, " %c", v) ;
+    ptr += sprintf(ptr, "\n") ;
+    _mcu.Verbose(VerboseType::Io, buff) ;
+
     return v ;
   }
   
   uint8_t Io::Register::VS(uint8_t v) const
   {
-    if (_ascii || (_mcu.Verbose() && VerboseType::Io))
-    {
-      if (_notImplemented)
-        fprintf(stdout, "not implemented ") ;
-      fprintf(stdout, "IO %s write at %05x: %02x", _name.c_str(), _mcu.PC(), v) ;
-      if (_ascii && (' ' < v) && (v <= '~'))
-        fprintf(stdout, " %c", v) ;
-      fprintf(stdout, "\n") ;
-    }
+    char buff[1024] ;
+    char *ptr = buff ;
+    
+    if (_notImplemented)
+      ptr += sprintf(ptr, "not implemented ") ;
+    ptr += sprintf(ptr, "IO %s write at %05x: %02x", _name.c_str(), _mcu.PC(), v) ;
+    if ((' ' < v) && (v <= '~'))
+      ptr += sprintf(ptr, " %c", v) ;
+    ptr += sprintf(ptr, "\n") ;
+    _mcu.Verbose(VerboseType::Io, buff) ;
+    
     return v  ;
   }
   
@@ -207,8 +211,12 @@ namespace AVR
       return ;
 
     default:
-      if (_mcu.Verbose() && VerboseType::Io)
-        fprintf(stdout, "unsupported NVM command at %05x %02x\n", _mcu.PC(), v) ;
+      {
+        char buff[1024] ;
+        char *ptr = buff ;
+        ptr += sprintf(ptr, "unsupported NVM command at %05x %02x\n", _mcu.PC(), v) ;
+        _mcu.Verbose(VerboseType::Io, buff) ;
+      }
       return ;
     }
   }
@@ -230,8 +238,11 @@ namespace AVR
       case 0x35: // Erase and write EEPROM page
         if (!(_cpu.GetCcp() & 0x01))
         {
-          if (_mcu.Verbose() && VerboseType::Io)
-            fprintf(stdout, "unset CCP on Erase and write EEPROM page at %05x\n", _mcu.PC()) ;
+          char buff[1024] ;
+          char *ptr = buff ;
+          ptr += sprintf(ptr, "unset CCP on Erase and write EEPROM page at %05x\n", _mcu.PC()) ;
+          _mcu.Verbose(VerboseType::Io, buff) ;
+            
           return ;
         }
         

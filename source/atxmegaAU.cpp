@@ -30,6 +30,27 @@ namespace AVR
     return 0xff ;
   }
 
+  bool ATxmegaAU::Data(uint32_t addr, uint8_t &byte) const
+  {
+    if (addr < _ioSize)
+    {
+      return Io(addr, byte) ;
+    }
+    else if (_nvm.EepromMapped() &&
+             (0x1000 <= addr) && (addr < 0x2000))
+    {
+      byte = Eeprom((addr - 0x1000) % _eepromSize) ;
+      return true ;
+    }
+    else if ((0x2000 <= addr) && (addr < (0x2000 + _ramSize)))
+    {
+      byte = _ram[addr - 0x2000] ;
+      return true ;
+    }
+
+    return false ;
+  }
+  
   void ATxmegaAU::Data(uint32_t addr, uint8_t value, bool resetOnError)
   {
     if (addr < _ioSize)
@@ -48,7 +69,7 @@ namespace AVR
       _ram[addr - 0x2000] = value ;
       return ;
     }
-    fprintf(stderr, "%d\n", _ramSize) ;
+
     fprintf(stderr, "illegal data write at %05x: %04x %02x\n", _pc, addr, value) ;
     //if (resetOnError)
     //  _pc = 0 ;
@@ -475,6 +496,34 @@ namespace AVR
       { 0x023c, new IoRegisterNotImplemented(*this, "ADCA_CH3_RESL") },
       { 0x023d, new IoRegisterNotImplemented(*this, "ADCA_CH3_RESH") },
       { 0x023e, new IoRegisterNotImplemented(*this, "ADCA_CH3_SCAN") },
+
+      { 0x0300, new IoRegisterNotImplemented(*this, "DACA_CTRLA") },
+      { 0x0301, new IoRegisterNotImplemented(*this, "DACA_CTRLB") },
+      { 0x0302, new IoRegisterNotImplemented(*this, "DACA_CTRLC") },
+      { 0x0303, new IoRegisterNotImplemented(*this, "DACA_EVCTRL") },
+      { 0x0305, new IoRegisterNotImplemented(*this, "DACA_STATUS") },
+      { 0x0308, new IoRegisterNotImplemented(*this, "DACA_CH0GAINCAL") },
+      { 0x0309, new IoRegisterNotImplemented(*this, "DACA_CH0OFFSETCAL") },
+      { 0x030A, new IoRegisterNotImplemented(*this, "DACA_CH1GAINCAL") },
+      { 0x030B, new IoRegisterNotImplemented(*this, "DACA_CH1OFFSETCAL") },
+      { 0x0318, new IoRegisterNotImplemented(*this, "DACA_CH0DATAL") },
+      { 0x0319, new IoRegisterNotImplemented(*this, "DACA_CH0DATAH") },
+      { 0x031A, new IoRegisterNotImplemented(*this, "DACA_CH1DATAL") },
+      { 0x031B, new IoRegisterNotImplemented(*this, "DACA_CH1DATAH") },
+
+      { 0x0320, new IoRegisterNotImplemented(*this, "DACB_CTRLA") },
+      { 0x0321, new IoRegisterNotImplemented(*this, "DACB_CTRLB") },
+      { 0x0322, new IoRegisterNotImplemented(*this, "DACB_CTRLC") },
+      { 0x0323, new IoRegisterNotImplemented(*this, "DACB_EVCTRL") },
+      { 0x0325, new IoRegisterNotImplemented(*this, "DACB_STATUS") },
+      { 0x0328, new IoRegisterNotImplemented(*this, "DACB_CH0GAINCAL") },
+      { 0x0329, new IoRegisterNotImplemented(*this, "DACB_CH0OFFSETCAL") },
+      { 0x032A, new IoRegisterNotImplemented(*this, "DACB_CH1GAINCAL") },
+      { 0x032B, new IoRegisterNotImplemented(*this, "DACB_CH1OFFSETCAL") },
+      { 0x0338, new IoRegisterNotImplemented(*this, "DACB_CH0DATAL") },
+      { 0x0339, new IoRegisterNotImplemented(*this, "DACB_CH0DATAH") },
+      { 0x033A, new IoRegisterNotImplemented(*this, "DACB_CH1DATAL") },
+      { 0x033B, new IoRegisterNotImplemented(*this, "DACB_CH1DATAH") },
         
       { 0x0380, new IoRegisterNotImplemented(*this, "ACA_AC0CTRL") }, // Analog Comparator pair on port A
       { 0x0381, new IoRegisterNotImplemented(*this, "ACA_AC1CTRL") },

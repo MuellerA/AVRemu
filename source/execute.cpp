@@ -9,10 +9,12 @@
 #include <algorithm>
 #include <cstdlib>
 #include <signal.h>
+#include <sys/wait.h>
 
 #include "avr.h"
 #include "instr.h"
 #include "execute.h"
+#include "filter.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,6 +29,21 @@ static void SigIntHdl(int /*parameter*/)
 {
   std::cout << std::endl << "Execution Interrupted" << std::endl << std::endl ;
   SigInt = true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// SigChildHdl
+////////////////////////////////////////////////////////////////////////////////
+
+static pid_t SigChild = 0 ;
+static void SigChildHdl(int /*parameter*/)
+{
+  int wstat ;
+  pid_t pid ;
+
+  pid = wait3 (&wstat, WNOHANG, (struct rusage *)0 ) ;
+  if (pid > 0)
+    SigChild = pid ;  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -546,9 +563,9 @@ bool CommandReadDataIndirect::Execute(AVR::Mcu &mcu)
   const std::string &lenStr  = _match[2] ;
 
   uint32_t addr = 0 ;
-  if      (addrStr == "X")  addr = mcu.RegW(26) ;
-  else if (addrStr == "Y")  addr = mcu.RegW(28) ;
-  else if (addrStr == "Z")  addr = mcu.RegW(30) ;
+  if      (addrStr == "X")  addr = mcu.GetRampX() | mcu.RegW(26) ;
+  else if (addrStr == "Y")  addr = mcu.GetRampY() | mcu.RegW(28) ;
+  else if (addrStr == "Z")  addr = mcu.GetRampZ() | mcu.RegW(30) ;
   else if (addrStr == "SP") addr = mcu.GetSP() ;
   else                      addr = mcu.RegW(std::stoul(addrStr.substr(1), nullptr, 10)) ;
   
@@ -940,6 +957,80 @@ bool CommandVerbose::Execute(AVR::Mcu &mcu)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// CommandFilterAdd
+////////////////////////////////////////////////////////////////////////////////
+
+class CommandFilterAdd : public Command
+{
+public:
+  CommandFilterAdd() : Command(R"XXX(\s*f\s*\+\s(io|eeprom|all)\s+(.*)$)XXX") {}
+  ~CommandFilterAdd() {}
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandFilterAdd::Help() const
+{
+  return strings
+  {
+    "f + <io|eeprom|all> <command> add filter for specified events"
+  } ;
+}
+
+bool CommandFilterAdd::Execute(AVR::Mcu &mcu)
+{
+  const std::string &verbose = _match[1] ;
+  const std::string &command = _match[2] ;
+
+  AVR::VerboseType vt ;
+
+  if      (verbose == "io"    ) vt = AVR::VerboseType::Io     ;
+  else if (verbose == "eeprom") vt = AVR::VerboseType::Eeprom ;
+  else if (verbose == "all"   ) vt = AVR::VerboseType::All    ;
+  else return false ;
+
+  mcu.AddFilter(vt, command) ;
+
+  return false ; // do not repeat
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandFilterDel
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandFilterList
+////////////////////////////////////////////////////////////////////////////////
+
+class CommandFilterList : public Command
+{
+public:
+  CommandFilterList() : Command{R"XXX(\s*f\s*\?\s*$)XXX"} {}
+  ~CommandFilterList() {}
+
+  virtual strings Help() const ;
+  virtual bool Execute(AVR::Mcu &mcu) ;
+} ;
+
+strings CommandFilterList::Help() const
+{
+  return strings
+  {
+    "f ?                           list active filters"
+  } ;
+}
+
+bool CommandFilterList::Execute(AVR::Mcu &mcu)
+{
+  for (auto iF : mcu.Filters())
+  {
+    fprintf(stdout, "%5d %s", iF->Pid(), iF->Command().c_str()) ;
+  }
+  return false ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // CommandTrace
 ////////////////////////////////////////////////////////////////////////////////
 class CommandTrace : public Command
@@ -1241,6 +1332,8 @@ namespace AVR
       new CommandMacro(*this),
       new CommandMacroQuit(*this),
       new CommandVerbose(),
+      new CommandFilterAdd(),
+      new CommandFilterList(),
       new CommandTrace(),
       new CommandEcho(),
       new CommandQuit(*this),
@@ -1250,6 +1343,8 @@ namespace AVR
     _quit{false},
     _lastCommand{nullptr}
   {
+    signal(SIGCHLD, SigChildHdl);
+    
     std::cout << "type \"?\" for help" << std::endl ;
     std::cout << std::endl ;
   }
@@ -1266,6 +1361,12 @@ namespace AVR
 
     while (!_quit)
     {
+      if (SigChild)
+      {
+        _mcu.DelFilter(SigChild) ;
+        SigChild = 0 ;
+      }
+      
       std::cout << std::endl ;
       _mcu.Status() ;
       std::cout << std::endl ;
