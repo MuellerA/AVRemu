@@ -23,6 +23,7 @@ namespace AVR
   class Filter ;
 
   using Command = uint16_t ; // 16 bit instruction
+  using StackFrame = std::pair<uint16_t, uint32_t> ; // sp / pc
 
   ////////////////////////////////////////////////////////////////////////////////
   // VerboseType
@@ -66,7 +67,7 @@ namespace AVR
   class Instruction
   {
   protected:
-    Instruction(Command pattern, Command mask, const std::string &mnemonic, const std::string &description, bool isTwoWord, bool isCall) ;
+    Instruction(Command pattern, Command mask, const std::string &mnemonic, const std::string &description, bool isTwoWord, bool isJump, bool isBranch, bool isCall, bool isReturn) ;
     Instruction() = delete ;
     Instruction& operator=(const Instruction&) = delete ;
     virtual ~Instruction() ;
@@ -79,12 +80,15 @@ namespace AVR
     virtual std::string Disasm (Mcu &mcu, Command cmd) const = 0 ;
     virtual XrefType    Xref   (Mcu &mcu, Command cmd, uint32_t &addr) const = 0 ;
 
-    virtual Command     Pattern()     const { return _pattern     ; }
-    virtual Command     Mask()        const { return _mask        ; }
-    virtual std::string Mnemonic()    const { return _mnemonic    ; }
-    virtual std::string Description() const { return _description ; }
-    virtual bool        IsTwoWord()   const { return _isTwoWord   ; }
-    virtual bool        IsCall()      const { return _isCall      ; }
+    Command     Pattern()     const { return _pattern     ; }
+    Command     Mask()        const { return _mask        ; }
+    std::string Mnemonic()    const { return _mnemonic    ; }
+    std::string Description() const { return _description ; }
+    bool        IsTwoWord()   const { return _isTwoWord   ; }
+    bool        IsJump()      const { return _isJump      ; }
+    bool        IsBranch()    const { return _isBranch    ; }
+    bool        IsCall()      const { return _isCall      ; }
+    bool        IsReturn()    const { return _isReturn    ; }
     
   protected:
     Command     _pattern ;
@@ -92,7 +96,10 @@ namespace AVR
     std::string _mnemonic ;
     std::string _description ;
     bool        _isTwoWord ;
+    bool        _isJump ;
+    bool        _isBranch ;
     bool        _isCall ;
+    bool        _isReturn ;
   } ;
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -302,6 +309,7 @@ namespace AVR
     virtual Command Program(uint32_t addr) const ;
     virtual void    Program(uint32_t addr, Command cmd) ;
     virtual bool    InRam(uint32_t addr) const ;
+    virtual void    RamRange(uint32_t &min, uint32_t &max) const ;
     const Instruction* Instr(uint32_t addr) const ;
     
     uint8_t  GetSREG() const      { return _sreg.Get()  ; }
@@ -328,6 +336,9 @@ namespace AVR
     void  PushPC() ;
     void  PopPC() ;
 
+    const std::vector<StackFrame>& StackFrames() const { return _stackFrames ; }
+    void ResetStackFrames()                            { _stackFrames.clear() ; }
+    
     void  Break() ; // call BREAK handlers
     void  Sleep() ;
     void  WDR() ;
@@ -396,6 +407,8 @@ namespace AVR
     uint32_t             _eepromSize ;
     std::vector<uint8_t> _eeprom ;
 
+    std::vector<StackFrame> _stackFrames ;
+    
     bool _pcIs22Bit     ;
     bool _isXMega       ;
     bool _isTinyReduced ;
@@ -561,6 +574,7 @@ namespace AVR
     virtual Command Program(uint32_t addr) const ;
     virtual void    Program(uint32_t addr, Command cmd) ;
     virtual bool    InRam(uint32_t addr) const ;
+    virtual void    RamRange(uint32_t &min, uint32_t &max) const ;
 
     uint8_t UserSignature(uint32_t addr) const ;
     uint8_t ProductionSignature(uint32_t addr) const ;

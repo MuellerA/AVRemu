@@ -48,7 +48,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // Instruction
-  Instruction::Instruction(Command pattern, Command mask, const std::string &mnemonic, const std::string &description, bool isTwoWord, bool isCall) : _pattern(pattern), _mask(mask), _mnemonic(mnemonic), _description(description), _isTwoWord(isTwoWord), _isCall(isCall)
+  Instruction::Instruction(Command pattern, Command mask, const std::string &mnemonic, const std::string &description, bool isTwoWord, bool isJump, bool isBranch, bool isCall, bool isReturn) : _pattern(pattern), _mask(mask), _mnemonic(mnemonic), _description(description), _isTwoWord(isTwoWord), _isJump(isJump), _isBranch(isBranch), _isCall(isCall), _isReturn(isReturn)
   {
   }
 
@@ -81,6 +81,7 @@ namespace AVR
   // Mcu
   Mcu::Mcu(uint32_t flashSize, uint32_t ioSize, uint32_t ramSize, uint32_t eepromSize, uint32_t sp)
     : _pc(0), _sp(sp),
+      _ticks(0),
       _flashSize(flashSize), _loadedFlashSize(0), _flash(_flashSize),
       _ioSize(ioSize), _io(_ioSize),
       _ramSize(ramSize), _ram(_ramSize),
@@ -133,8 +134,16 @@ namespace AVR
       return ;
     }
 
+    uint16_t sp0 = _sp() ;
+    
     // todo Ticks
     instr->Execute(*this, cmd) ;
+
+    if (instr->IsCall() && (_pc != (pc0 + (instr->IsTwoWord() ? 2 : 1))))
+      _stackFrames.push_back(StackFrame(sp0, _pc)) ;
+
+    if (instr->IsReturn() && !_stackFrames.empty())
+      _stackFrames.pop_back() ;
 
     if (_trace._file)
     {
@@ -180,7 +189,7 @@ namespace AVR
           _trace._src = pc0 ;
           _trace._dst = _pc ;
           _trace._cnt = 1 ;
-          _trace._isRet = instr == &instrRET ;
+          _trace._isRet = instr->IsReturn() ;
         }
         else
         {
@@ -632,6 +641,12 @@ namespace AVR
   {
     return (0x32 + _ioSize <= addr) && (addr < 0x32 + _ioSize + _ramSize) ;
   }  
+  
+  void Mcu::RamRange(uint32_t &min, uint32_t &max) const
+  {
+    min = 0x32 + _ioSize ;
+    max = 0x32 + _ioSize + _ramSize - 1 ;
+  }
   
   const Instruction* Mcu::Instr(uint32_t addr) const
   {

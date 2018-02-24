@@ -243,9 +243,7 @@ int main(int argc, char *argv[])
     {
       const AVR::Mcu::Xref *xref = mcu->XrefByAddr(mcu->PC()) ;
       if (xref && static_cast<uint32_t>(xref->Type() & AVR::XrefType::call) &&
-          ((instr == &AVR::instrRET) || (instr == &AVR::instrRETI) ||
-           (instr == &AVR::instrJMP) || (instr == &AVR::instrRJMP) ||
-           (instr == &AVR::instrIJMP) || (instr == &AVR::instrEIJMP)))
+          instr && ((instr->IsReturn()) || (instr->IsJump())))
         printf("\n////////////////////////////////////////////////////////////////////////////////\n\n") ;
       instr = mcu->Instr(mcu->PC()) ;
       

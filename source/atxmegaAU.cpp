@@ -115,6 +115,12 @@ namespace AVR
   {
     return (0x2000 <= addr) && (addr < (0x2000 + _ramSize)) ;
   }  
+
+  void ATxmegaAU::RamRange(uint32_t &min, uint32_t &max) const
+  {
+    min = 0x2000 ;
+    max = 0x2000 + _ramSize - 1 ;
+  }
   
   ATxmegaAU::ATxmegaAU(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
     : Mcu(flashSize, 0x1000, ramSize, eepromSize, 0x3fff),

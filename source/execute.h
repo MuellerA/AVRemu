@@ -19,8 +19,10 @@ namespace AVR
     void Loop() ;
     void Do(const std::string &cmd) ;
     
-    void Quit()   { _quit = true ; }
-    bool IsQuit() { return _quit ; }
+    void Quit()           { _quit = true ; }
+    bool IsQuit() const   { return _quit ; }
+    void SigInt()         { _sigInt = true ; }
+    bool IsSigInt() const { return _sigInt ; }
     void MacroQuit(bool quit) { _macroQuit = quit ; }
     bool MacroQuit() const    { return _macroQuit ; }
 
@@ -32,6 +34,7 @@ namespace AVR
     std::vector<::Command*> _commands ;
   
     bool _quit ;
+    bool _sigInt ;
     bool _macroQuit ;
     ::Command *_lastCommand ;
   } ;

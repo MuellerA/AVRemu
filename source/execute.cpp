@@ -241,7 +241,7 @@ const std::string Command::_reAddr{ R"XXX((?:(0x[0-9a-fA-F]+|[0-9]+)|([_a-zA-Z][
 class CommandStep : public Command
 {
 public:
-  CommandStep() : Command(R"XXX(\s*([sn])\s*(?:(0x[0-9a-fA-F]+|[\d]+)\s*)?)XXX")
+  CommandStep(AVR::Execute &exec) : Command(R"XXX(\s*([sn])\s*(?:(0x[0-9a-fA-F]+|[\d]+)\s*)?)XXX"), _exec{exec} 
   {
   }
 
@@ -251,6 +251,9 @@ public:
 
   virtual strings Help() const ;
   virtual bool    Execute(AVR::Mcu &mcu) ;
+
+private:
+  AVR::Execute &_exec ;
 } ;
 
 strings CommandStep::Help() const
@@ -305,6 +308,8 @@ bool CommandStep::Execute(AVR::Mcu &mcu)
     break ;
   }
   signal(SIGINT, prevIntHdl) ;
+  if (SigInt)
+    _exec.SigInt() ;
 
   return true ;
 }
@@ -315,7 +320,7 @@ bool CommandStep::Execute(AVR::Mcu &mcu)
 class CommandRun : public Command
 {
 public:
-  CommandRun() : Command(R"XXX(\s*r\s*(?:)XXX" + _reAddr + R"XXX()?\s*)XXX")
+  CommandRun(AVR::Execute &exec) : Command(R"XXX(\s*r\s*(?:)XXX" + _reAddr + R"XXX()?\s*)XXX"), _exec{exec}
   {
   }
 
@@ -325,6 +330,9 @@ public:
 
   virtual strings Help() const ;
   virtual bool    Execute(AVR::Mcu &mcu) ;
+
+private:
+  AVR::Execute &_exec ;
 } ;
 
 strings CommandRun::Help() const
@@ -362,6 +370,74 @@ bool CommandRun::Execute(AVR::Mcu &mcu)
       break ;
   }
   signal(SIGINT, prevIntHdl) ;
+  if (SigInt)
+    _exec.SigInt() ;
+
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CommandRunTo
+////////////////////////////////////////////////////////////////////////////////
+class CommandRunTo : public Command
+{
+public:
+  CommandRunTo(AVR::Execute &exec) : Command(R"XXX(\s*r([crja])\s*)XXX"), _exec{exec}
+  {
+  }
+
+  ~CommandRunTo()
+  {
+  }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+
+private:
+  AVR::Execute &_exec ;
+} ;
+
+strings CommandRunTo::Help() const
+{
+  return strings
+  {
+    "rj                            run to next jump / branch",
+    "rc                            run to next call",
+    "rr                            run to next return",
+    "ra                            run to next jump / branch / call / return",
+  } ;
+}
+
+bool CommandRunTo::Execute(AVR::Mcu &mcu)
+{
+  void (*prevIntHdl)(int) ;
+  SigInt = false ;
+  prevIntHdl = signal(SIGINT, SigIntHdl) ;
+
+  const std::string &m1 = _match[1] ;
+  uint8_t mode = (uint8_t)(m1[0]) ;
+
+  uint32_t stackFrameCount = mcu.StackFrames().size() ;
+
+  while (!SigInt)
+  {
+    mcu.Execute() ;
+
+    const AVR::Instruction *instr = mcu.Instr(mcu.PC()) ;
+
+    if ((mcu.StackFrames().size() == stackFrameCount) &&
+        (((mode == 'c') && (instr->IsReturn() || instr->IsCall()                                        )) ||
+         ((mode == 'r') && (instr->IsReturn()                                                           )) ||
+         ((mode == 'j') && (instr->IsReturn() || instr->IsJump() || instr->IsBranch()                   )) ||
+         ((mode == 'a') && (instr->IsReturn() || instr->IsJump() || instr->IsBranch() || instr->IsCall()))))
+      break ;
+
+    if (mcu.IsBreakpoint())
+      break ;
+  }
+  signal(SIGINT, prevIntHdl) ;
+  if (SigInt)
+    _exec.SigInt() ;
 
   return true ;
 }
@@ -768,6 +844,56 @@ bool CommandWriteProg::Execute(AVR::Mcu &mcu)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// CommandListStackFrames
+////////////////////////////////////////////////////////////////////////////////
+
+class CommandListStackFrames : public Command
+{
+public:
+  CommandListStackFrames() : Command(R"XXX(\s*sf\s*\?\s*)XXX") { }
+  ~CommandListStackFrames() { }
+
+  virtual strings Help() const ;
+  virtual bool    Execute(AVR::Mcu &mcu) ;
+  } ;
+
+strings CommandListStackFrames::Help() const
+{
+  return strings { "sf ?                          list stack frames" } ;
+}
+bool CommandListStackFrames::Execute(AVR::Mcu &mcu)
+{
+  uint32_t min, max ;
+  mcu.RamRange(min, max) ;
+
+  const std::vector<AVR::StackFrame> &sfs = mcu.StackFrames() ;
+  
+  unsigned int i = 0 ;
+  unsigned int e = sfs.size() ;
+  for (i = 0 ; i < e ; ++i)
+  {
+    const AVR::StackFrame &sf0 = sfs[i] ;
+
+    uint16_t sp0 = sf0.first ;
+    uint16_t sp1 = (i+1 < e) ? sfs[i+1].first : mcu.GetSP() ;
+    uint32_t pc  = sf0.second ;
+
+    const AVR::Mcu::Xref *xref = mcu.XrefByAddr(pc) ;
+    std::string label = xref ? xref->Label() : std::string() ;
+
+    std::cout
+      << std::setw(3) << i << ": "
+      << std::setw(4) << std::hex << std::setfill('0') << sp1+1 << "-"
+      << std::setw(4) << std::hex << std::setfill('0') << sp0   << " "
+      << std::setw(5) << std::hex << std::setfill('0') << pc    << " "
+      << label << std::endl
+      << std::setfill(' ') ;    
+  }
+  
+  return true ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // CommandListSymbols
 ////////////////////////////////////////////////////////////////////////////////
 class CommandListSymbols : public Command
@@ -1111,7 +1237,7 @@ bool CommandMacro::Execute(AVR::Mcu &mcu)
   }
 
   _exec.MacroQuit(false) ;
-  while (!ifs.eof() && !_exec.IsQuit() && !_exec.MacroQuit())
+  while (!ifs.eof() && !_exec.IsQuit() && !_exec.IsSigInt() && !_exec.MacroQuit())
   {
     std::string cmd ;
     std::getline(ifs, cmd) ;
@@ -1313,8 +1439,9 @@ namespace AVR
     _commands
     {
       new CommandRepeat(*this), // first!
-      new CommandStep(),
-      new CommandRun(),
+      new CommandStep(*this),
+      new CommandRun(*this),
+      new CommandRunTo(*this),
       new CommandGoto(),
       new CommandBreakpoint(),
       new CommandListBreakpoints(),
@@ -1325,6 +1452,7 @@ namespace AVR
       new CommandReadProgIndirect(),
       new CommandWriteData(),
       new CommandWriteProg(),
+      new CommandListStackFrames(),
       new CommandListSymbols(),
       new CommandIoAddHex(),
       new CommandIoAddAsc(),
@@ -1340,7 +1468,7 @@ namespace AVR
       new CommandHelp(*this),
       new CommandUnknown(), // last!
     },
-    _quit{false},
+    _quit{false}, _sigInt{false}, _macroQuit{false},
     _lastCommand{nullptr}
   {
     signal(SIGCHLD, SigChildHdl);
@@ -1365,6 +1493,14 @@ namespace AVR
       {
         _mcu.DelFilter(SigChild) ;
         SigChild = 0 ;
+      }
+
+      if (_sigInt)
+      {
+        _sigInt = false ;
+        std::cout << std::endl ;
+        Do("sf?") ; // stack frames
+        std::cout << std::endl ;
       }
       
       std::cout << std::endl ;
