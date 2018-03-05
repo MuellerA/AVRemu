@@ -265,13 +265,15 @@ namespace AVR
     } ;
     
   protected:
-    Mcu(uint32_t flashSize, uint32_t ioSize, uint32_t ramSize , uint32_t eepromSize, uint32_t sp) ;
+    Mcu(const std::string &name, uint32_t flashSize, uint32_t ioSize, uint32_t ramSize , uint32_t eepromSize, uint32_t sp) ;
     Mcu() = delete ;
     Mcu& operator=(const Mcu&) = delete ;
   public:
     virtual ~Mcu() ;
 
   public:
+    const std::string &Name() const { return _name ; }
+    
     uint32_t FlashSize()  const { return _flashSize   ; }
     uint32_t IoSize()     const { return _ioSize      ; }
     uint32_t RamSize()    const { return _ramSize     ; }
@@ -385,6 +387,8 @@ namespace AVR
     void AnalyzeXrefs() ;
 
   protected:
+    const std::string _name ;
+    
     uint32_t _pc ;
     IoSP     _sp ;
     IoSREG   _sreg ;
@@ -444,7 +448,7 @@ namespace AVR
   class ATmegaXX8 : public Mcu
   {
   protected:
-    ATmegaXX8(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize) ;
+    ATmegaXX8(const std::string &name, uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize) ;
     virtual ~ATmegaXX8() ;
 
     IoEeprom ioEeprom ;
@@ -499,7 +503,7 @@ namespace AVR
   class ATtinyX4 : public Mcu
   {
   protected:
-    ATtinyX4(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize) ;
+    ATtinyX4(const std::string &name, uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize) ;
     virtual ~ATtinyX4() ;
 
   protected:
@@ -534,7 +538,7 @@ namespace AVR
   class ATtinyX5 : public Mcu
   {
   protected:
-    ATtinyX5(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize) ;
+    ATtinyX5(const std::string &name, uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize) ;
     virtual ~ATtinyX5() ;
 
   protected:
@@ -580,7 +584,7 @@ namespace AVR
     uint8_t ProductionSignature(uint32_t addr) const ;
     
   protected:
-    ATxmegaAU(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize) ;
+    ATxmegaAU(const std::string &name, uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize) ;
     virtual ~ATxmegaAU() ;
 
     IoXmegaCpu   _cpu ;

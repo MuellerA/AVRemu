@@ -122,8 +122,8 @@ namespace AVR
     max = 0x2000 + _ramSize - 1 ;
   }
   
-  ATxmegaAU::ATxmegaAU(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
-    : Mcu(flashSize, 0x1000, ramSize, eepromSize, 0x3fff),
+  ATxmegaAU::ATxmegaAU(const std::string &name, uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
+    : Mcu(name, flashSize, 0x1000, ramSize, eepromSize, 0x3fff),
       _cpu(*this), _nvm(*this, _cpu),
       _usartC0("USARTC0"), _usartC1("USARTC1"), _usartD0("USARTD0"), _usartD1("USARTD1"), _usartE0("USARTE0")
   {
@@ -1021,7 +1021,7 @@ namespace AVR
   
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATxmega128A4U::ATxmega128A4U() : ATxmegaAU(0x20000/2, 0x2000, 0x800)
+  ATxmega128A4U::ATxmega128A4U() : ATxmegaAU("ATxmega128A4U", 0x20000/2, 0x2000, 0x800)
   {
     _pcIs22Bit = true ;
   }
@@ -1031,7 +1031,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATxmega64A4U::ATxmega64A4U() : ATxmegaAU(0x10000/2, 0x1000, 0x800)
+  ATxmega64A4U::ATxmega64A4U() : ATxmegaAU("ATxmega64A4U", 0x10000/2, 0x1000, 0x800)
   {
   }
   ATxmega64A4U::~ATxmega64A4U()
@@ -1040,7 +1040,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATxmega32A4U::ATxmega32A4U() : ATxmegaAU(0x8000/2, 0x1000, 0x400)
+  ATxmega32A4U::ATxmega32A4U() : ATxmegaAU("ATxmega32A4U", 0x8000/2, 0x1000, 0x400)
   {
   }
   ATxmega32A4U::~ATxmega32A4U()
@@ -1049,7 +1049,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATxmega16A4U::ATxmega16A4U() : ATxmegaAU(0x4000/2, 0x800, 0x400)
+  ATxmega16A4U::ATxmega16A4U() : ATxmegaAU("ATxmega16A4U", 0x4000/2, 0x800, 0x400)
   {
   }
   ATxmega16A4U::~ATxmega16A4U()

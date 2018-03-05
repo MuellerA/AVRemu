@@ -79,8 +79,9 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // Mcu
-  Mcu::Mcu(uint32_t flashSize, uint32_t ioSize, uint32_t ramSize, uint32_t eepromSize, uint32_t sp)
-    : _pc(0), _sp(sp),
+  Mcu::Mcu(const std::string &name, uint32_t flashSize, uint32_t ioSize, uint32_t ramSize, uint32_t eepromSize, uint32_t sp)
+    : _name(name),
+      _pc(0), _sp(sp),
       _ticks(0),
       _flashSize(flashSize), _loadedFlashSize(0), _flash(_flashSize),
       _ioSize(ioSize), _io(_ioSize),
@@ -564,17 +565,17 @@ namespace AVR
 
   uint8_t  Mcu::Data(uint32_t addr, bool resetOnError) const
   {
-    if (addr < 0x32)
+    if (addr < 0x20)
     {
       return Reg(addr) ;
     }
-    if (addr < (0x32 + _ioSize))
+    if (addr < (0x20 + _ioSize))
     {
-      return Io(addr - 0x32) ;
+      return Io(addr - 0x20) ;
     }
-    else if (addr <= (0x32 + _ioSize + _ramSize))
+    else if (addr <= (0x20 + _ioSize + _ramSize))
     {
-      return _ram[addr - 0x32 - _ioSize] ;
+      return _ram[addr - 0x20 - _ioSize] ;
     }
 
     fprintf(stderr, "illegal data read at %05x: %04x\n", _pc, addr) ;
@@ -585,19 +586,19 @@ namespace AVR
 
   bool Mcu::Data(uint32_t addr, uint8_t &byte) const
   {
-    if (addr < 0x32)
+    if (addr < 0x20)
     {
       byte = Reg(addr) ;
       return true ;
     }
-    if (addr < (0x32 + _ioSize))
+    if (addr < (0x20 + _ioSize))
     {
-      byte = Io(addr - 0x32) ;
+      byte = Io(addr - 0x20) ;
       return true ;
     }
-    else if (addr <= (0x32 + _ioSize + _ramSize))
+    else if (addr <= (0x20 + _ioSize + _ramSize))
     {
-      byte = _ram[addr - 0x32 - _ioSize] ;
+      byte = _ram[addr - 0x20 - _ioSize] ;
       return true ;
     }
 
@@ -606,19 +607,19 @@ namespace AVR
   
   void Mcu::Data(uint32_t addr, uint8_t value, bool resetOnError)
   {
-    if (addr < 0x32)
+    if (addr < 0x20)
     {
       Reg(addr, value) ;
       return ;
     }
-    if (addr < (0x32 + _ioSize))
+    if (addr < (0x20 + _ioSize))
     {
-      Io(addr - 0x32, value) ;
+      Io(addr - 0x20, value) ;
       return ;
     }
-    else if (addr <= (0x32 + _ioSize + _ramSize))
+    else if (addr <= (0x20 + _ioSize + _ramSize))
     {
-      _ram[addr - 0x32 - _ioSize] = value ;
+      _ram[addr - 0x20 - _ioSize] = value ;
       return ;
     }
 
@@ -639,13 +640,13 @@ namespace AVR
 
   bool Mcu::InRam(uint32_t addr) const
   {
-    return (0x32 + _ioSize <= addr) && (addr < 0x32 + _ioSize + _ramSize) ;
+    return (0x20 + _ioSize <= addr) && (addr < 0x20 + _ioSize + _ramSize) ;
   }  
   
   void Mcu::RamRange(uint32_t &min, uint32_t &max) const
   {
-    min = 0x32 + _ioSize ;
-    max = 0x32 + _ioSize + _ramSize - 1 ;
+    min = 0x20 + _ioSize ;
+    max = 0x20 + _ioSize + _ramSize - 1 ;
   }
   
   const Instruction* Mcu::Instr(uint32_t addr) const
@@ -969,7 +970,7 @@ namespace AVR
   // ATany
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATany::ATany() : Mcu(0x40000, 0x1000, 0x1000, 0x1000, 0x1fff)
+  ATany::ATany() : Mcu("ATany", 0x40000, 0x1000, 0x1000, 0x1000, 0x1fff)
   {
     const Instruction *instructions[]
     {

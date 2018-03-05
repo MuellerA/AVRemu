@@ -9,8 +9,8 @@
 namespace AVR
 {
 
-  ATmegaXX8::ATmegaXX8(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
-    : Mcu(flashSize, 0xe0, ramSize, eepromSize, ramSize + 0xff),
+  ATmegaXX8::ATmegaXX8(const std::string &name, uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
+    : Mcu(name, flashSize, 0xe0, ramSize, eepromSize, ramSize + 0xff),
       ioEeprom(*this)
   {
     const Instruction *instructions[]
@@ -138,7 +138,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega328P::ATmega328P() : ATmegaXX8(0x8000/2, 0x0800, 0x0400)
+  ATmega328P::ATmega328P() : ATmegaXX8("ATmega328P", 0x8000/2, 0x0800, 0x0400)
   {
     const Instruction *instructions[] { &instrJMP, &instrCALL, } ;
     for (const Instruction* iInstr: instructions)
@@ -186,7 +186,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega168PA::ATmega168PA() : ATmegaXX8(0x4000/2, 0x0400, 0x0200)
+  ATmega168PA::ATmega168PA() : ATmegaXX8("ATmega168PA", 0x4000/2, 0x0400, 0x0200)
   {
     const Instruction *instructions[] { &instrJMP, &instrCALL, } ;
     for (const Instruction* iInstr: instructions)
@@ -234,7 +234,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega88PA::ATmega88PA() : ATmegaXX8(0x2000/2, 0x0400, 0x0200)
+  ATmega88PA::ATmega88PA() : ATmegaXX8("ATmega88PA", 0x2000/2, 0x0400, 0x0200)
   {
     // ignoring BOOTRST / IVSEL Fuses
     _knownProgramAddresses = std::vector<Mcu::KnownProgramAddress>
@@ -278,7 +278,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega48PA::ATmega48PA() : ATmegaXX8(0x1000/2, 0x0200, 0x0100)
+  ATmega48PA::ATmega48PA() : ATmegaXX8("ATmega48PA", 0x1000/2, 0x0200, 0x0100)
   {
     _knownProgramAddresses = std::vector<Mcu::KnownProgramAddress>
       {

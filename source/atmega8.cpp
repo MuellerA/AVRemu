@@ -10,7 +10,7 @@ namespace AVR
 {
 
   ATmega8A::ATmega8A()
-    : Mcu(0x2000/2, 0x0040, 0x0400, 0x0200, 0),
+    : Mcu("ATmega8A", 0x2000/2, 0x0040, 0x0400, 0x0200, 0),
       ioEeprom(*this, false)
   {
     const Instruction *instructions[]

@@ -8,6 +8,8 @@
 #include <regex>
 #include <algorithm>
 #include <cstdlib>
+#include <unistd.h>
+#include <pwd.h>
 #include <signal.h>
 #include <sys/wait.h>
 
@@ -882,12 +884,11 @@ bool CommandListStackFrames::Execute(AVR::Mcu &mcu)
     std::string label = xref ? xref->Label() : std::string() ;
 
     std::cout
-      << std::setw(3) << i << ": "
+      << std::setw(3) << std::dec << std::setfill(' ') << i << ": "
       << std::setw(4) << std::hex << std::setfill('0') << sp1+1 << "-"
       << std::setw(4) << std::hex << std::setfill('0') << sp0   << " "
       << std::setw(5) << std::hex << std::setfill('0') << pc    << " "
-      << label << std::endl
-      << std::setfill(' ') ;    
+      << label << std::endl ;
   }
   
   return true ;
@@ -1225,15 +1226,28 @@ strings CommandMacro::Help() const
 bool CommandMacro::Execute(AVR::Mcu &mcu)
 {
   std::smatch match ;
-  const std::string &macro = _match[1] ;
+  std::string macro = _match[1] ;
+  macro += ".aem" ;
 
   std::ifstream ifs ;
 
-  ifs.open((macro + ".aem").c_str()) ;
+  ifs.open(macro) ;
   if (ifs.fail())
   {
-    std::cout << "failed to read macro file " << macro << std::endl ;
-    return false ;
+    struct passwd *pw = getpwuid(getuid()) ;
+    const std::string home(pw->pw_dir) ;
+    const std::string avrEmu = home + "/.avremu/" ;
+
+    ifs.open(avrEmu + mcu.Name() + "/" + macro) ;
+    if (ifs.fail())
+    {
+      ifs.open(avrEmu + macro) ;
+      if (ifs.fail())
+      {
+        std::cout << "failed to read macro file " << macro << std::endl ;
+        return false ;
+      }
+    }
   }
 
   _exec.MacroQuit(false) ;

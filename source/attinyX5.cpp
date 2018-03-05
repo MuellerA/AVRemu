@@ -9,8 +9,8 @@
 namespace AVR
 {
 
-  ATtinyX5::ATtinyX5(uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
-    : Mcu(flashSize, 0x40, ramSize, eepromSize, ramSize + 0x5f),
+  ATtinyX5::ATtinyX5(const std::string &name, uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
+    : Mcu(name, flashSize, 0x40, ramSize, eepromSize, ramSize + 0x5f),
       ioEeprom(*this)
   {
     const Instruction *instructions[]
@@ -122,7 +122,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATtiny85::ATtiny85() : ATtinyX5(0x2000/2, 0x200, 0x200)
+  ATtiny85::ATtiny85() : ATtinyX5("ATtiny85", 0x2000/2, 0x200, 0x200)
   {
     _io[0x1f] = new IoEeprom::EEARH(*this, ioEeprom) ;
     _io[0x1e] = new IoEeprom::EEARL(*this, ioEeprom) ;
@@ -135,7 +135,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATtiny45::ATtiny45() : ATtinyX5(0x1000/2, 0x100, 0x100)
+  ATtiny45::ATtiny45() : ATtinyX5("ATtiny45", 0x1000/2, 0x100, 0x100)
   {
     _io[0x1e] = new IoEeprom::EEARL(*this, ioEeprom) ;
     _io[0x1d] = new IoEeprom::EEDR (*this, ioEeprom) ;
@@ -147,7 +147,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  ATtiny25::ATtiny25() : ATtinyX5(0x800/2, 0x80, 0x80)
+  ATtiny25::ATtiny25() : ATtinyX5("ATtiny25", 0x800/2, 0x80, 0x80)
   {
     _io[0x1e] = new IoEeprom::EEARL(*this, ioEeprom) ;
     _io[0x1d] = new IoEeprom::EEDR (*this, ioEeprom) ;
