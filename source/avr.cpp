@@ -116,13 +116,19 @@ namespace AVR
 
     if (_pc >= _flashSize)
     {
-      fprintf(stderr, "invalid program memory read at %05x\n", _pc) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "invalid program memory read at %05x\n", _pc) ;
+      Verbose(VerboseType::ProgError, buff) ;
       _pc = 0 ;
       return ;
     }
 
     if (_pc >= _loadedFlashSize)
-      fprintf(stderr, "uninitialized program memory read at %05x\n", _pc) ;
+    {
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "uninitialized program memory read at %05x\n", _pc) ;
+      Verbose(VerboseType::ProgError, buff) ;
+    }
     
     uint32_t pc0 = _pc ;
     Command cmd = (_pc < _loadedFlashSize) ? _flash[_pc++] : 0x9508 ;
@@ -130,7 +136,9 @@ namespace AVR
     
     if (!instr)
     {
-      fprintf(stderr, "illegal instruction at %05x\n", _pc) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "illegal instruction at %05x\n", _pc) ;
+      Verbose(VerboseType::ProgError, buff) ;
       _pc = 0 ;
       return ;
     }
@@ -200,7 +208,7 @@ namespace AVR
 
       if (_pc == _trace._stop)
       {
-        fprintf(stderr, "trace file closed\n") ;
+        fprintf(stdout, "trace file closed\n") ;
         _trace.Close() ;
       }
     }
@@ -287,7 +295,9 @@ namespace AVR
   {
     if (_pc >= _flashSize)
     {
-      fprintf(stderr, "illegal program memory read at %05x\n", _pc) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "illegal program memory read at %05x\n", _pc) ;
+      Verbose(VerboseType::ProgError, buff) ;
       _pc = 0 ;
       return ;
     }
@@ -297,7 +307,9 @@ namespace AVR
 
     if (!instr)
     {
-      fprintf(stderr, "illegal instruction at %05x: %04x\n", _pc, cmd) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "illegal instruction at %05x: %04x\n", _pc, cmd) ;
+      Verbose(VerboseType::ProgError, buff) ;
       _pc = 0 ;
       return ;
     }
@@ -319,7 +331,9 @@ namespace AVR
   {
     if (_pc >= _flashSize)
     {
-      fprintf(stderr, "illegal program memory read at %05x\n", _pc) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "illegal program memory read at %05x\n", _pc) ;
+      Verbose(VerboseType::ProgError, buff) ;
       return "" ;
     }
 
@@ -416,7 +430,9 @@ namespace AVR
   {
     if (_pc >= _flashSize)
     {
-      fprintf(stderr, "illegal program memory read at %05x\n", _pc) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "illegal program memory read at %05x\n", _pc) ;
+      Verbose(VerboseType::ProgError, buff) ;
       return 0 ;
     }
     Command cmd = _flash[_pc++] ;
@@ -445,7 +461,9 @@ namespace AVR
     Io::Register *ioReg = _io[io] ;
     if (!ioReg)
     {
-      fprintf(stderr, "illegal IO Register read at %05x: 0x%02x\n", _pc, io) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "illegal IO Register read at %05x: 0x%02x\n", _pc, io) ;
+      Verbose(VerboseType::DataError, buff) ;
       return 0xff ;
     }
     return ioReg->Get() ;
@@ -466,7 +484,9 @@ namespace AVR
     Io::Register *ioReg = _io[io] ;
     if (!ioReg)
     {
-      fprintf(stderr, "illegal IO Register write at %05x: 0x%02x\n", _pc, io) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "illegal IO Register write at %05x: 0x%02x\n", _pc, io) ;
+      Verbose(VerboseType::DataError, buff) ;
       return ;
     }
     ioReg->Set(value) ;
@@ -477,7 +497,9 @@ namespace AVR
     if (addr < _ramSize)
       return _ram[addr] ;
 
-    fprintf(stderr, "illegal RAM read at %05x: %04x\n", _pc, addr) ;
+    char buff[80] ;
+    snprintf(buff, sizeof(buff), "illegal RAM read at %05x: %04x\n", _pc, addr) ;
+    Verbose(VerboseType::DataError, buff) ;
     return 0xff ;
   }
 
@@ -489,14 +511,18 @@ namespace AVR
       return ;
     }
 
-    fprintf(stderr, "illegal RAM write at %05x: %05x, %02x\n", _pc, addr, value) ;
+    char buff[80] ;
+    snprintf(buff, sizeof(buff), "illegal RAM write at %05x: %05x, %02x\n", _pc, addr, value) ;
+    Verbose(VerboseType::DataError, buff) ;
   }
 
   void Mcu::Eeprom(uint32_t address, uint8_t value, bool resetOnError)
   {
     if (address >= _eepromSize)
     {
-      fprintf(stdout, "illegal eeprom write at %05x: %05x, %02x\n", _pc, address, value) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "illegal eeprom write at %05x: %05x, %02x\n", _pc, address, value) ;
+      Verbose(VerboseType::DataError, buff) ;
       address %= _eepromSize ;
     }
 
@@ -519,7 +545,9 @@ namespace AVR
   {
     if (address >= _eepromSize)
     {
-      fprintf(stdout, "illegal eeprom read at %05x: %04x\n", _pc, address) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "illegal eeprom read at %05x: %04x\n", _pc, address) ;
+      Verbose(VerboseType::DataError, buff) ;
       address %= _eepromSize ;
     }
 
@@ -545,9 +573,17 @@ namespace AVR
       return _flash[addr] ;
 
     if (addr < _flashSize)
-      fprintf(stderr, "uninitialized program memory read at %05x: %05x\n", _pc, addr) ;
+    {
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "uninitialized program memory read at %05x: %05x\n", _pc, addr) ;
+      Verbose(VerboseType::ProgError, buff) ;
+    }
     else
-      fprintf(stderr, "invalid program memory read at %05x\n", addr) ;
+    {
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "invalid program memory read at %05x\n", addr) ;
+      Verbose(VerboseType::ProgError, buff) ;
+    }
     
     return 0xffff ;
   }
@@ -560,7 +596,9 @@ namespace AVR
       return ;
     }
 
-    fprintf(stderr, "invalid program memory write at %05x: %05x %04x\n", _pc, addr, cmd) ;
+    char buff[80] ;
+    snprintf(buff, sizeof(buff), "invalid program memory write at %05x: %05x %04x\n", _pc, addr, cmd) ;
+    Verbose(VerboseType::ProgError, buff) ;
   }
 
   uint8_t  Mcu::Data(uint32_t addr, bool resetOnError) const
@@ -578,7 +616,9 @@ namespace AVR
       return _ram[addr - 0x20 - _ioSize] ;
     }
 
-    fprintf(stderr, "illegal data read at %05x: %04x\n", _pc, addr) ;
+    char buff[80] ;
+    snprintf(buff, sizeof(buff), "illegal data read at %05x: %04x\n", _pc, addr) ;
+    Verbose(VerboseType::DataError, buff) ;
     //if (resetOnError)
     //  const_cast<Mcu*>(this)->_pc = 0 ;
     return 0xff ;
@@ -623,7 +663,9 @@ namespace AVR
       return ;
     }
 
-    fprintf(stderr, "illegal data write at %05x: %04x %02x\n", _pc, addr, value) ;
+    char buff[80] ;
+    snprintf(buff, sizeof(buff), "illegal data write at %05x: %04x %02x\n", _pc, addr, value) ;
+    Verbose(VerboseType::DataError, buff) ;
     //if (resetOnError)
     //  _pc = 0 ;
   }
@@ -660,7 +702,9 @@ namespace AVR
     uint16_t sp = _sp() ;
     if (!InRam(sp))
     {
-      fprintf(stderr, "stack underflow at %05x\n", _pc) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "stack underflow at %05x\n", _pc) ;
+      Verbose(VerboseType::ProgError, buff) ;
       return ;
     }
     Data(sp, value) ;
@@ -672,7 +716,9 @@ namespace AVR
     uint16_t sp = _sp() + 1 ;
     if (!InRam(sp))
     {
-      fprintf(stderr, "stack overflow at %05x\n", _pc) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "stack overflow at %05x\n", _pc) ;
+      Verbose(VerboseType::ProgError, buff) ;
       return 0xff ;
     }
     _sp() = sp ;
@@ -712,7 +758,9 @@ namespace AVR
 
   void Mcu::NotImplemented(const Instruction &instr)
   {
-    fprintf(stderr, "not implemented instruction at %05x: %s %s\n", _pc, instr.Mnemonic().c_str(), instr.Description().c_str()) ;
+    char buff[80] ;
+    snprintf(buff, sizeof(buff), "not implemented instruction at %05x: %s %s\n", _pc, instr.Mnemonic().c_str(), instr.Description().c_str()) ;
+    printf(buff) ;
     // todo
   }
 
@@ -735,7 +783,9 @@ namespace AVR
     uint32_t nCopy = prg.size() ;
     if ((startAddress + nCopy) > _flashSize)
     {
-      fprintf(stderr, "Mcu::SetProgram(): data too big for program memory\n") ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "Mcu::SetProgram(): data too big for program memory\n") ;
+      Verbose(VerboseType::ProgError, buff) ;
       nCopy = _flashSize - startAddress ;
     }
 
@@ -755,7 +805,9 @@ namespace AVR
     uint32_t nCopy = eeprom.size() ;
     if ((startAddress + nCopy) > _eepromSize)
     {
-      fprintf(stderr, "Mcu::SetEeprom(): data too big for eeprom memory\n") ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "Mcu::SetEeprom(): data too big for eeprom memory\n") ;
+      Verbose(VerboseType::DataError, buff) ;
       nCopy = _eepromSize - startAddress ;
     }
 
@@ -934,14 +986,14 @@ namespace AVR
   {
     if (_file)
     {
-      fprintf(stderr, "trace file already open\n") ;
+      fprintf(stdout, "trace file already open\n") ;
       return false ;
     }
     
     _file = fopen(filename.c_str(), "w") ;
     if (!_file)
     {
-      fprintf(stderr, "trace file open failed\n") ;
+      fprintf(stdout, "trace file open failed\n") ;
       return false ;
     }
     _src   = 0 ;
@@ -958,7 +1010,7 @@ namespace AVR
   {
     if (!_file)
     {
-      fprintf(stderr, "trace file not open\n") ;
+      fprintf(stdout, "trace file not open\n") ;
       return false ;
     }
     fclose(_file) ;

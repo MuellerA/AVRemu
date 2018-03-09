@@ -1062,6 +1062,8 @@ strings CommandVerbose::Help() const
   {
     "v io = <on|off>               verbose io on/off",
     "v eeprom = <on|off>           verbose eeprom on/off",
+    "v data = <on|off>             verbose data error on/off",
+    "v prog = <on|off>             verbose program error on/off",
     "v all = <on|off>              verbose all on/off",
   } ;
 }
@@ -1072,9 +1074,11 @@ bool CommandVerbose::Execute(AVR::Mcu &mcu)
 
   AVR::VerboseType vt ;
 
-  if      (verbose == "io"    ) vt = AVR::VerboseType::Io     ;
-  else if (verbose == "eeprom") vt = AVR::VerboseType::Eeprom ;
-  else if (verbose == "all"   ) vt = AVR::VerboseType::All    ;
+  if      (verbose == "io"    ) vt = AVR::VerboseType::Io        ;
+  else if (verbose == "eeprom") vt = AVR::VerboseType::Eeprom    ;
+  else if (verbose == "data"  ) vt = AVR::VerboseType::DataError ;
+  else if (verbose == "prog"  ) vt = AVR::VerboseType::ProgError ;
+  else if (verbose == "all"   ) vt = AVR::VerboseType::All       ;
   else return false ;
   
   if (onOff == "on")  mcu.Verbose() |=  vt ;
@@ -1101,7 +1105,7 @@ strings CommandFilterAdd::Help() const
 {
   return strings
   {
-    "f + <io|eeprom|all> <command> add filter for specified events"
+    "f + <io|eeprom|data|prog|all> <command> add filter for specified events"
   } ;
 }
 
@@ -1112,9 +1116,11 @@ bool CommandFilterAdd::Execute(AVR::Mcu &mcu)
 
   AVR::VerboseType vt ;
 
-  if      (verbose == "io"    ) vt = AVR::VerboseType::Io     ;
-  else if (verbose == "eeprom") vt = AVR::VerboseType::Eeprom ;
-  else if (verbose == "all"   ) vt = AVR::VerboseType::All    ;
+  if      (verbose == "io"    ) vt = AVR::VerboseType::Io        ;
+  else if (verbose == "eeprom") vt = AVR::VerboseType::Eeprom    ;
+  else if (verbose == "data"  ) vt = AVR::VerboseType::DataError ;
+  else if (verbose == "prog"  ) vt = AVR::VerboseType::ProgError ;
+  else if (verbose == "all"   ) vt = AVR::VerboseType::All       ;
   else return false ;
 
   mcu.AddFilter(vt, command) ;

@@ -335,8 +335,12 @@ namespace AVR
     v &= 0x3f ;
     
     if (v & kEERIE)
-      fprintf(stderr, "EEPROM interrupt not supported\n") ;
-
+    {
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "EEPROM interrupt not supported\n") ;
+      _mcu.Verbose(VerboseType::Eeprom, buff) ;
+    }
+    
     if ((_writeBusyTicks < _mcu.Ticks()) && (_readBusyTicks < _mcu.Ticks()))
     {
       switch (v & (kEEMPE | kEEPE | kEERE))
@@ -370,7 +374,12 @@ namespace AVR
         _readBusyTicks = _mcu.Ticks() ; // +4
         break ;
       default:
-        fprintf(stderr, "EEPROM illegal bit combination EEMPE|EEPE|EERE %02x", v&(kEEMPE|kEEPE|kEERE)) ;
+        {
+          char buff[80] ;
+          snprintf(buff, sizeof(buff), "EEPROM illegal bit combination EEMPE|EEPE|EERE %02x", v&(kEEMPE|kEEPE|kEERE)) ;
+          _mcu.Verbose(VerboseType::Eeprom, buff) ;
+        }
+        break ;
       }
     }
     

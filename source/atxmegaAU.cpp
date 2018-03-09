@@ -24,7 +24,9 @@ namespace AVR
       return _ram[addr - 0x2000] ;
     }
 
-    fprintf(stderr, "illegal data read at %05x: %04x\n", _pc, addr) ;
+    char buff[80] ;
+    snprintf(buff, sizeof(buff), "illegal data read at %05x: %04x\n", _pc, addr) ;
+    Verbose(VerboseType::DataError, buff) ;
     //if (resetOnError)
     //  const_cast<Mcu*>(this)->_pc = 0 ;
     return 0xff ;
@@ -70,7 +72,9 @@ namespace AVR
       return ;
     }
 
-    fprintf(stderr, "illegal data write at %05x: %04x %02x\n", _pc, addr, value) ;
+    char buff[80] ;
+    snprintf(buff, sizeof(buff), "illegal data write at %05x: %04x %02x\n", _pc, addr, value) ;
+    Verbose(VerboseType::DataError, buff) ;
     //if (resetOnError)
     //  _pc = 0 ;
   }
@@ -83,12 +87,16 @@ namespace AVR
       {
         if (addr >= _flashSize)
         {
-          fprintf(stderr, "invalid program memory read at %05x\n", addr) ;
+          char buff[80] ;
+          snprintf(buff, sizeof(buff), "invalid program memory read at %05x\n", addr) ;
+          Verbose(VerboseType::ProgError, buff) ;
           return 0xffff ;
         }
         if (addr >= _loadedFlashSize)
         {
-          fprintf(stderr, "uninitialized program memory read at %05x: %05x\n", _pc, addr) ;
+          char buff[80] ;
+          snprintf(buff, sizeof(buff), "uninitialized program memory read at %05x: %05x\n", _pc, addr) ;
+          Verbose(VerboseType::ProgError, buff) ;
           return 0x9508 ;
         }
         return _flash[addr] ;
@@ -105,7 +113,9 @@ namespace AVR
   {
     if (addr >= _flashSize)
     {
-      fprintf(stderr, "invalid program memory write at %05x: %05x %04x\n", _pc, addr, cmd) ;
+      char buff[80] ;
+      snprintf(buff, sizeof(buff), "invalid program memory write at %05x: %05x %04x\n", _pc, addr, cmd) ;
+      Verbose(VerboseType::ProgError, buff) ;
       return ;
     }
     _flash[addr] = cmd ;
