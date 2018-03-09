@@ -591,6 +591,7 @@ namespace AVR
 
     IoXmegaCpu   _cpu ;
     IoXmegaNvm   _nvm ;
+    IoXmegaRtc   _rtc ;
     IoXmegaUsart _usartC0 ;
     IoXmegaUsart _usartC1 ;
     IoXmegaUsart _usartD0 ;

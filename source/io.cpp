@@ -301,6 +301,71 @@ namespace AVR
   {
     return _ctrlB & 0x08 ;
   }
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // IoXmegaRtc
+  ////////////////////////////////////////////////////////////////////////////////
+
+  IoXmegaRtc::IoXmegaRtc(Mcu &mcu) : _mcu(mcu), _ticks(0), _prescaler(0), _prescalerDiv(1), _cnt(0), _tmp(0)
+  {
+  }
+
+  uint8_t IoXmegaRtc::GetCntL() const
+  {
+    if (_prescaler)
+    {
+      _cnt += (_mcu.Ticks() - _ticks) / _prescalerDiv ;
+      _ticks = _mcu.Ticks() ;
+    }
+    _tmp = (_cnt >> 8) & 0xff ;
+    return (_cnt >> 0) & 0xff ;
+  }
+  
+  uint8_t IoXmegaRtc::GetPrescaler() const
+  {
+    return _prescaler ;
+  }
+  
+  void    IoXmegaRtc::SetPrescaler(uint8_t v)
+  {
+    _prescaler = v & 0x07 ;
+    switch (_prescaler)
+    {
+    default: break ;
+    case 1: _prescalerDiv =    1 ; break ;
+    case 2: _prescalerDiv =    2 ; break ;
+    case 3: _prescalerDiv =    8 ; break ;
+    case 4: _prescalerDiv =   16 ; break ;
+    case 5: _prescalerDiv =   64 ; break ;
+    case 6: _prescalerDiv =  256 ; break ;
+    case 7: _prescalerDiv = 1024 ; break ;
+    }
+  }
+  void    IoXmegaRtc::SetCntL(uint8_t v)
+  {
+    _tmp = v ;
+  }
+  
+  uint8_t IoXmegaRtc::GetCntH() const
+  {
+    return _tmp ;
+  }
+  
+  void    IoXmegaRtc::SetCntH(uint8_t v)
+  {
+    _cnt = ((uint32_t)v << 8) | _tmp ;
+    _ticks = _mcu.Ticks() ;
+  }
+  
+  uint8_t IoXmegaRtc::GetTemp() const
+  {
+    return _tmp ;
+  }
+  
+  void    IoXmegaRtc::SetTemp(uint8_t v)
+  {
+    _tmp = v ;
+  }
   
   ////////////////////////////////////////////////////////////////////////////////
   // IoEeprom

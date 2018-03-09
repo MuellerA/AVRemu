@@ -134,7 +134,7 @@ namespace AVR
   
   ATxmegaAU::ATxmegaAU(const std::string &name, uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
     : Mcu(name, flashSize, 0x1000, ramSize, eepromSize, 0x3fff),
-      _cpu(*this), _nvm(*this, _cpu),
+      _cpu(*this), _nvm(*this, _cpu), _rtc(*this),
       _usartC0("USARTC0"), _usartC1("USARTC1"), _usartD0("USARTD0"), _usartD1("USARTD1"), _usartE0("USARTE0")
   {
     _isXMega = true ;
@@ -552,13 +552,13 @@ namespace AVR
       { 0x0388, new IoRegisterNotImplemented(*this, "ACA_CURRCTRL") },
       { 0x0389, new IoRegisterNotImplemented(*this, "ACA_CURRCALIB") },
 
-      { 0x0400, new IoRegisterNotImplemented(*this, "RTC_CTRL") }, // Real Time Counter
-      { 0x0401, new IoRegisterNotImplemented(*this, "RTC_STATUS") },
+      { 0x0400, new IoXmegaRtc::Ctrl(*this, _rtc) }, // Real Time Counter
+      { 0x0401, new IoXmegaRtc::Status(*this, _rtc) },
       { 0x0402, new IoRegisterNotImplemented(*this, "RTC_INTCTRL") },
       { 0x0403, new IoRegisterNotImplemented(*this, "RTC_INTFLAGS") },
-      { 0x0404, new IoRegisterNotImplemented(*this, "RTC_TEMP") },
-      { 0x0408, new IoRegisterNotImplemented(*this, "RTC_CNTL") },
-      { 0x0409, new IoRegisterNotImplemented(*this, "RTC_CNTH") },
+      { 0x0404, new IoXmegaRtc::Temp(*this, _rtc) },
+      { 0x0408, new IoXmegaRtc::CntL(*this, _rtc) },
+      { 0x0409, new IoXmegaRtc::CntH(*this, _rtc) },
       { 0x040a, new IoRegisterNotImplemented(*this, "RTC_PERL") },
       { 0x040b, new IoRegisterNotImplemented(*this, "RTC_PERH") },
       { 0x040c, new IoRegisterNotImplemented(*this, "RTC_COMPL") },

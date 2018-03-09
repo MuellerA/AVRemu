@@ -392,6 +392,86 @@ namespace AVR
 
     LpmType  _lpm ;
   } ;
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // IoXmegaRtc
+  ////////////////////////////////////////////////////////////////////////////////
+
+  class IoXmegaRtc : public Io
+  {
+  public:
+    class Ctrl : public Io::Register
+    {
+    public:
+      Ctrl(const Mcu &mcu, IoXmegaRtc &rtc) : Register(mcu, "RTC_CTRL"), _rtc(rtc) {}
+      virtual uint8_t Get() const    { return VG(_rtc.GetPrescaler()) ; }
+      virtual void    Set(uint8_t v) { _rtc.SetPrescaler(VS(v))       ; }
+
+    private:
+      IoXmegaRtc &_rtc ;
+    } ;
+    class Status : public Io::Register
+    {
+    public:
+      Status(const Mcu &mcu, IoXmegaRtc &rtc) : Register(mcu, "RTC_STATUS"), _rtc(rtc) {}
+      virtual uint8_t Get() const    { return VG(0) ; }
+      virtual void    Set(uint8_t v) { VS(v)        ; }
+
+    private:
+      IoXmegaRtc &_rtc ;
+    } ;
+
+    class CntL : public Io::Register
+    {
+    public:
+      CntL(const Mcu &mcu, IoXmegaRtc &rtc) : Register(mcu, "RTC_CNTL"), _rtc(rtc) {}
+      virtual uint8_t Get() const    { return VG(_rtc.GetCntL()) ; }
+      virtual void    Set(uint8_t v) { _rtc.SetCntL(VS(v))       ; }
+
+    private:
+      IoXmegaRtc &_rtc ;
+    } ;
+    class CntH : public Io::Register
+    {
+    public:
+      CntH(const Mcu &mcu, IoXmegaRtc &rtc) : Register(mcu, "RTC_CNTH"), _rtc(rtc) {}
+      virtual uint8_t Get() const    { return VG(_rtc.GetCntH()) ; }
+      virtual void    Set(uint8_t v) { _rtc.SetCntH(VS(v))       ; }
+
+    private:
+      IoXmegaRtc &_rtc ;
+    } ;
+    class Temp : public Io::Register
+    {
+    public:
+      Temp(const Mcu &mcu, IoXmegaRtc &rtc) : Register(mcu, "RTC_TEMP"), _rtc(rtc) {}
+      virtual uint8_t Get() const    { return VG(_rtc.GetTemp()) ; }
+      virtual void    Set(uint8_t v) { _rtc.SetTemp(VS(v))       ; }
+
+    private:
+      IoXmegaRtc &_rtc ;
+    } ;
+
+    IoXmegaRtc(Mcu &mcu) ;
+
+    uint8_t GetPrescaler() const ;
+    void    SetPrescaler(uint8_t v) ;
+    uint8_t GetCntL() const ;
+    void    SetCntL(uint8_t v) ;
+    uint8_t GetCntH() const ;
+    void    SetCntH(uint8_t v) ;
+    uint8_t GetTemp() const ;
+    void    SetTemp(uint8_t v) ;
+
+  private:
+    Mcu     &_mcu ;
+
+    mutable uint32_t _ticks ;
+    uint32_t _prescaler ;
+    uint32_t _prescalerDiv ;
+    mutable uint32_t _cnt ;
+    mutable uint8_t  _tmp ;
+  } ;
   
   ////////////////////////////////////////////////////////////////////////////////
   // IoEeprom (tiny, mega)
