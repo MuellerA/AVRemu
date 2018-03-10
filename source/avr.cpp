@@ -48,7 +48,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   // Instruction
-  Instruction::Instruction(Command pattern, Command mask, const std::string &mnemonic, const std::string &description, bool isTwoWord, bool isJump, bool isBranch, bool isCall, bool isReturn) : _pattern(pattern), _mask(mask), _mnemonic(mnemonic), _description(description), _isTwoWord(isTwoWord), _isJump(isJump), _isBranch(isBranch), _isCall(isCall), _isReturn(isReturn)
+  Instruction::Instruction(Command pattern, Command mask, const std::string &mnemonic, const std::string &description, bool isTwoWord, bool isJump, bool isBranch, bool isCall, bool isReturn) : _pattern(pattern), _mask(mask), _mnemonic(mnemonic), _description(description), _size(isTwoWord?2:1), _isJump(isJump), _isBranch(isBranch), _isCall(isCall), _isReturn(isReturn)
   {
   }
 
@@ -88,6 +88,7 @@ namespace AVR
       _ramSize(ramSize), _ram(_ramSize),
       _eepromSize(eepromSize), _eeprom(_eepromSize, 0xff),
       _instructions(0x10000),
+      _trace(*this),
       _verbose(VerboseType::None)
   {
     _pcIs22Bit     = false ;
@@ -105,9 +106,6 @@ namespace AVR
 
     for (auto iF : _filters)
       delete iF ;
-    
-    if (_trace._file)
-      _trace.Close() ;
   }
 
   void Mcu::Execute()
@@ -130,8 +128,7 @@ namespace AVR
       Verbose(VerboseType::ProgError, buff) ;
     }
     
-    uint32_t pc0 = _pc ;
-    Command cmd = (_pc < _loadedFlashSize) ? _flash[_pc++] : 0x9508 ;
+    Command cmd = (_pc < _loadedFlashSize) ? _flash[_pc] : 0x9508 ;
     const Instruction *instr = _instructions[cmd] ;
     
     if (!instr)
@@ -143,74 +140,30 @@ namespace AVR
       return ;
     }
 
+    uint32_t pc0 = _pc ;
+    uint32_t pcNext = _pc + instr->Size() ;
     uint16_t sp0 = _sp() ;
+    _pc += 1 ;
     
     // todo Ticks
     instr->Execute(*this, cmd) ;
 
-    if (instr->IsCall() && (_pc != (pc0 + (instr->IsTwoWord() ? 2 : 1))))
-      _stackFrames.push_back(StackFrame(sp0, _pc)) ;
-
-    if (instr->IsReturn() && !_stackFrames.empty())
-      _stackFrames.pop_back() ;
-
-    if (_trace._file)
+    if (_pc != pcNext) // call / jump / return
     {
-      if (_pc != (pc0 + (instr->IsTwoWord() ? 2 : 1)))
-      {
-        if ((pc0 != _trace._src) ||
-            (_pc != _trace._dst))
-        {
-          fprintf(_trace._file, "%2d", _trace._lvl) ;
-          for (uint32_t i = 0 ; i < _trace._lvl ; ++i)
-            fputs("  ", _trace._file) ;
-          fprintf(_trace._file, "%05x -> %05x %4ux", _trace._src, _trace._dst, _trace._cnt) ;
-          if (_trace._isRet)
-            fprintf(_trace._file, "   RET") ;
-          auto iXrefs = _xrefByAddr.find(_trace._dst) ;
-          if (iXrefs != _xrefByAddr.end())
-          {
-            const Xref *xref = iXrefs->second ;
-            fprintf(_trace._file, "   %s\n", xref->Label().c_str()) ;
-          
-            if (static_cast<uint32_t>(xref->Type() & XrefType::call))
-            {
-              if (_trace._lvl < 20)
-                _trace._lvl++ ;
-              fputc('\n', _trace._file) ;
-              fprintf(_trace._file, "%2d", _trace._lvl) ;
-              for (uint32_t i = 0 ; i < _trace._lvl ; ++i)
-                fputs("  ", _trace._file) ;
-              fprintf(_trace._file, "%s", xref->Label().c_str()) ;
-              if (!xref->Description().empty())
-                fprintf(_trace._file, " | %s", xref->Description().c_str()) ;
-              fprintf(_trace._file, "\n") ;
-            }
-          }
-          else
-            fprintf(_trace._file, "\n") ;
-          if (_trace._isRet)
-          {
-            fprintf(_trace._file, "\n") ;
-            if (_trace._lvl > 0)
-              _trace._lvl-- ;
-          }
-          _trace._src = pc0 ;
-          _trace._dst = _pc ;
-          _trace._cnt = 1 ;
-          _trace._isRet = instr->IsReturn() ;
-        }
-        else
-        {
-          _trace._cnt++ ;
-        }
-      }
+      if (instr->IsCall())
+        _stackFrames.push_back(StackFrame(sp0, _pc)) ;
 
-      if (_pc == _trace._stop)
-      {
-        fprintf(stdout, "trace file closed\n") ;
-        _trace.Close() ;
-      }
+      if (instr->IsReturn() && !_stackFrames.empty())
+        _stackFrames.pop_back() ;
+
+      if (_trace())
+        _trace.Add(pc0, _pc, *instr) ;
+    }
+
+    if (_trace() && (_pc == _trace.StopAddr()))
+    {
+      fprintf(stdout, "trace file closed\n") ;
+      _trace.Close() ;
     }
   }
 
@@ -981,6 +934,16 @@ namespace AVR
   ////////////////////////////////////////////////////////////////////////////////
   // Trace
   ////////////////////////////////////////////////////////////////////////////////
+
+  Mcu::Trace::Trace(const Mcu &mcu) : _mcu(mcu), _file{0}
+  {
+  }
+  
+  Mcu::Trace::~Trace()
+  {
+    if (_file)
+      Close() ;
+  }
   
   bool Mcu::Trace::Open(const std::string &filename, uint32_t stopAddr)
   {
@@ -996,12 +959,13 @@ namespace AVR
       fprintf(stdout, "trace file open failed\n") ;
       return false ;
     }
-    _src   = 0 ;
-    _dst   = 0 ;
-    _cnt   = 1 ;
-    _isRet = false ;
-    _lvl   = 0 ;
-    _stop  = stopAddr ;
+    _src    = 0 ;
+    _dst    = 0 ;
+    _cnt    = 1 ;
+    _isRet  = false ;
+    _isCall = false ;
+    _lvl    = 0 ;
+    _stop   = stopAddr ;
 
     return true ;
   }
@@ -1013,11 +977,66 @@ namespace AVR
       fprintf(stdout, "trace file not open\n") ;
       return false ;
     }
+
+    Add(0, 0, instrNOP) ;
     fclose(_file) ;
     _file = 0 ;
     return true ;
   }
 
+  void Mcu::Trace::Add(uint32_t src, uint32_t dst, const Instruction &instr)
+  {
+    if ((src != _src) ||
+        (dst != _dst))
+    {
+      fprintf(_file, "%2d  ", _lvl) ;
+      for (uint32_t i = 0, e = (_lvl < 20) ? _lvl : 20 ; i < e ; ++i)
+        fputs("  ", _file) ;
+      fprintf(_file, "%05x -> %05x %4ux", _src, _dst, _cnt) ;
+      
+      if (_isRet)
+      {
+        fprintf(_file, "   RET\n\n") ;
+        if (_lvl > 0)
+          _lvl-- ;
+      }
+      else
+      {
+        auto iXrefs = _mcu.XrefByAddr().find(_dst) ;
+        if (iXrefs != _mcu.XrefByAddr().end())
+        {
+          const Xref *xref = iXrefs->second ;
+          fprintf(_file, "   %s\n", xref->Label().c_str()) ;
+        
+          if (_isCall)
+          {
+            _lvl++ ;
+            fputc('\n', _file) ;
+            fprintf(_file, "%2d  ", _lvl) ;
+            for (uint32_t i = 0, e = (_lvl < 20) ? _lvl : 20 ; i < e ; ++i)
+              fputs("  ", _file) ;
+            fprintf(_file, "%s", xref->Label().c_str()) ;
+            if (!xref->Description().empty())
+              fprintf(_file, " | %s", xref->Description().c_str()) ;
+            fprintf(_file, "\n") ;
+          }
+        }
+        else
+          fprintf(_file, "\n") ;
+      }
+      
+      _src    = src ;
+      _dst    = dst ;
+      _cnt    = 1 ;
+      _isRet  = instr.IsReturn() ;
+      _isCall = instr.IsCall() ;
+    }
+    else
+    {
+      _cnt++ ;
+    }
+  }
+  
   ////////////////////////////////////////////////////////////////////////////////
   // ATany
   ////////////////////////////////////////////////////////////////////////////////

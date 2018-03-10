@@ -86,7 +86,8 @@ namespace AVR
     Command     Mask()        const { return _mask        ; }
     std::string Mnemonic()    const { return _mnemonic    ; }
     std::string Description() const { return _description ; }
-    bool        IsTwoWord()   const { return _isTwoWord   ; }
+    uint32_t    Size()        const { return _size        ; }
+    bool        IsTwoWord()   const { return _size == 2   ; }
     bool        IsJump()      const { return _isJump      ; }
     bool        IsBranch()    const { return _isBranch    ; }
     bool        IsCall()      const { return _isCall      ; }
@@ -97,7 +98,7 @@ namespace AVR
     Command     _mask    ;
     std::string _mnemonic ;
     std::string _description ;
-    bool        _isTwoWord ;
+    uint32_t    _size ;
     bool        _isJump ;
     bool        _isBranch ;
     bool        _isCall ;
@@ -252,18 +253,25 @@ namespace AVR
     class Trace
     {
     public:
-      Trace() : _file{0} {}
-
-      FILE    *_file ;
-      uint32_t _src ;
-      uint32_t _dst ;
-      uint32_t _cnt ;
-      bool     _isRet ;
-      uint32_t _lvl ;
-      uint32_t _stop ;
+      Trace(const Mcu &mcu) ;
+      ~Trace() ;
 
       bool Open(const std::string &filename, uint32_t addr = 0) ;
+      void Add(uint32_t src, uint32_t dst, const Instruction &instr) ;
       bool Close() ;
+      bool operator()() const { return _file != nullptr ; }
+      uint32_t StopAddr() const { return _stop ; }
+
+    private:
+      const Mcu &_mcu ;
+      FILE      *_file ;
+      uint32_t   _src ;
+      uint32_t   _dst ;
+      uint32_t   _cnt ;
+      bool       _isRet ;
+      bool       _isCall ;
+      uint32_t   _lvl ;
+      uint32_t   _stop ;
     } ;
     
   protected:

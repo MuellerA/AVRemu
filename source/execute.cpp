@@ -290,7 +290,7 @@ bool CommandStep::Execute(AVR::Mcu &mcu)
       const AVR::Instruction *instr = mcu.Instr(pc) ;
       if (instr->IsCall())
       {
-        pc += (instr->IsTwoWord()) ? 2 : 1 ;
+        pc += instr->Size() ;
         while ((mcu.PC() != pc) && !mcu.IsBreakpoint(pc) && !SigInt)
         {
           mcu.Execute() ;
