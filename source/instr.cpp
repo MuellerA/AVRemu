@@ -448,14 +448,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrADD::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrADD::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrADD::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrADD::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxRxxxxxRRRR(cmd, nr) ;
@@ -481,6 +474,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrADD::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -501,14 +496,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrADC::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrADC::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrADC::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrADC::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxRxxxxxRRRR(cmd, nr) ;
@@ -535,6 +523,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrADC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -555,14 +545,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrADIW::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrADIW::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrADIW::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrADIW::Execute(Mcu &mcu, Command cmd) const
   {
     Command k, nd ;
     xxxxxxxxKKxxKKKK(cmd, k) ;
@@ -583,6 +566,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.RegW(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 2 ;
   }
   std::string InstrADIW::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -603,14 +588,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSUB::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrSUB::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSUB::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSUB::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxRxxxxxRRRR(cmd, nr) ;
@@ -636,6 +614,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrSUB::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -656,14 +636,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSUBI::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrSUBI::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSUBI::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSUBI::Execute(Mcu &mcu, Command cmd) const
   {
     Command k, nd ;
     xxxxKKKKxxxxKKKK(cmd, k) ;
@@ -688,6 +661,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrSUBI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -708,14 +683,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSBC::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrSBC::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSBC::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBC::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxRxxxxxRRRR(cmd, nr) ;
@@ -742,6 +710,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrSBC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -762,14 +732,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSBCI::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrSBCI::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSBCI::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBCI::Execute(Mcu &mcu, Command cmd) const
   {
     Command k, nd ;
     xxxxKKKKxxxxKKKK(cmd, k) ;
@@ -795,6 +758,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrSBCI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -815,14 +780,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSBIW::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrSBIW::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSBIW::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBIW::Execute(Mcu &mcu, Command cmd) const
   {
     Command k, nd ;
     xxxxxxxxKKxxKKKK(cmd, k) ;
@@ -843,6 +801,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.RegW(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 2 ;
   }
   std::string InstrSBIW::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -863,14 +823,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrAND::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrAND::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrAND::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrAND::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxRxxxxxRRRR(cmd, nr) ;
@@ -888,6 +841,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrAND::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -908,14 +863,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrANDI::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrANDI::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrANDI::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrANDI::Execute(Mcu &mcu, Command cmd) const
   {
     Command k, nd ;
     xxxxKKKKxxxxKKKK(cmd, k) ;
@@ -932,6 +880,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrANDI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -952,14 +902,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrOR::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrOR::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrOR::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrOR::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxRxxxxxRRRR(cmd, nr) ;
@@ -977,6 +920,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrOR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -997,14 +942,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrORI::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrORI::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrORI::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrORI::Execute(Mcu &mcu, Command cmd) const
   {
     Command k, nd ;
     xxxxKKKKxxxxKKKK(cmd, k) ;
@@ -1021,6 +959,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrORI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1041,14 +981,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrEOR::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrEOR::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrEOR::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrEOR::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxRxxxxxRRRR(cmd, nr) ;
@@ -1066,6 +999,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrEOR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1086,14 +1021,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrCOM::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrCOM::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrCOM::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrCOM::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -1110,6 +1038,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrCOM::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1130,14 +1060,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrNEG::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrNEG::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrNEG::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrNEG::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -1160,6 +1083,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrNEG::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1180,14 +1105,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrINC::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrINC::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrINC::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrINC::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -1205,6 +1123,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrINC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1225,14 +1145,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrDEC::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrDEC::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrDEC::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrDEC::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -1250,6 +1163,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrDEC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1270,14 +1185,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrMUL::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrMUL::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrMUL::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrMUL::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxRxxxxxRRRR(cmd, nr) ;
@@ -1293,6 +1201,8 @@ namespace AVR
       sreg |= SREG::C ;
     mcu.RegW(0, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 2 ;
   }
   std::string InstrMUL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1313,14 +1223,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrMULS::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrMULS::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrMULS::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrMULS::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxxxRRRRxxxx1(cmd, nd) ;
@@ -1336,6 +1239,8 @@ namespace AVR
       sreg |= SREG::C ;
     mcu.RegW(0, (uint16_t)r) ;
     mcu.SetSREG(sreg) ;
+
+    return 2 ;
   }
   std::string InstrMULS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1356,16 +1261,12 @@ namespace AVR
   {
   }
 
-  uint8_t InstrMULSU::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrMULSU::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrMULSU::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrMULSU::Execute(Mcu &mcu, Command cmd) const
   {
     // todo exec InstrMULSU
+    mcu.NotImplemented(*this) ;
+    
+    return 2 ;
   }
   std::string InstrMULSU::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1386,16 +1287,12 @@ namespace AVR
   {
   }
 
-  uint8_t InstrFMUL::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrFMUL::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrFMUL::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrFMUL::Execute(Mcu &mcu, Command cmd) const
   {
     // todo exec InstrFMUL
+    mcu.NotImplemented(*this) ;
+
+    return 2 ;
   }
   std::string InstrFMUL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1416,16 +1313,12 @@ namespace AVR
   {
   }
 
-  uint8_t InstrFMULS::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrFMULS::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrFMULS::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrFMULS::Execute(Mcu &mcu, Command cmd) const
   {
     // todo exec InstrFMULS
+    mcu.NotImplemented(*this) ;
+
+    return 2 ;
   }
   std::string InstrFMULS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1446,16 +1339,12 @@ namespace AVR
   {
   }
 
-  uint8_t InstrFMULSU::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrFMULSU::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrFMULSU::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrFMULSU::Execute(Mcu &mcu, Command cmd) const
   {
     // todo exec InstrFMULSU
+    mcu.NotImplemented(*this) ;
+
+    return 2 ;
   }
   std::string InstrFMULSU::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1476,16 +1365,12 @@ namespace AVR
   {
   }
 
-  uint8_t InstrDES::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrDES::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrDES::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrDES::Execute(Mcu &mcu, Command cmd) const
   {
     // todo exec InstrDES
+    mcu.NotImplemented(*this) ;
+
+    return 2 ; // todo ticks
   }
   std::string InstrDES::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1506,18 +1391,13 @@ namespace AVR
   {
   }
 
-  uint8_t InstrRJMP::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrRJMP::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrRJMP::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrRJMP::Execute(Mcu &mcu, Command cmd) const
   {
     Command k ;
     xxxxKKKKKKKKKKKK(cmd, k) ;
     mcu.PC() = mcu.PC() + (int16_t)k ;
+
+    return 2 ;
   }
   std::string InstrRJMP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1539,17 +1419,12 @@ namespace AVR
   {
   }
 
-  uint8_t InstrIJMP::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrIJMP::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrIJMP::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrIJMP::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.XrefAdd(XrefType::jmp, mcu.RegW(30), mcu.PC()-1) ;
     mcu.PC() = mcu.RegW(30) ;
+
+    return 2 ;
   }
   std::string InstrIJMP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1570,17 +1445,12 @@ namespace AVR
   {
   }
 
-  uint8_t InstrEIJMP::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrEIJMP::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrEIJMP::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrEIJMP::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.XrefAdd(XrefType::jmp, mcu.GetEind() | mcu.RegW(30), mcu.PC()-1) ;
     mcu.PC() = mcu.GetEind() | mcu.RegW(30) ;
+
+    return 2 ;
   }
   std::string InstrEIJMP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1601,20 +1471,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrJMP::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 3 ;
-  }
-  void InstrJMP::Skip(Mcu &mcu, Command cmd) const
-  {
-    mcu.ProgramNext() ;
-  }
-  void InstrJMP::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrJMP::Execute(Mcu &mcu, Command cmd) const
   {
     Command k ;
     xxxxxxxKKKKKxxxK(cmd, k) ;
     uint32_t addr = (((uint32_t)k) << 16) + mcu.ProgramNext() ;
     mcu.PC() = addr ;
+
+    return 3 ;
   }
   std::string InstrJMP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1636,19 +1500,18 @@ namespace AVR
   {
   }
 
-  uint8_t InstrRCALL::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 3 ; // todo
-  }
-  void InstrRCALL::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrRCALL::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrRCALL::Execute(Mcu &mcu, Command cmd) const
   {
     Command k ;
     xxxxKKKKKKKKKKKK(cmd, k) ;
     mcu.PushPC() ;
     mcu.PC() = mcu.PC() + (int16_t)k ;
+
+    if (mcu.IsXmega())
+      return mcu.PcIs22bit() ? 3 : 2 ;
+    else if (mcu.IsTinyReduced())
+      return 4 ;
+    return mcu.PcIs22bit() ? 4 : 3 ;
   }
   std::string InstrRCALL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1670,18 +1533,15 @@ namespace AVR
   {
   }
 
-  uint8_t InstrICALL::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 3 ; // todo
-  }
-  void InstrICALL::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrICALL::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrICALL::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.XrefAdd(XrefType::call, mcu.RegW(30), mcu.PC()-1) ;
     mcu.PushPC() ;
     mcu.PC() = mcu.RegW(30) ;
+
+    if (mcu.IsXmega())
+      return mcu.PcIs22bit() ? 3 : 2 ;
+    return mcu.PcIs22bit() ? 4 : 3 ;
   }
   std::string InstrICALL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1702,18 +1562,15 @@ namespace AVR
   {
   }
 
-  uint8_t InstrEICALL::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 4 ; // todo
-  }
-  void InstrEICALL::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrEICALL::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrEICALL::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.XrefAdd(XrefType::call, mcu.GetEind() | mcu.RegW(30), mcu.PC()-1) ;
     mcu.PushPC() ;
     mcu.PC() = mcu.GetEind() | mcu.RegW(30) ;
+
+    if (mcu.IsXmega())
+      return 3 ;
+    return 4 ;
   }
   std::string InstrEICALL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1734,21 +1591,17 @@ namespace AVR
   {
   }
 
-  uint8_t InstrCALL::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 4 ; // todo
-  }
-  void InstrCALL::Skip(Mcu &mcu, Command cmd) const
-  {
-    mcu.ProgramNext() ;
-  }
-  void InstrCALL::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrCALL::Execute(Mcu &mcu, Command cmd) const
   {
     Command k ;
     xxxxxxxKKKKKxxxK(cmd, k) ;
     uint32_t addr = (((uint32_t)k) << 16) + mcu.ProgramNext() ;
     mcu.PushPC() ;
     mcu.PC() = addr ;
+
+    if (mcu.IsXmega())
+      return mcu.PcIs22bit() ? 4 : 3 ;
+    return mcu.PcIs22bit() ? 5 : 4 ;
   }
   std::string InstrCALL::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1770,16 +1623,11 @@ namespace AVR
   {
   }
 
-  uint8_t InstrRET::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 4 ; // todo
-  }
-  void InstrRET::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrRET::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrRET::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.PopPC() ;
+
+    return mcu.PcIs22bit() ? 5 : 4 ;
   }
   std::string InstrRET::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1800,19 +1648,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrRETI::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 4 ; // todo
-  }
-  void InstrRETI::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrRETI::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrRETI::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.PopPC() ;
     uint8_t sreg = mcu.GetSREG() ;
     sreg |= SREG::I ;
     mcu.SetSREG(sreg) ;
+
+    return mcu.PcIs22bit() ? 5 : 4 ;
   }
   std::string InstrRETI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1833,14 +1676,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrCPSE::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrCPSE::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrCPSE::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrCPSE::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxRxxxxxRRRR(cmd, nr) ;
@@ -1849,7 +1685,9 @@ namespace AVR
     uint8_t rr = mcu.Reg(nr) ;
     uint8_t rd = mcu.Reg(nd) ;
     if (rr == rd)
-      mcu.Skip() ;
+      return mcu.Skip() + 1 ;
+
+    return 1 ;
   }
   std::string InstrCPSE::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1870,14 +1708,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrCP::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrCP::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrCP::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrCP::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxRxxxxxRRRR(cmd, nr) ;
@@ -1902,6 +1733,8 @@ namespace AVR
     if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrCP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1922,14 +1755,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrCPC::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrCPC::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrCPC::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrCPC::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxRxxxxxRRRR(cmd, nr) ;
@@ -1955,6 +1781,8 @@ namespace AVR
     if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrCPC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -1975,14 +1803,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrCPI::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrCPI::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrCPI::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrCPI::Execute(Mcu &mcu, Command cmd) const
   {
     Command k, nd ;
     xxxxKKKKxxxxKKKK(cmd, k) ;
@@ -2006,6 +1827,8 @@ namespace AVR
     if ((sreg && SREG::N) ^ (sreg && SREG::V))
       sreg |= SREG::S ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrCPI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2026,14 +1849,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSBRC::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrSBRC::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSBRC::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBRC::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, b ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
@@ -2041,7 +1857,8 @@ namespace AVR
 
     uint8_t r = mcu.Reg(nr) ;
     if (!(r & (1<<b)))
-      mcu.Skip() ;
+      return mcu.Skip() + 1 ;
+    return 1 ;    
   }
   std::string InstrSBRC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2062,14 +1879,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSBRS::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrSBRS::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSBRS::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBRS::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, b ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
@@ -2077,7 +1887,8 @@ namespace AVR
 
     uint8_t r = mcu.Reg(nr) ;
     if (r & (1<<b))
-      mcu.Skip() ;
+      return mcu.Skip() + 1 ;
+    return 1 ;
   }
   std::string InstrSBRS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2098,14 +1909,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSBIC::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrSBIC::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSBIC::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBIC::Execute(Mcu &mcu, Command cmd) const
   {
     Command ni, b ;
     xxxxxxxxAAAAAxxx(cmd, ni) ;
@@ -2113,7 +1917,8 @@ namespace AVR
 
     uint8_t i = mcu.Io(ni) ;
     if (!(i & (1<<b)))
-      mcu.Skip() ;
+      return mcu.Skip() + mcu.IsXmega() ? 2 : 1 ;
+    return mcu.IsXmega() ? 2 : 1 ;
   }
   std::string InstrSBIC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2134,14 +1939,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSBIS::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrSBIS::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSBIS::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBIS::Execute(Mcu &mcu, Command cmd) const
   {
     Command ni, b ;
     xxxxxxxxAAAAAxxx(cmd, ni) ;
@@ -2149,7 +1947,8 @@ namespace AVR
 
     uint8_t i = mcu.Io(ni) ;
     if (i & (1<<b))
-      mcu.Skip() ;
+      return mcu.Skip() + mcu.IsXmega() ? 2 : 1 ;
+    return mcu.IsXmega() ? 2 : 1 ;
   }
   std::string InstrSBIS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2170,21 +1969,18 @@ namespace AVR
   {
   }
 
-  uint8_t InstrBRBS::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrBRBS::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrBRBS::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrBRBS::Execute(Mcu &mcu, Command cmd) const
   {
     Command k, s ;
     xxxxxxKKKKKKKxxx(cmd, k) ;
     xxxxxxxxxxxxxSSS(cmd, s) ;
 
     if (mcu.GetSREG() & (1<<s))
+    {
       mcu.PC() = mcu.PC() + (int16_t)k ;
+      return 2 ;
+    }
+    return 1 ;
   }
   std::string InstrBRBS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2206,21 +2002,18 @@ namespace AVR
   {
   }
 
-  uint8_t InstrBRBC::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrBRBC::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrBRBC::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrBRBC::Execute(Mcu &mcu, Command cmd) const
   {
     Command k, s ;
     xxxxxxKKKKKKKxxx(cmd, k) ;
     xxxxxxxxxxxxxSSS(cmd, s) ;
 
     if (!(mcu.GetSREG() & (1<<s)))
+    {
       mcu.PC() = mcu.PC() + (int16_t)k ;
+      return 2 ;
+    }
+    return 1 ;
   }
   std::string InstrBRBC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2242,19 +2035,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrMOV::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrMOV::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrMOV::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrMOV::Execute(Mcu &mcu, Command cmd) const
   {
     Command r, d ;
     xxxxxxRxxxxxRRRR(cmd, r) ;
     xxxxxxxRRRRRxxxx(cmd, d) ;
     mcu.Reg(d, mcu.Reg(r)) ;
+
+    return 1 ;
   }
   std::string InstrMOV::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2275,19 +2063,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrMOVW::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrMOVW::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrMOVW::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrMOVW::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, nd ;
     xxxxxxxxRRRRxxxx2(cmd, nd) ;
     xxxxxxxxxxxxRRRR2(cmd, nr) ;
     mcu.RegW(nd, mcu.RegW(nr)) ;
+
+    return 1 ;
   }
   std::string InstrMOVW::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2308,19 +2091,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDI::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrLDI::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDI::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDI::Execute(Mcu &mcu, Command cmd) const
   {
     Command k, d ;
     xxxxKKKKxxxxKKKK(cmd, k) ;
     xxxxxxxxRRRRxxxx1(cmd, d) ;
     mcu.Reg(d, (uint8_t)k) ;
+
+    return 1 ;
   }
   std::string InstrLDI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2341,20 +2119,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDS::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrLDS::Skip(Mcu &mcu, Command cmd) const
-  {
-    mcu.ProgramNext() ;
-  }
-  void InstrLDS::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDS::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     uint32_t addr = mcu.GetRampD() | mcu.ProgramNext() ;
     mcu.Reg(nd, mcu.Data(addr)) ;
+
+    return 2 ; // xmega?
   }
   std::string InstrLDS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2375,19 +2147,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDx1::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrLDx1::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDx1::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDx1::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     uint32_t x = mcu.GetRampX() | mcu.RegW(26) ;
     mcu.Reg(nd, mcu.Data(x)) ;
+
+    return 1 ;
   }
   std::string InstrLDx1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2408,14 +2175,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDx2::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrLDx2::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDx2::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDx2::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -2423,6 +2183,8 @@ namespace AVR
     mcu.Reg(nd, mcu.Data(x++)) ;
     mcu.SetRampX(x) ;
     mcu.RegW(26, x) ;
+
+    return mcu.IsXmega() ? 1 : 2 ;
   }
   std::string InstrLDx2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2443,14 +2205,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDx3::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrLDx3::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDx3::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDx3::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -2458,6 +2213,8 @@ namespace AVR
     mcu.Reg(nd, mcu.Data(--x)) ;
     mcu.SetRampX(x) ;
     mcu.RegW(26, x) ;
+
+    return mcu.IsXmega() ? 2 : 3 ;
   }
   std::string InstrLDx3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2478,19 +2235,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDy1::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrLDy1::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDy1::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDy1::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Reg(nd, mcu.Data(y)) ;
+
+    return 1 ;
   }
   std::string InstrLDy1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2511,14 +2263,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDy2::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrLDy2::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDy2::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDy2::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -2526,6 +2271,8 @@ namespace AVR
     mcu.Reg(nd, mcu.Data(y++)) ;
     mcu.SetRampY(y) ;
     mcu.RegW(28, y) ;
+
+    return mcu.IsXmega() ? 1 : 2 ;
   }
   std::string InstrLDy2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2546,14 +2293,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDy3::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrLDy3::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDy3::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDy3::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -2561,6 +2301,8 @@ namespace AVR
     mcu.Reg(nd, mcu.Data(--y)) ;
     mcu.SetRampY(y) ;
     mcu.RegW(28, y) ;
+
+    return mcu.IsXmega() ? 2 : 3 ;
   }
   std::string InstrLDy3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2581,20 +2323,15 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDy4::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrLDy4::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDy4::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDy4::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd, q ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     xxQxQQxxxxxxxQQQ(cmd, q) ;
     uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Reg(nd, mcu.Data(y+q)) ;
+
+    return mcu.IsXmega() ? 2 : 3 ;
   }
   std::string InstrLDy4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2615,19 +2352,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDz1::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrLDz1::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDz1::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDz1::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Reg(nd, mcu.Data(z)) ;
+
+    return 1 ;
   }
   std::string InstrLDz1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2648,14 +2380,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDz2::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrLDz2::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDz2::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDz2::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -2663,6 +2388,8 @@ namespace AVR
     mcu.Reg(nd, mcu.Data(z++)) ;
     mcu.SetRampZ(z) ;
     mcu.RegW(30, z) ;
+
+    return mcu.IsXmega() ? 1 : 2 ;
   }
   std::string InstrLDz2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2683,14 +2410,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDz3::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrLDz3::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDz3::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDz3::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -2698,6 +2418,8 @@ namespace AVR
     mcu.Reg(nd, mcu.Data(--z)) ;
     mcu.SetRampZ(z) ;
     mcu.RegW(30, z) ;
+
+    return mcu.IsXmega() ? 2 : 3 ;
   }
   std::string InstrLDz3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2718,20 +2440,15 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLDz4::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrLDz4::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLDz4::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLDz4::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd, q ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     xxQxQQxxxxxxxQQQ(cmd, q) ;
     uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Reg(nd, mcu.Data(z+q)) ;
+
+    return mcu.IsXmega() ? 2 : 3 ;
   }
   std::string InstrLDz4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2752,20 +2469,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTS::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ;
-  }
-  void InstrSTS::Skip(Mcu &mcu, Command cmd) const
-  {
-    mcu.ProgramNext() ;
-  }
-  void InstrSTS::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTS::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     uint32_t addr = mcu.GetRampD() | mcu.ProgramNext() ;
     mcu.Data(addr, mcu.Reg(nd)) ;
+
+    return 2 ;
   }
   std::string InstrSTS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2786,19 +2497,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTx1::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrSTx1::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSTx1::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTx1::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     uint32_t x = mcu.GetRampX() | mcu.RegW(26) ;
     mcu.Data(x, mcu.Reg(nr)) ;
+
+    return (mcu.IsXmega() || mcu.IsTinyReduced()) ? 1 : 2 ;
   }
   std::string InstrSTx1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2819,14 +2525,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTx2::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrSTx2::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSTx2::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTx2::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
@@ -2834,6 +2533,8 @@ namespace AVR
     mcu.Data(x++, mcu.Reg(nr)) ;
     mcu.SetRampX(x) ;
     mcu.RegW(26, x) ;
+
+    return (mcu.IsXmega() || mcu.IsTinyReduced()) ? 1 : 2 ;
   }
   std::string InstrSTx2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2854,14 +2555,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTx3::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrSTx3::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSTx3::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTx3::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
@@ -2869,6 +2563,8 @@ namespace AVR
     mcu.Data(--x, mcu.Reg(nr)) ;
     mcu.SetRampX(x) ;
     mcu.RegW(26, x) ;
+
+    return 2 ;
   }
   std::string InstrSTx3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2889,19 +2585,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTy1::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrSTy1::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSTy1::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTy1::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Data(y, mcu.Reg(nr)) ;
+
+    return (mcu.IsXmega() || mcu.IsTinyReduced()) ? 1 : 2 ;
   }
   std::string InstrSTy1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2922,14 +2613,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTy2::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrSTy2::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSTy2::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTy2::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
@@ -2937,6 +2621,8 @@ namespace AVR
     mcu.Data(y++, mcu.Reg(nr)) ;
     mcu.SetRampY(y) ;
     mcu.RegW(28, y) ;
+
+    return (mcu.IsXmega() || mcu.IsTinyReduced()) ? 1 : 2 ;
   }
   std::string InstrSTy2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2957,14 +2643,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTy3::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrSTy3::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSTy3::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTy3::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
@@ -2972,6 +2651,8 @@ namespace AVR
     mcu.Data(--y, mcu.Reg(nr)) ;
     mcu.SetRampY(y) ;
     mcu.RegW(28, y) ;
+
+    return 2 ;
   }
   std::string InstrSTy3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -2992,20 +2673,15 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTy4::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrSTy4::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSTy4::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTy4::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, q ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     xxQxQQxxxxxxxQQQ(cmd, q) ;
     uint32_t y = mcu.GetRampY() | mcu.RegW(28) ;
     mcu.Data(y+q, mcu.Reg(nr)) ;
+
+    return 2 ;
   }
   std::string InstrSTy4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3026,19 +2702,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTz1::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrSTz1::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSTz1::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTz1::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Data(z, mcu.Reg(nr)) ;
+
+    return (mcu.IsXmega() || mcu.IsTinyReduced()) ? 1 : 2 ;
   }
   std::string InstrSTz1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3059,14 +2730,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTz2::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrSTz2::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSTz2::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTz2::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
@@ -3074,6 +2738,8 @@ namespace AVR
     mcu.Data(z++, mcu.Reg(nr)) ;
     mcu.SetRampZ(z) ;
     mcu.RegW(30, z) ;
+
+    return (mcu.IsXmega() || mcu.IsTinyReduced()) ? 1 : 2 ;
   }
   std::string InstrSTz2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3094,14 +2760,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTz3::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrSTz3::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSTz3::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTz3::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
@@ -3109,6 +2768,8 @@ namespace AVR
     mcu.Data(--z, mcu.Reg(nr)) ;
     mcu.SetRampZ(z) ;
     mcu.RegW(30, z) ;
+
+    return 2 ;
   }
   std::string InstrSTz3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3129,20 +2790,15 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSTz4::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrSTz4::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSTz4::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSTz4::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, q ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     xxQxQQxxxxxxxQQQ(cmd, q) ;
     uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.Data(z+q, mcu.Reg(nr)) ;
+
+    return 2 ;
   }
   std::string InstrSTz4::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3163,14 +2819,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLPM1::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 3 ;
-  }
-  void InstrLPM1::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLPM1::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLPM1::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.XrefAdd(XrefType::data, mcu.RegW(30)>>1, mcu.PC()-1) ;
     Command z, p ;
@@ -3179,6 +2828,8 @@ namespace AVR
     if (z&1)
       p >>= 8 ;
     mcu.Reg(0, (uint8_t)p) ;
+
+    return 3 ;
   }
   std::string InstrLPM1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3199,14 +2850,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLPM2::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 3 ;
-  }
-  void InstrLPM2::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLPM2::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLPM2::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.XrefAdd(XrefType::data, mcu.RegW(30)>>1, mcu.PC()-1) ;
     Command z, nd, p ;
@@ -3216,6 +2860,8 @@ namespace AVR
     if (z&1)
       p >>= 8 ;
     mcu.Reg(nd, (uint8_t)p) ;
+
+    return 3 ;
   }
   std::string InstrLPM2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3236,14 +2882,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLPM3::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 3 ;
-  }
-  void InstrLPM3::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLPM3::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLPM3::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.XrefAdd(XrefType::data, mcu.RegW(30)>>1, mcu.PC()-1) ;
     Command z, nd, p ;
@@ -3254,6 +2893,8 @@ namespace AVR
       p >>= 8 ;
     mcu.Reg(nd, (uint8_t)p) ;
     mcu.RegW(30, z+1) ;
+
+    return 3 ;
   }
   std::string InstrLPM3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3274,14 +2915,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrELPM1::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 3 ;
-  }
-  void InstrELPM1::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrELPM1::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrELPM1::Execute(Mcu &mcu, Command cmd) const
   {
     uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.XrefAdd(XrefType::data, z>>1, mcu.PC()-1) ;
@@ -3290,6 +2924,8 @@ namespace AVR
     if (z&1)
       p >>= 8 ;
     mcu.Reg(0, (uint8_t)p) ;
+
+    return 3 ;
   }
   std::string InstrELPM1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3310,14 +2946,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrELPM2::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 3 ;
-  }
-  void InstrELPM2::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrELPM2::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrELPM2::Execute(Mcu &mcu, Command cmd) const
   {
     uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.XrefAdd(XrefType::data, z>>1, mcu.PC()-1) ;
@@ -3327,6 +2956,8 @@ namespace AVR
     if (z&1)
       p >>= 8 ;
     mcu.Reg(nd, (uint8_t)p) ;
+
+    return 3 ;
   }
   std::string InstrELPM2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3347,14 +2978,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrELPM3::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 3 ;
-  }
-  void InstrELPM3::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrELPM3::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrELPM3::Execute(Mcu &mcu, Command cmd) const
   {
     uint32_t z = mcu.GetRampZ() | mcu.RegW(30) ;
     mcu.XrefAdd(XrefType::data, z>>1, mcu.PC()-1) ;
@@ -3366,6 +2990,8 @@ namespace AVR
     mcu.Reg(nd, (uint8_t)p) ;
     mcu.SetRampZ(z+1) ;
     mcu.RegW(30, z+1) ;
+
+    return 3 ;
   }
   std::string InstrELPM3::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3386,16 +3012,10 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSPM1::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 3 ; // todo
-  }
-  void InstrSPM1::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSPM1::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSPM1::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.NotImplemented(*this) ;
+    return 99 ;
   }
   std::string InstrSPM1::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3416,16 +3036,10 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSPM2::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 3 ; // todo
-  }
-  void InstrSPM2::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSPM2::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSPM2::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.NotImplemented(*this) ;
+    return 99 ;
   }
   std::string InstrSPM2::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3446,19 +3060,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrIN::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrIN::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrIN::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrIN::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd, a ;
     xxxxxAAxxxxxAAAA(cmd, a) ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     mcu.Reg(nd, mcu.Io(a)) ;
+
+    return 1 ;
   }
   std::string InstrIN::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3479,19 +3088,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrOUT::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrOUT::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrOUT::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrOUT::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, a ;
     xxxxxAAxxxxxAAAA(cmd, a) ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     mcu.Io(a, mcu.Reg(nr)) ;
+
+    return 1 ;
   }
   std::string InstrOUT::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3512,18 +3116,13 @@ namespace AVR
   {
   }
 
-  uint8_t InstrPUSH::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrPUSH::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrPUSH::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrPUSH::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
     mcu.Push(mcu.Reg(nr)) ;
+
+    return mcu.IsXmega() ? 1 : 2 ;
   }
   std::string InstrPUSH::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3544,18 +3143,13 @@ namespace AVR
   {
   }
 
-  uint8_t InstrPOP::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 2 ; // todo
-  }
-  void InstrPOP::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrPOP::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrPOP::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
     mcu.Reg(nd, mcu.Pop()) ;
+
+    return 2 ;
   }
   std::string InstrPOP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3576,14 +3170,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrXCH::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrXCH::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrXCH::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrXCH::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -3593,6 +3180,8 @@ namespace AVR
     uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, rd) ;
     mcu.Reg(nd, r) ;
+
+    return 1 ;
   }
   std::string InstrXCH::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3613,14 +3202,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLAS::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrLAS::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLAS::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLAS::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -3630,6 +3212,8 @@ namespace AVR
     uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, rd | z) ;
     mcu.Reg(nd, r) ;
+
+    return 1 ;
   }
   std::string InstrLAS::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3650,14 +3234,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLAC::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrLAC::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLAC::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLAC::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -3667,6 +3244,8 @@ namespace AVR
     uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, ~rd & r) ;
     mcu.Reg(nd, r) ;
+
+    return 1 ;
   }
   std::string InstrLAC::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3687,14 +3266,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLAT::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrLAT::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLAT::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLAT::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -3704,6 +3276,8 @@ namespace AVR
     uint8_t  r  = mcu.Data(z) ;
     mcu.Data(z, rd ^ r) ;
     mcu.Reg(nd, r) ;
+
+    return 1 ;
   }
   std::string InstrLAT::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3724,14 +3298,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrLSR::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrLSR::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrLSR::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrLSR::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -3749,6 +3316,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrLSR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3769,14 +3338,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrROR::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrROR::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrROR::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrROR::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -3799,6 +3361,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrROR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3819,14 +3383,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrASR::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrASR::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrASR::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrASR::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -3846,6 +3403,8 @@ namespace AVR
       sreg |= SREG::S ;
     mcu.Reg(nd, r) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrASR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3866,14 +3425,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSWAP::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrSWAP::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSWAP::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSWAP::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -3881,6 +3433,8 @@ namespace AVR
     uint8_t rd = mcu.Reg(nd) ;
     uint8_t r = ((rd & 0xf0) >> 4) | ((rd & 0x0f) << 4) ;
     mcu.Reg(nd, r) ;
+
+    return 1 ;
   }
   std::string InstrSWAP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3901,14 +3455,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrBSET::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrBSET::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrBSET::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrBSET::Execute(Mcu &mcu, Command cmd) const
   {
     Command s ;
     xxxxxxxxxSSSxxxx(cmd, s) ;
@@ -3916,6 +3463,8 @@ namespace AVR
     uint8_t sreg = mcu.GetSREG() ;
     sreg |= 1 << s ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrBSET::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3936,14 +3485,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrBCLR::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrBCLR::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrBCLR::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrBCLR::Execute(Mcu &mcu, Command cmd) const
   {
     Command s ;
     xxxxxxxxxSSSxxxx(cmd, s) ;
@@ -3951,6 +3493,8 @@ namespace AVR
     uint8_t sreg = mcu.GetSREG() ;
     sreg &= ~(1 << s) ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrBCLR::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -3971,19 +3515,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSBI::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrSBI::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSBI::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSBI::Execute(Mcu &mcu, Command cmd) const
   {
     Command a, b ;
     xxxxxxxxAAAAAxxx(cmd, a) ;
     xxxxxxxxxxxxxBBB(cmd, b) ;
     mcu.Io(a, mcu.Io(a) | (1<<b)) ;
+
+    return (mcu.IsXmega() || mcu.IsTinyReduced()) ? 1 : 2 ;
   }
   std::string InstrSBI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -4004,19 +3543,14 @@ namespace AVR
   {
   }
 
-  uint8_t InstrCBI::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ; // todo
-  }
-  void InstrCBI::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrCBI::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrCBI::Execute(Mcu &mcu, Command cmd) const
   {
     Command a, b ;
     xxxxxxxxAAAAAxxx(cmd, a) ;
     xxxxxxxxxxxxxBBB(cmd, b) ;
     mcu.Io(a, mcu.Io(a) & ~(1<<b)) ;
+
+    return (mcu.IsXmega() || mcu.IsTinyReduced()) ? 1 : 2 ;
   }
   std::string InstrCBI::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -4037,14 +3571,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrBST::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrBST::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrBST::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrBST::Execute(Mcu &mcu, Command cmd) const
   {
     Command nr, b ;
     xxxxxxxRRRRRxxxx(cmd, nr) ;
@@ -4054,6 +3581,8 @@ namespace AVR
     if (mcu.Reg(nr) & (1<<b))
       sreg |= SREG::T ;
     mcu.SetSREG(sreg) ;
+
+    return 1 ;
   }
   std::string InstrBST::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -4074,14 +3603,7 @@ namespace AVR
   {
   }
 
-  uint8_t InstrBLD::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrBLD::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrBLD::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrBLD::Execute(Mcu &mcu, Command cmd) const
   {
     Command nd, b ;
     xxxxxxxRRRRRxxxx(cmd, nd) ;
@@ -4091,6 +3613,8 @@ namespace AVR
     if (mcu.GetSREG() && SREG::T)
       d |= 1<<b ;
     mcu.Reg(nd, d) ;
+
+    return 1 ;
   }
   std::string InstrBLD::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -4111,16 +3635,11 @@ namespace AVR
   {
   }
 
-  uint8_t InstrBREAK::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrBREAK::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrBREAK::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrBREAK::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.Break() ;
+
+    return 1 ;
   }
   std::string InstrBREAK::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -4141,15 +3660,9 @@ namespace AVR
   {
   }
 
-  uint8_t InstrNOP::Ticks(Mcu &mcu, Command cmd) const
+  uint8_t InstrNOP::Execute(Mcu &mcu, Command cmd) const
   {
     return 1 ;
-  }
-  void InstrNOP::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrNOP::Execute(Mcu &mcu, Command cmd) const
-  {
   }
   std::string InstrNOP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -4170,16 +3683,11 @@ namespace AVR
   {
   }
 
-  uint8_t InstrSLEEP::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrSLEEP::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrSLEEP::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrSLEEP::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.Sleep() ;
+
+    return 1 ;
   }
   std::string InstrSLEEP::Disasm(Mcu &mcu, Command cmd) const
   {
@@ -4200,16 +3708,11 @@ namespace AVR
   {
   }
 
-  uint8_t InstrWDR::Ticks(Mcu &mcu, Command cmd) const
-  {
-    return 1 ;
-  }
-  void InstrWDR::Skip(Mcu &mcu, Command cmd) const
-  {
-  }
-  void InstrWDR::Execute(Mcu &mcu, Command cmd) const
+  uint8_t InstrWDR::Execute(Mcu &mcu, Command cmd) const
   {
     mcu.WDR() ;
+
+    return 1 ;
   }
   std::string InstrWDR::Disasm(Mcu &mcu, Command cmd) const
   {

@@ -76,9 +76,7 @@ namespace AVR
 
   public:
     // returns execution time
-    virtual uint8_t     Ticks  (Mcu &mcu, Command cmd) const = 0 ; // clock cycles needed for instruction
-    virtual void        Execute(Mcu &mcu, Command cmd) const = 0 ; // execute next instruction
-    virtual void        Skip   (Mcu &mcu, Command cmd) const = 0 ; // execute next instruction
+    virtual uint8_t     Execute(Mcu &mcu, Command cmd) const = 0 ; // execute next instruction
     virtual std::string Disasm (Mcu &mcu, Command cmd) const = 0 ;
     virtual XrefType    Xref   (Mcu &mcu, Command cmd, uint32_t &addr) const = 0 ;
 
@@ -86,7 +84,7 @@ namespace AVR
     Command     Mask()        const { return _mask        ; }
     std::string Mnemonic()    const { return _mnemonic    ; }
     std::string Description() const { return _description ; }
-    uint32_t    Size()        const { return _size        ; }
+    uint8_t     Size()        const { return _size        ; }
     bool        IsTwoWord()   const { return _size == 2   ; }
     bool        IsJump()      const { return _isJump      ; }
     bool        IsBranch()    const { return _isBranch    ; }
@@ -98,7 +96,7 @@ namespace AVR
     Command     _mask    ;
     std::string _mnemonic ;
     std::string _description ;
-    uint32_t    _size ;
+    uint8_t     _size ;
     bool        _isJump ;
     bool        _isBranch ;
     bool        _isCall ;
@@ -290,7 +288,7 @@ namespace AVR
     uint32_t EepromSize() const { return _eepromSize  ; }
     
     void Execute() ;
-    void Skip() ;
+    uint8_t Skip() ;
     void Status() ;
     std::string Disasm() ;
     bool IoName(uint32_t addr, std::string &name) const ;

@@ -110,8 +110,6 @@ namespace AVR
 
   void Mcu::Execute()
   {
-    _ticks += 1 ;
-
     if (_pc >= _flashSize)
     {
       char buff[80] ;
@@ -145,8 +143,7 @@ namespace AVR
     uint16_t sp0 = _sp() ;
     _pc += 1 ;
     
-    // todo Ticks
-    instr->Execute(*this, cmd) ;
+    _ticks += instr->Execute(*this, cmd) ;
 
     if (_pc != pcNext) // call / jump / return
     {
@@ -244,7 +241,7 @@ namespace AVR
     */
   }
 
-  void Mcu::Skip()
+  uint8_t Mcu::Skip()
   {
     if (_pc >= _flashSize)
     {
@@ -252,7 +249,7 @@ namespace AVR
       snprintf(buff, sizeof(buff), "illegal program memory read at %05x\n", _pc) ;
       Verbose(VerboseType::ProgError, buff) ;
       _pc = 0 ;
-      return ;
+      return 0 ;
     }
 
     Command cmd = _flash[_pc++] ;
@@ -264,10 +261,12 @@ namespace AVR
       snprintf(buff, sizeof(buff), "illegal instruction at %05x: %04x\n", _pc, cmd) ;
       Verbose(VerboseType::ProgError, buff) ;
       _pc = 0 ;
-      return ;
+      return 0 ;
     }
 
-    instr->Skip(*this, cmd) ;
+    uint8_t size = instr->Size() ;
+    _pc += size ;
+    return size ;
   }
 
   std::string Disasm_ASC(Command cmd)
