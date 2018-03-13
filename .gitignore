@@ -6,6 +6,7 @@
 # g++
 *.o
 source/AVRemu
+source/AVRmatch
 source/AVRtest
 test/*
 

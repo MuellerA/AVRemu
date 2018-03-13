@@ -430,7 +430,7 @@ namespace AVR
     std::map<uint32_t, Xref*>        _xrefByAddr ;
     std::map<std::string, Xref*>     _xrefByLabel ;
     std::set<uint32_t>               _breakpoints ;
-    std::vector<const Instruction*> _instructions ; // map cmd to instruction
+    std::vector<const Instruction*>  _instructions ; // map cmd to instruction
 
     std::vector<Filter*> _filters ;
     Trace _trace ;
