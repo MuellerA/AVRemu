@@ -252,7 +252,7 @@ namespace AVR
       return 0 ;
     }
 
-    Command cmd = _flash[_pc++] ;
+    Command cmd = _flash[_pc] ;
     const Instruction *instr = _instructions[cmd] ;
 
     if (!instr)
