@@ -134,7 +134,7 @@ namespace AVR
   
   ATxmegaAU::ATxmegaAU(const std::string &name, uint32_t flashSize, uint32_t ramSize, uint32_t eepromSize)
     : Mcu(name, flashSize, 0x1000, ramSize, eepromSize, 0x3fff),
-      _cpu(*this), _nvm(*this, _cpu), _rtc(*this),
+      _cpu(*this), _clk(*this), _nvm(*this, _cpu), _rtc(*this, _clk),
       _usartC0("USARTC0"), _usartC1("USARTC1"), _usartD0("USARTD0"), _usartD1("USARTD1"), _usartE0("USARTE0")
   {
     _isXMega = true ;
@@ -300,10 +300,10 @@ namespace AVR
       { 0x003f, new IoSREG::SREG(*this, _sreg) },
         
       { 0x0040, new IoRegisterNotImplemented(*this, "CLK_CTRL") }, // Clock Control
-      { 0x0042, new IoRegisterNotImplemented(*this, "CLK_PSCTRL") },
-      { 0x0043, new IoRegisterNotImplemented(*this, "CLK_LOCK") },
-      { 0x0044, new IoRegisterNotImplemented(*this, "CLK_RTCCTRL") },
-      { 0x0045, new IoRegisterNotImplemented(*this, "CLK_USBSCTRL") },
+      { 0x0041, new IoRegisterNotImplemented(*this, "CLK_PSCTRL") },
+      { 0x0042, new IoRegisterNotImplemented(*this, "CLK_LOCK") },
+      { 0x0043, new IoXmegaClk::RtcCtrl(*this, _clk) },
+      { 0x0044, new IoRegisterNotImplemented(*this, "CLK_USBSCTRL") },
         
       { 0x0048, new IoRegisterNotImplemented(*this, "SLEEP_CTRL") }, // Sleep Controller
         

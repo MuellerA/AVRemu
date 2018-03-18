@@ -194,7 +194,38 @@ namespace AVR
   private:
     Mcu     &_mcu ;
     uint8_t  _value ;
-    uint32_t _ticks ;
+    uint64_t _ticks ;
+  } ;
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // IoXmegaClock
+
+  class IoXmegaClk : public Io
+  {
+  public:
+    class RtcCtrl : public Io::Register
+    {
+    public:
+      RtcCtrl(const Mcu &mcu, IoXmegaClk &clk) : Register(mcu, "CLK_RTCCTRL"), _clk(clk) {}
+      virtual uint8_t Get() const    { return VG(_clk.GetRtcCtrl()) ; }
+      virtual void    Set(uint8_t v) { _clk.SetRtcCtrl(VS(v))       ; }
+
+    private:
+      IoXmegaClk &_clk ;
+    } ;
+
+    IoXmegaClk(Mcu &mcu) ;
+
+    uint8_t GetRtcCtrl() const ;
+    void SetRtcCtrl(uint8_t v) ;
+    uint8_t GetRtcEnable() const ;
+    uint8_t GetRtcSrc() const ;
+    uint32_t GetRtcFreq() const ;
+
+  private:
+    Mcu    &_mcu ;
+    uint8_t  _rtcCtrl ;
+    uint32_t _rtcFreq ;
   } ;
   
   ////////////////////////////////////////////////////////////////////////////////
@@ -452,7 +483,7 @@ namespace AVR
       IoXmegaRtc &_rtc ;
     } ;
 
-    IoXmegaRtc(Mcu &mcu) ;
+    IoXmegaRtc(Mcu &mcu, IoXmegaClk &clk) ;
 
     uint8_t GetPrescaler() const ;
     void    SetPrescaler(uint8_t v) ;
@@ -464,9 +495,10 @@ namespace AVR
     void    SetTemp(uint8_t v) ;
 
   private:
-    Mcu     &_mcu ;
+    Mcu        &_mcu ;
+    IoXmegaClk &_clk ;
 
-    mutable uint32_t _ticks ;
+    mutable uint64_t _ticks ;
     uint32_t _prescaler ;
     uint32_t _prescalerDiv ;
     mutable uint32_t _cnt ;

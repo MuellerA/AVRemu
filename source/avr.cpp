@@ -176,13 +176,18 @@ namespace AVR
         printf(" --") ;
     }
   }
-  
+
   void Mcu::Status()
   {
     /*
     VerboseType vt = _verbose ;
     _verbose = VerboseType::None ;
     */
+
+    uint64_t mSec    = _ticks / 32000 ;
+    uint64_t seconds = mSec    / 60 ; mSec    -= seconds * 60 ;
+    uint64_t minutes = seconds / 60 ; seconds -= minutes * 60 ;
+    uint64_t hours   = minutes / 60 ; minutes -= hours   * 60 ;
     
     uint8_t sreg = _sreg.Get() ;
     printf("       %c%c%c%c%c%c%c%c ",
@@ -195,21 +200,23 @@ namespace AVR
            (sreg && AVR::SREG::Z) ? 'Z' : '_',
            (sreg && AVR::SREG::C) ? 'C' : '_') ;
     
-    printf(" [ 0] %02x %02x [ 2] %02x %02x [ 4] %02x %02x [ 6] %02x %02x\n",
-                _reg[0], _reg[1], _reg[2], _reg[3], _reg[4], _reg[5], _reg[6], _reg[7]) ;
+    printf(" [ 0] %02x %02x [ 2] %02x %02x [ 4] %02x %02x [ 6] %02x %02x     Ticks: %11ld\n",
+           _reg[0], _reg[1], _reg[2], _reg[3], _reg[4], _reg[5], _reg[6], _reg[7],
+           _ticks) ;
 
     printf("       SP: %04x ", _sp()) ;
 
-    printf(" [ 8] %02x %02x [10] %02x %02x [12] %02x %02x [14] %02x %02x\n",
-                _reg[8], _reg[9], _reg[10], _reg[11], _reg[12], _reg[13], _reg[14], _reg[15]) ;
+    printf(" [ 8] %02x %02x [10] %02x %02x [12] %02x %02x [14] %02x %02x     Time: %02ld:%02ld:%02ld.%03ld\n",
+           _reg[8], _reg[9], _reg[10], _reg[11], _reg[12], _reg[13], _reg[14], _reg[15],
+           hours, minutes, seconds, mSec) ;
 
     printf("                ") ;
     printf(" [16] %02x %02x [18] %02x %02x [20] %02x %02x [22] %02x %02x\n",
-                _reg[16], _reg[17], _reg[18], _reg[19], _reg[20], _reg[21], _reg[22], _reg[23]) ;
+           _reg[16], _reg[17], _reg[18], _reg[19], _reg[20], _reg[21], _reg[22], _reg[23]) ;
 
     printf("                ") ;
     printf(" [24] %02x %02x [26] %02x %02x [28] %02x %02x [30] %02x %02x\n",
-                _reg[24], _reg[25], _reg[26], _reg[27], _reg[28], _reg[29], _reg[30], _reg[31]) ;
+           _reg[24], _reg[25], _reg[26], _reg[27], _reg[28], _reg[29], _reg[30], _reg[31]) ;
 
     /*
     if (_pcIs22Bit)

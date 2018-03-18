@@ -97,6 +97,50 @@ namespace AVR
   }  
 
   ////////////////////////////////////////////////////////////////////////////////
+  // IoXmegaClk
+  ////////////////////////////////////////////////////////////////////////////////
+
+  IoXmegaClk::IoXmegaClk(Mcu &mcu) : _mcu(mcu), _rtcCtrl(0), _rtcFreq(0)
+  {
+  }
+
+  uint8_t IoXmegaClk::GetRtcCtrl() const
+  {
+    return _rtcCtrl ;
+  }
+
+  void IoXmegaClk::SetRtcCtrl(uint8_t v)
+  {
+    _rtcCtrl = v & 0x0f ;
+
+    switch (_rtcCtrl)
+    {
+    case 0b0001: _rtcFreq =  1000 ; break ;
+    case 0b0011: _rtcFreq =  1024 ; break ;
+    case 0b0101: _rtcFreq =  1024 ; break ;
+    case 0b1011: _rtcFreq = 32768 ; break ;
+    case 0b1101: _rtcFreq = 32768 ; break ;
+    case 0b1111: _rtcFreq = 32768 ; break ; //external clock
+    default:     _rtcFreq =     0 ; break ;
+    }
+  }
+
+  uint8_t IoXmegaClk::GetRtcEnable() const
+  {
+    return (_rtcCtrl >> 0) & 0x01 ;
+  } ;
+  
+  uint8_t IoXmegaClk::GetRtcSrc() const
+  {
+    return (_rtcCtrl >> 1) & 0x07 ;
+  }
+
+  uint32_t IoXmegaClk::GetRtcFreq() const
+  {
+    return _rtcFreq ;
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////
   // IoXmegaNvm
   ////////////////////////////////////////////////////////////////////////////////
 
@@ -306,16 +350,18 @@ namespace AVR
   // IoXmegaRtc
   ////////////////////////////////////////////////////////////////////////////////
 
-  IoXmegaRtc::IoXmegaRtc(Mcu &mcu) : _mcu(mcu), _ticks(0), _prescaler(0), _prescalerDiv(1), _cnt(0), _tmp(0)
+  IoXmegaRtc::IoXmegaRtc(Mcu &mcu, IoXmegaClk &clk) : _mcu(mcu), _clk(clk), _ticks(0), _prescaler(0), _prescalerDiv(1), _cnt(0), _tmp(0)
   {
   }
 
   uint8_t IoXmegaRtc::GetCntL() const
   {
-    if (_prescaler)
+    uint64_t ticks = _mcu.Ticks() * _clk.GetRtcFreq() / 32000000 ;
+    
+    if (_clk.GetRtcEnable() && _prescaler)
     {
-      _cnt += (_mcu.Ticks() - _ticks) / _prescalerDiv ;
-      _ticks = _mcu.Ticks() ;
+      _cnt += (ticks - _ticks) / _prescalerDiv ;
+      _ticks = ticks ;
     }
     _tmp = (_cnt >> 8) & 0xff ;
     return (_cnt >> 0) & 0xff ;

@@ -298,7 +298,7 @@ namespace AVR
     uint32_t  PC() const { return _pc ; }
     uint32_t& PC()       { return _pc ; }
 
-    uint32_t  Ticks() const { return _ticks ; }
+    uint64_t  Ticks() const { return _ticks ; }
     
     uint8_t  Reg(uint32_t reg) const ;
     void     Reg(uint32_t reg, uint8_t value) ;
@@ -402,7 +402,7 @@ namespace AVR
     IoSREG   _sreg ;
     IoRamp   _rampx, _rampy, _rampz ;
     IoRamp   _rampd, _eind ;
-    uint32_t _ticks ;
+    uint64_t _ticks ;
     
     uint32_t             _flashSize ;
     uint32_t             _loadedFlashSize ;
@@ -596,6 +596,7 @@ namespace AVR
     virtual ~ATxmegaAU() ;
 
     IoXmegaCpu   _cpu ;
+    IoXmegaClk   _clk ;
     IoXmegaNvm   _nvm ;
     IoXmegaRtc   _rtc ;
     IoXmegaUsart _usartC0 ;
