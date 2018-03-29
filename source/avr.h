@@ -460,6 +460,7 @@ namespace AVR
     virtual ~ATmegaXX8() ;
 
     IoEeprom ioEeprom ;
+    IoUsart  _usart0 ;
   } ;
 
   class ATmega328P : public ATmegaXX8

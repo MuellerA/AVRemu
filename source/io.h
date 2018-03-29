@@ -579,6 +579,46 @@ namespace AVR
     uint32_t _readBusyTicks ;
   } ;
 
+  ////////////////////////////////////////////////////////////////////////////////
+  // IoUsart (mega)
+  ////////////////////////////////////////////////////////////////////////////////
+
+  class IoUsart : public Io
+  {
+  public:
+    class UDRn : public Io::Register
+    {
+    public:
+      UDRn(const Mcu &mcu, IoUsart &port) : Register(mcu, "UDR0", true), _port(port) {}
+      virtual uint8_t Get() const  ;
+      virtual void    Set(uint8_t v) ;
+      virtual void    Add(const std::vector<uint8_t> &data) { _port.Add(data) ; }
+      
+    private:
+      IoUsart &_port ;
+    } ;
+
+    class UCSRnA : public Io::Register
+    {
+    public:
+      UCSRnA(const Mcu &mcu, IoUsart &port) : Register(mcu, "UCSR0A"), _port(port) {}
+      virtual uint8_t Get() const    { return VG((_port.RxAvail() ? 0x80 : 0x00) | 0x40 | 0x20) ; }
+      virtual void    Set(uint8_t v) { VS(v) ; }
+    private:
+      IoUsart &_port ;
+    } ;
+
+    IoUsart() : _rxPos(0) {}
+    virtual uint8_t Rx() const ;
+    virtual bool RxAvail() const { return _rxPos < _rx.size() ; }
+    virtual void Tx(uint8_t v) const ;
+    virtual void Add(const std::vector<uint8_t> &data) ;
+
+  private:
+    mutable std::vector<uint8_t> _rx ;
+    mutable uint32_t _rxPos ;    
+  } ;
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

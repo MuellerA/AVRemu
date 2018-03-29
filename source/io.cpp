@@ -497,6 +497,35 @@ namespace AVR
     _control = v ;
   }
   
+  ////////////////////////////////////////////////////////////////////////////////
+  // IoUsart (mega)
+  ////////////////////////////////////////////////////////////////////////////////
+
+  uint8_t IoUsart::UDRn::Get() const
+  {
+    return VG(_port.Rx()) ;
+  }
+  void IoUsart::UDRn::Set(uint8_t v)
+  {
+    _port.Tx(VS(v)) ;
+  }
+
+  uint8_t IoUsart::Rx() const
+  {
+    if (_rxPos < _rx.size())
+      return (unsigned char) _rx[_rxPos++] ;
+
+    _rx.clear() ;
+    _rxPos = 0 ;
+    return 0 ;
+  }
+  void IoUsart::Tx(uint8_t c) const
+  {
+  }
+  void IoUsart::Add(const std::vector<uint8_t> &data)
+  {
+    _rx.insert(std::end(_rx), std::begin(data), std::end(data));
+  }
   
 }
 
