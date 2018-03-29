@@ -184,10 +184,10 @@ namespace AVR
     _verbose = VerboseType::None ;
     */
 
-    uint64_t mSec    = _ticks / 32000 ;
-    uint64_t seconds = mSec    / 60 ; mSec    -= seconds * 60 ;
-    uint64_t minutes = seconds / 60 ; seconds -= minutes * 60 ;
-    uint64_t hours   = minutes / 60 ; minutes -= hours   * 60 ;
+    uint64_t mSec    = _ticks  / 32000 ;
+    uint64_t seconds = mSec    /  1000 ; mSec    -= seconds * 1000 ;
+    uint64_t minutes = seconds /    60 ; seconds -= minutes *   60 ;
+    uint64_t hours   = minutes /    60 ; minutes -= hours   *   60 ;
     
     uint8_t sreg = _sreg.Get() ;
     printf("       %c%c%c%c%c%c%c%c ",
