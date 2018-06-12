@@ -70,8 +70,8 @@ void Data(AVR::Mcu &mcu, uint32_t addr, uint32_t len, char mode)
     {
       switch (mode)
       {
-      case 'd': data[cnt] = mcu.Data  (iAddr, (bool)false) ; break ;
-      case 'e': data[cnt] = mcu.Eeprom(iAddr, (bool)false) ; break ;
+      case 'd': data[cnt] = mcu.Data  (iAddr, false) ; break ;
+      case 'e': data[cnt] = mcu.Eeprom(iAddr, false) ; break ;
       }
     }
 
@@ -367,7 +367,7 @@ bool CommandRun::Execute(AVR::Mcu &mcu)
   while (!SigInt)
   {
     mcu.Execute() ;
-    if (!infinity && (mcu.PC() == addr) ||
+    if ((!infinity && (mcu.PC() == addr)) ||
         mcu.IsBreakpoint())
       break ;
   }

@@ -29,12 +29,14 @@ parameter:
    -d          disassemble file
    -e          execute file
    -ee &lt;macro&gt; run macro file &lt;macro&gt;.aem (implies -e)
-   -x &lt;xref&gt;   read/write xref file
+   -x &lt;xref&gt;   xref file
    -p &lt;eeProm&gt; binary file of EEPROM memory
    &lt;avr-bin&gt;   binary file to be disassembled / executed
    -h          this help
 Supported MCU types: ATany ATmega168PA ATmega328P ATmega48PA ATmega88PA ATmega8A ATtiny24A ATtiny25 ATtiny44A ATtiny45 ATtiny84A ATtiny85 ATxmega128A4U ATxmega16A4U ATxmega32A4U ATxmega64A4U
 </pre>
+
+<hr/>
 
 To extract the bin and xref files from an elf file use the script Elf.rb
 <pre>
@@ -43,7 +45,19 @@ usage: Elf.rb &lt;elf-file(in)&gt; &lt;bin-file(out)&gt; &lt;xref-file(out)&gt;
 
 <hr/>
 
-Example Disassembler:
+XRef file format
+
+<pre>
+X AAAA NNNN DDDD
+- X     xref type: c: call; j: jump; d: data
+- AAAA  address
+- NNNN  name
+- DDDD  description
+</pre>
+
+<hr/>
+
+Disassembler:
 <pre>
 AVRemu/source &gt; ./AVRemu -d -m ATtiny85 -x attiny85.xref attiny85.bin
 
@@ -122,7 +136,28 @@ RESET: RESET
 
 <hr/>
 
-Example Emulator:
+Emulator:
+
+Macros
+
+Macros have the extension .aem (AvrEmuMacro). Macros are executed with the 'm &lt;macro-file-name&gt;' command (without .aem extension). Macros are searched next to the binary file, in the directory '~/.avremu/&lt;mcu from -m parameter&gt;' and in the directory '~/.avremu'.
+Commands in the macro file are executed in the same way as in the command line with two exceptions: the empty line does not repeat the previous command, and lines starting with a '#' are treated as comment.
+
+<hr/>
+
+Filters
+
+Filters are registered with the 'f + &lt;mask&gt; &lt;os-command&gt;' command. A filter is a program that receives output lines like the 'v' command. The filter then returns a line which will be displayed on the command line unless it is the empty line. The filter must respond with exactly one line for each received line.
+A trivial filter would be '/bin/cat'.
+
+<hr/>
+
+IO input data
+
+When setting input data for an io port, the next read operations will return the specified bytes. Corresponding 'ready' status bits will be set accordingly.
+The IO command is supported for ATxmega*::USART*_DATA and ATmegaXX8::UDRn ports.
+
+<hr/>
 
 <pre>
 AVRemu/source &gt; ./AVRemu -e -m ATtiny85 -x attiny85.xref -p ledLamp.attiny85.eeprom  ledLamp.attiny85.bin 
@@ -139,6 +174,10 @@ s [&lt;count&gt;]                   step in count instructions
 n [&lt;count&gt;]                   step over count instructions
 r                             run
 r &lt;label&gt;                     run to address
+rj                            run to next jump / branch
+rc                            run to next call
+rr                            run to next return
+ra                            run to next jump / branch / call / return
 g &lt;label&gt;                     set PC to address
 b + &lt;label&gt;                   add breakpoint
 b - &lt;label&gt;                   remove breakpoint
@@ -151,12 +190,20 @@ p @ &lt;X|Y|Z|r&lt;d&gt;&gt; ? [&lt;len&gt;]    list source
 r&lt;d&gt;     = &lt;bytes&gt;            set register
 d &lt;addr&gt; = &lt;bytes&gt;            set data memory
 p &lt;addr&gt; = &lt;words&gt;            set program memory
+sf ?                          list stack frames
 ls [&lt;pattern&gt;]                list symbols containing &lt;pattern&gt;
 io &lt;name&gt; = &lt;bytes&gt;           set next io read values (num)
 io &lt;name&gt; = "&lt;asc&gt;"           set next io read values (str)
 io ?                          list io port names
 m &lt;name&gt;                      run macro file &lt;name&gt;.aem
 mq                            quit macro execution
+v io = &lt;on|off&gt;               verbose io on/off
+v eeprom = &lt;on|off&gt;           verbose eeprom on/off
+v data = &lt;on|off&gt;             verbose data error on/off
+v prog = &lt;on|off&gt;             verbose program error on/off
+v all = &lt;on|off&gt;              verbose all on/off
+f + &lt;io|eeprom|data|prog|all&gt; &lt;command&gt; add filter for specified events
+f ?                           list active filters
 t on &lt;name&gt; [&lt;addr&gt;]          log to trace file until addr is reached (default 0x00000)
 t off                         close trace file
 $ &lt;text&gt;                      write text to output / useful in macros

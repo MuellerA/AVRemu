@@ -200,13 +200,13 @@ namespace AVR
            (sreg && AVR::SREG::Z) ? 'Z' : '_',
            (sreg && AVR::SREG::C) ? 'C' : '_') ;
     
-    printf(" [ 0] %02x %02x [ 2] %02x %02x [ 4] %02x %02x [ 6] %02x %02x     Ticks: %11ld\n",
+    printf(" [ 0] %02x %02x [ 2] %02x %02x [ 4] %02x %02x [ 6] %02x %02x     Ticks: %11lu\n",
            _reg[0], _reg[1], _reg[2], _reg[3], _reg[4], _reg[5], _reg[6], _reg[7],
            _ticks) ;
 
     printf("       SP: %04x ", _sp()) ;
 
-    printf(" [ 8] %02x %02x [10] %02x %02x [12] %02x %02x [14] %02x %02x     Time: %02ld:%02ld:%02ld.%03ld\n",
+    printf(" [ 8] %02x %02x [10] %02x %02x [12] %02x %02x [14] %02x %02x     Time: %02lu:%02lu:%02lu.%03lu\n",
            _reg[8], _reg[9], _reg[10], _reg[11], _reg[12], _reg[13], _reg[14], _reg[15],
            hours, minutes, seconds, mSec) ;
 
