@@ -97,62 +97,56 @@ namespace AVR
     class Status : public Io::Register
     {
     public:
-      Status(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_STATUS"), _port(port), _value(0x20) {}
-      virtual uint8_t Get() const    { return VG((_port.RxAvail() ? 0x80 : 0x00) | 0x40 | 0x20) ; }
-      virtual void    Set(uint8_t v) { VS(v) ; }
+      Status(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_STATUS"), _port(port) {}
+      virtual uint8_t Get() const    { return VG(_port.GetStatus()) ; }
+      virtual void    Set(uint8_t v) { _port.SetStatus(VS(v)) ; }
     private:
       IoXmegaUsart &_port ;
-      uint8_t       _value ;
     } ;
     class CtrlA : public Io::Register
     {
     public:
-      CtrlA(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_CTRLA"), _port(port), _value(0x00) {}
-      virtual uint8_t Get() const    { return VG(_value) ; }
-      virtual void    Set(uint8_t v) { _value = VS(v) & 0x3f ; }
+      CtrlA(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_CTRLA"), _port(port) {}
+      virtual uint8_t Get() const    { return VG(_port.GetCtrlA()) ; }
+      virtual void    Set(uint8_t v) { _port.SetCtrlA(VS(v)) ; }
     private:
       IoXmegaUsart &_port ;
-      uint8_t       _value ;
     } ;
     class CtrlB : public Io::Register
     {
     public:
-      CtrlB(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_CTRLB"), _port(port), _value(0x00) {}
-      virtual uint8_t Get() const    { return VG(_value) ; }
-      virtual void    Set(uint8_t v) { _value = VS(v) & 0x1f ; }
+      CtrlB(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_CTRLB"), _port(port) {}
+      virtual uint8_t Get() const    { return VG(_port.GetCtrlB()) ; }
+      virtual void    Set(uint8_t v) { _port.SetCtrlB(VS(v)) ; }
     private:
       IoXmegaUsart &_port ;
-      uint8_t       _value ;
     } ;
     class CtrlC : public Io::Register
     {
     public:
-      CtrlC(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_CTRLC"), _port(port), _value(0x02) {}
-      virtual uint8_t Get() const    { return VG(_value) ; }
-      virtual void    Set(uint8_t v) { _value = VS(v) ; }
+      CtrlC(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_CTRLC"), _port(port) {}
+      virtual uint8_t Get() const    { return VG(_port.GetCtrlC()) ; }
+      virtual void    Set(uint8_t v) { _port.SetCtrlC(VS(v)) ; }
     private:
       IoXmegaUsart &_port ;
-      uint8_t       _value ;
     } ;
     class BaudCtrlA : public Io::Register
     {
     public:
-      BaudCtrlA(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_BAUDCTRLA"), _port(port), _value(0x00) {}
-      virtual uint8_t Get() const    { return VG(_value) ; }
-      virtual void    Set(uint8_t v) { _value = VS(v) ; }
+      BaudCtrlA(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_BAUDCTRLA"), _port(port) {}
+      virtual uint8_t Get() const    { return VG(_port.GetBaudCtrlA()) ; }
+      virtual void    Set(uint8_t v) { _port.SetBaudCtrlA(VS(v)) ; }
     private:
       IoXmegaUsart &_port ;
-      uint8_t       _value ;
     } ;
     class BaudCtrlB : public Io::Register
     {
     public:
-      BaudCtrlB(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_BAUDCTRLB"), _port(port), _value(0x00) {}
-      virtual uint8_t Get() const    { return VG(_value) ; }
-      virtual void    Set(uint8_t v) { _value = VS(v) ; }
+      BaudCtrlB(const Mcu &mcu, IoXmegaUsart &port) : Register(mcu, port.Name() + "_BAUDCTRLB"), _port(port) {}
+      virtual uint8_t Get() const    { return VG(_port.GetBaudCtrlB()) ; }
+      virtual void    Set(uint8_t v) { _port.SetBaudCtrlB(VS(v)) ; }
     private:
       IoXmegaUsart &_port ;
-      uint8_t       _value ;
     } ;
     
     IoXmegaUsart(const std::string &name) : _name(name), _rxPos(0) {}
@@ -161,11 +155,30 @@ namespace AVR
     virtual bool       RxAvail() const { return _rxPos < _rx.size() ; }
     virtual void       Tx(uint8_t v) const ;
     virtual void       Add(const std::vector<uint8_t> &data) ;
+
+    uint8_t GetStatus() const ;
+    void    SetStatus(uint8_t v) ;
+    uint8_t GetCtrlA() const ;
+    void    SetCtrlA(uint8_t v) ;
+    uint8_t GetCtrlB() const ;
+    void    SetCtrlB(uint8_t v) ;
+    uint8_t GetCtrlC() const ;
+    void    SetCtrlC(uint8_t v) ;
+    uint8_t GetBaudCtrlA() const ;
+    void    SetBaudCtrlA(uint8_t v) ;
+    uint8_t GetBaudCtrlB() const ;
+    void    SetBaudCtrlB(uint8_t v) ;
     
   private:
     std::string _name ;
     mutable std::vector<uint8_t> _rx ;
     mutable uint32_t _rxPos ;
+
+    uint8_t _ctrlA     = 0x00 ;
+    uint8_t _ctrlB     = 0x00 ;
+    uint8_t _ctrlC     = 0x02 ;
+    uint8_t _baudCtrlA = 0x00 ;
+    uint8_t _baudCtrlB = 0x00 ;
   } ;
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -214,7 +227,7 @@ namespace AVR
       IoXmegaClk &_clk ;
     } ;
 
-    IoXmegaClk(Mcu &mcu) ;
+    IoXmegaClk() ;
 
     uint8_t GetRtcCtrl() const ;
     void SetRtcCtrl(uint8_t v) ;
@@ -223,7 +236,6 @@ namespace AVR
     uint32_t GetRtcFreq() const ;
 
   private:
-    Mcu    &_mcu ;
     uint8_t  _rtcCtrl ;
     uint32_t _rtcFreq ;
   } ;
@@ -445,8 +457,8 @@ namespace AVR
     {
     public:
       Status(const Mcu &mcu, IoXmegaRtc &rtc) : Register(mcu, "RTC_STATUS"), _rtc(rtc) {}
-      virtual uint8_t Get() const    { return VG(0) ; }
-      virtual void    Set(uint8_t v) { VS(v)        ; }
+      virtual uint8_t Get() const    { return VG(_rtc.GetStatus()) ; }
+      virtual void    Set(uint8_t v) { _rtc.SetStatus(VS(v)) ; }
 
     private:
       IoXmegaRtc &_rtc ;
@@ -487,6 +499,8 @@ namespace AVR
 
     uint8_t GetPrescaler() const ;
     void    SetPrescaler(uint8_t v) ;
+    uint8_t GetStatus() const ;
+    void    SetStatus(uint8_t v) ;
     uint8_t GetCntL() const ;
     void    SetCntL(uint8_t v) ;
     uint8_t GetCntH() const ;

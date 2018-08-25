@@ -72,6 +72,19 @@ namespace AVR
     _rx.insert(std::end(_rx), std::begin(data), std::end(data));
   }
 
+  uint8_t IoXmegaUsart::GetStatus() const       { return (RxAvail() ? 0x80 : 0x00) | 0x40 | 0x20 ; }
+  void    IoXmegaUsart::SetStatus(uint8_t v)    { } // ignore
+  uint8_t IoXmegaUsart::GetCtrlA() const        { return _ctrlA ; }
+  void    IoXmegaUsart::SetCtrlA(uint8_t v)     { _ctrlA = v & 0x3f ; }
+  uint8_t IoXmegaUsart::GetCtrlB() const        { return _ctrlB ; }
+  void    IoXmegaUsart::SetCtrlB(uint8_t v)     { _ctrlB = v & 0x1f ; }
+  uint8_t IoXmegaUsart::GetCtrlC() const        { return _ctrlC ; }
+  void    IoXmegaUsart::SetCtrlC(uint8_t v)     { _ctrlC = v ; }
+  uint8_t IoXmegaUsart::GetBaudCtrlA() const    { return _baudCtrlA ; }
+  void    IoXmegaUsart::SetBaudCtrlA(uint8_t v) { _baudCtrlA = v ; }
+  uint8_t IoXmegaUsart::GetBaudCtrlB() const    { return _baudCtrlB ; }
+  void    IoXmegaUsart::SetBaudCtrlB(uint8_t v) { _baudCtrlB = v ; }
+
   ////////////////////////////////////////////////////////////////////////////////
   // IoXmegaCpu
   ////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +113,7 @@ namespace AVR
   // IoXmegaClk
   ////////////////////////////////////////////////////////////////////////////////
 
-  IoXmegaClk::IoXmegaClk(Mcu &mcu) : _mcu(mcu), _rtcCtrl(0), _rtcFreq(0)
+  IoXmegaClk::IoXmegaClk() : _rtcCtrl(0), _rtcFreq(0)
   {
   }
 
@@ -387,6 +400,17 @@ namespace AVR
     case 7: _prescalerDiv = 1024 ; break ;
     }
   }
+
+  uint8_t IoXmegaRtc::GetStatus() const
+  {
+    return 0 ;
+  }
+  
+  void IoXmegaRtc::SetStatus(uint8_t v)
+  {
+    // igonre
+  }
+  
   void    IoXmegaRtc::SetCntL(uint8_t v)
   {
     _tmp = v ;
@@ -443,7 +467,7 @@ namespace AVR
   
   void IoEeprom::SetControl(uint8_t v)
   {
-    v &= 0x3f ;
+    v &= _hasEepm ? 0x3f : 0x1f ;
     
     if (v & kEERIE)
     {

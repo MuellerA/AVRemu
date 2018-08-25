@@ -58,7 +58,7 @@ std::ostream& operator<<(std::ostream& os, uint8_t v)
   return os ;
 }
 
-void Data(AVR::Mcu &mcu, uint32_t addr, uint32_t len, char mode)
+void Data(const AVR::Mcu &mcu, uint32_t addr, uint32_t len, char mode)
 {
   uint32_t cnt = 0 ;
   for (uint32_t iAddr = addr, eAddr = addr+len ; iAddr < eAddr ; )

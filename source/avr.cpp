@@ -719,7 +719,7 @@ namespace AVR
   {
     char buff[80] ;
     snprintf(buff, sizeof(buff), "not implemented instruction at %05x: %s %s\n", _pc, instr.Mnemonic().c_str(), instr.Description().c_str()) ;
-    printf(buff) ;
+    fputs(buff, stdout) ;
     // todo
   }
 
@@ -814,7 +814,7 @@ namespace AVR
   void Mcu::Verbose(VerboseType vt, const std::string &text) const
   {
     if (_verbose && vt)
-      fprintf(stdout, text.c_str()) ;
+      fputs(text.c_str(), stdout) ;
 
     for (auto filter : _filters)
     {

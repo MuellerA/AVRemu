@@ -61,7 +61,7 @@ namespace AVR
   bool Filter::operator()(const std::string toFilter, std::string &fromFilter)
   {
     unsigned char buff[1024] ;
-    size_t len ;
+    ssize_t len ;
 
     if ((_toChild[1] == -1) || (_toParent[0] == -1))
       return false ;
@@ -83,7 +83,7 @@ namespace AVR
         return false ;
       }
       fromFilter.append((char*)buff, len) ;
-      if (len < sizeof(buff))
+      if ((size_t)len < sizeof(buff))
         break ;
     }
 
