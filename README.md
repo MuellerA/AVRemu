@@ -281,4 +281,13 @@ Modifications by Gilhad:
 LDS/STS show variable name if possible
 
 <pre>
-
+03caf:   ....   9180 1095     LDS    r24, IP        ; 0x1095 Load Direct from Data Space
+03cb1:   ....   9190 1096     LDS    r25, IP+1      ; 0x1096 Load Direct from Data Space
+03cb3:   ....   91a0 1097     LDS    r26, IP+2      ; 0x1097 Load Direct from Data Space
+03cb5:   ....   91b0 1098     LDS    r27, IP+3      ; 0x1098 Load Direct from Data Space
+...
+03cbb:   ....   9380 1095     STS    IP, r24        ; 0x1095 Store Direct to Data Space
+03cbd:   ....   9390 1096     STS    IP+1, r25      ; 0x1096 Store Direct to Data Space
+03cbf:   ....   93a0 1097     STS    IP+2, r26      ; 0x1097 Store Direct to Data Space
+03cc1:   ....   93b0 1098     STS    IP+3, r27      ; 0x1098 Store Direct to Data Space
+</pre>

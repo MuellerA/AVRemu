@@ -360,12 +360,22 @@ namespace AVR
     char buff[1024] ;
     std::string ioRegName ;
     std::string label ;
+    bool found = false ;
     if (mcu.IoName(addr, ioRegName))
       sprintf(buff, "%-6s r%d, %s\t\t; 0x%04x %s", instr.Mnemonic().c_str(), d, ioRegName.c_str(), addr, instr.Description().c_str()) ;
     else if (mcu.ProgAddrName(addr+0x00800000, label))
       sprintf(buff, "%-6s r%d, %s\t\t; 0x%04x %s", instr.Mnemonic().c_str(), d, label.c_str(), addr, instr.Description().c_str()) ;
-    else
-      sprintf(buff, "%-6s r%d, 0x%04x\t\t; %s", instr.Mnemonic().c_str(), d, addr, instr.Description().c_str()) ;
+    else {
+      for (int i=1; i<4 ; ++i) {
+        if (mcu.ProgAddrName(addr+0x00800000-i, label)) {
+          sprintf(buff, "%-6s r%d, %s+%i\t\t; 0x%04x %s", instr.Mnemonic().c_str(), d, label.c_str(), i, addr,  instr.Description().c_str()) ;
+          found = true;
+          break;
+        };
+      };
+      if (!found) 
+        sprintf(buff, "%-6s 0x%04x, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), d, addr, addr, instr.Description().c_str()) ;
+    };
     return std::string(buff) ;
   }
   std::string Disasm_xxxxxxxRRRRRxxxxk16(const Instruction &instr, Mcu &mcu, Command cmd)
@@ -376,12 +386,22 @@ namespace AVR
     char buff[1024] ;
     std::string ioRegName ;
     std::string label ;
+    bool found = false ;
     if (mcu.IoName(addr, ioRegName))
       sprintf(buff, "%-6s %s, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), r, addr, instr.Description().c_str()) ;
     else if (mcu.ProgAddrName(addr+0x00800000, label))
       sprintf(buff, "%-6s %s, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), label.c_str(), r, addr, instr.Description().c_str()) ;
-    else
-      sprintf(buff, "%-6s 0x%04x, r%d\t\t; %s", instr.Mnemonic().c_str(), addr, r, instr.Description().c_str()) ;
+    else {
+      for (int i=1; i<4 ; ++i) {
+        if (mcu.ProgAddrName(addr+0x00800000-i, label)) {
+          sprintf(buff, "%-6s %s+%i, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), label.c_str(), i, r, addr,  instr.Description().c_str()) ;
+          found = true;
+          break;
+        };
+      };
+      if (!found) 
+        sprintf(buff, "%-6s 0x%04x, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), addr, r, addr, instr.Description().c_str()) ;
+    };
     return std::string(buff) ;
   }
 
