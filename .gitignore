@@ -9,5 +9,7 @@ source/AVRemu
 source/AVRmatch
 source/AVRtest
 test/*
+source/tags
+*.swp
 
 ################################################################################

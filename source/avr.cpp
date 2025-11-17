@@ -89,11 +89,13 @@ namespace AVR
       _eepromSize(eepromSize), _eeprom(_eepromSize, 0xff),
       _instructions(0x10000),
       _trace(*this),
-      _verbose(VerboseType::None)
+      _verbose(VerboseType::All)
+//      _verbose(VerboseType::None)
   {
     _pcIs22Bit     = false ;
     _isXMega       = false ;
     _isTinyReduced = false ;
+    _offset = 0;
   }
 
   Mcu::~Mcu()
@@ -365,12 +367,16 @@ namespace AVR
   }
 
   bool Mcu::IoName(uint32_t addr, std::string &name) const
+  { return IoName(addr, name,false);}
+
+  bool Mcu::IoName(uint32_t addr, std::string &name, bool use_offset) const
   {
     static std::string reserved("Reserved") ;
 
-    if (addr >_ioSize)
+    if (addr >=_ioSize)
       return false ;
 
+    if (use_offset && (addr>_offset)) addr -= _offset;
     name = _io[addr] ? _io[addr]->Name() : reserved ;
     return true ;
   }
@@ -887,6 +893,7 @@ namespace AVR
       if      (static_cast<uint32_t>(xref->Type() & XrefType::call)) label.append("Fct_", 4) ;
       else if (static_cast<uint32_t>(xref->Type() & XrefType::jmp )) label.append("Lbl_", 4) ;
       else if (static_cast<uint32_t>(xref->Type() & XrefType::data)) label.append("Dat_", 4) ;
+      else if (static_cast<uint32_t>(xref->Type() & XrefType::ram )) label.append("Ram_", 4) ;
       else printf("xref type %d unknown\n", (uint32_t)xref->Type()) ;
 
       char buff[32] ; sprintf(buff, "%05x", xref->Addr()) ;

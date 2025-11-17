@@ -1,8 +1,9 @@
 CXX	= /usr/bin/g++
+# -fsanitize=address -fsanitize=undefined -g
 CXXFLAGS = -O2 -std=c++11 -Wall
 
 
-LibObj = avr.o instr.o io.o filter.o atmegaXX8.o atmega8.o attinyX5.o attinyX4.o atxmegaAU.o
+LibObj = avr.o instr.o io.o filter.o atmegaXX8.o atmega8.o attinyX5.o attinyX4.o atxmegaAU.o atmega2560.o 
 EmuObj = main.o execute.o $(LibObj)
 MatchObj = match.o $(LibObj)
 TstObj = test.o $(LibObj)
@@ -15,7 +16,7 @@ ALL:	AVRemu AVRtest AVRmatch tags
 tags:
 	ctags -R .
 Clean:
-	rm -f $(AllObj) AVRemu AVRtest
+	rm -f $(AllObj) AVRemu AVRtest AVRmatch match.o
 
 $(AllObj): avr.h instr.h io.h filter.h
 

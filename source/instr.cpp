@@ -137,7 +137,7 @@ namespace AVR
   std::string Disasm_xxxxxxxxxxxxxxxx(const Instruction &instr)
   {
     char buff[1024] ;
-    sprintf(buff, "%-6s\t\t; %s", instr.Mnemonic().c_str(), instr.Description().c_str()) ;
+    sprintf(buff, "%-6s\t\t\t; %s", instr.Mnemonic().c_str(), instr.Description().c_str()) ;
     return std::string(buff) ;
   }
 
@@ -176,7 +176,7 @@ namespace AVR
     Command d ;
     xxxxxxxRRRRRxxxx(cmd, d) ;
     char buff[1024] ;
-    sprintf(buff, "%-6s r%d\t\t; %s", instr.Mnemonic().c_str(), d, instr.Description().c_str()) ;
+    sprintf(buff, "%-6s r%d \t\t; %s", instr.Mnemonic().c_str(), d, instr.Description().c_str()) ;
     return std::string(buff) ;
   }
 
@@ -330,7 +330,7 @@ namespace AVR
     Command s ;
     xxxxxxxxxSSSxxxx(cmd, s) ;
     char buff[1024] ;
-    sprintf(buff, "%-6s\t\t; %s", sToBSET(s), instr.Description().c_str()) ;
+    sprintf(buff, "%-6s\t\t\t; %s", sToBSET(s), instr.Description().c_str()) ;
     return std::string(buff) ;
   }
   std::string Disasm_xxxxxxxxxSSSxxxx_BCLR(const Instruction &instr, Command cmd)
@@ -338,7 +338,7 @@ namespace AVR
     Command s ;
     xxxxxxxxxSSSxxxx(cmd, s) ;
     char buff[1024] ;
-    sprintf(buff, "%-6s\t\t; %s", sToBCLR(s), instr.Description().c_str()) ;
+    sprintf(buff, "%-6s\t\t\t; %s", sToBCLR(s), instr.Description().c_str()) ;
     return std::string(buff) ;
   }
 
@@ -361,14 +361,14 @@ namespace AVR
     std::string ioRegName ;
     std::string label ;
     bool found = false ;
-    if (mcu.IoName(addr, ioRegName))
-      sprintf(buff, "%-6s r%d, %s\t\t; 0x%04x %s", instr.Mnemonic().c_str(), d, ioRegName.c_str(), addr, instr.Description().c_str()) ;
+    if (mcu.IoName(addr, ioRegName, true))
+      sprintf(buff, "%-6s r%d, %s  \t; 0x%04x %s", instr.Mnemonic().c_str(), d, ioRegName.c_str(), addr, instr.Description().c_str()) ;
     else if (mcu.ProgAddrName(addr+0x00800000, label))
-      sprintf(buff, "%-6s r%d, %s\t\t; 0x%04x %s", instr.Mnemonic().c_str(), d, label.c_str(), addr, instr.Description().c_str()) ;
+      sprintf(buff, "%-6s r%d, %s  \t; 0x%04x %s", instr.Mnemonic().c_str(), d, label.c_str(), addr, instr.Description().c_str()) ;
     else {
       for (int i=1; i<4 ; ++i) {
         if (mcu.ProgAddrName(addr+0x00800000-i, label)) {
-          sprintf(buff, "%-6s r%d, %s+%i\t\t; 0x%04x %s", instr.Mnemonic().c_str(), d, label.c_str(), i, addr,  instr.Description().c_str()) ;
+          sprintf(buff, "%-6s r%d, %s+%i\t; 0x%04x %s", instr.Mnemonic().c_str(), d, label.c_str(), i, addr,  instr.Description().c_str()) ;
           found = true;
           break;
         };
@@ -387,14 +387,14 @@ namespace AVR
     std::string ioRegName ;
     std::string label ;
     bool found = false ;
-    if (mcu.IoName(addr, ioRegName))
-      sprintf(buff, "%-6s %s, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), r, addr, instr.Description().c_str()) ;
+    if (mcu.IoName(addr, ioRegName,true))
+      sprintf(buff, "%-6s %s, r%d  \t; 0x%04x %s", instr.Mnemonic().c_str(), ioRegName.c_str(), r, addr, instr.Description().c_str()) ;
     else if (mcu.ProgAddrName(addr+0x00800000, label))
-      sprintf(buff, "%-6s %s, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), label.c_str(), r, addr, instr.Description().c_str()) ;
+      sprintf(buff, "%-6s %s, r%d  \t; 0x%04x %s", instr.Mnemonic().c_str(), label.c_str(), r, addr, instr.Description().c_str()) ;
     else {
       for (int i=1; i<4 ; ++i) {
         if (mcu.ProgAddrName(addr+0x00800000-i, label)) {
-          sprintf(buff, "%-6s %s+%i, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), label.c_str(), i, r, addr,  instr.Description().c_str()) ;
+          sprintf(buff, "%-6s %s+%i, r%d\t; 0x%04x %s", instr.Mnemonic().c_str(), label.c_str(), i, r, addr,  instr.Description().c_str()) ;
           found = true;
           break;
         };
