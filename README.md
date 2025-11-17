@@ -9,7 +9,7 @@ Disassembler / Emulator on Linux for
 
 The disassembler shows the MCU specific I/O register and interrupt vector names. Only those AVR instructions are used which are in the MCU's instruction set. (Exception is the generic ATany which supports all instructions but does not have any MCU knowlege.)
 The twopass disassembler shows direct jump/call targets.
-
+Modifications by Gilhad: LDS/STS show variable name if possible
 <hr/>
                                     
 Compile:
@@ -49,8 +49,8 @@ XRef file format
 
 <pre>
 X AAAA NNNN DDDD
-- X     xref type: c: call; j: jump; d: data
-- AAAA  address
+- X     xref type: c: call; j: jump; d: data; r: ram
+- AAAA  address (ram +0x00800000)
 - NNNN  name
 - DDDD  description
 </pre>
@@ -272,3 +272,13 @@ Main: 00035
 00195:   ..     9ab8          SBI    DDRB, 0		; 0x17 Set Bit in I/O Register
 &gt; q
 </pre>
+
+
+<hr/>
+
+Modifications by Gilhad: 
+
+LDS/STS show variable name if possible
+
+<pre>
+

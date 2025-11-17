@@ -56,6 +56,7 @@ namespace AVR
     jmp  = 1,
     call = 2,
     data = 4,
+    ram = 8,
   } ;
   XrefType operator|(XrefType a, XrefType b) ;
   XrefType operator|=(XrefType &a, XrefType b) ;
