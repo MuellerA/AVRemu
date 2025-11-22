@@ -11,7 +11,7 @@ namespace AVR
 
   ////////////////////////////////////////////////////////////////////////////////
   
-  ATmega2560::ATmega2560() :  Mcu("ATmega2560", 0x40000/2, 0x200,  0x2000, 0x0400, 0x2000 + 0xff),
+  ATmega2560::ATmega2560() :  Mcu("ATmega2560", 0x40000/2, 0x200-0x20,  0x2000, 0x0400, 0x2000 + 0xff),
   ioEeprom(*this), _usart0(), _usart1(), _usart2(), _usart3()
   {
     _offset = 0x20;

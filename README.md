@@ -6,10 +6,11 @@ Disassembler / Emulator on Linux for
 - ATtiny24A, ATtiny44A, ATtiny84A
 - ATtiny25, ATtiny45, ATtiny85
 - ATxmega128A4U, ATxmega64A4U, ATxmega32A4U, ATxmega16A4U,
+- ATmega2560 (experimental)
 
 The disassembler shows the MCU specific I/O register and interrupt vector names. Only those AVR instructions are used which are in the MCU's instruction set. (Exception is the generic ATany which supports all instructions but does not have any MCU knowlege.)
 The twopass disassembler shows direct jump/call targets.
-Modifications by Gilhad: LDS/STS show variable name if possible
+Modifications by Gilhad: LDS/STS show variable name if possible, ATmega2560
 <hr/>
                                     
 Compile:
@@ -291,3 +292,7 @@ LDS/STS show variable name if possible
 03cbf:   ....   93a0 1097     STS    IP+2, r26      ; 0x1097 Store Direct to Data Space
 03cc1:   ....   93b0 1098     STS    IP+3, r27      ; 0x1098 Store Direct to Data Space
 </pre>
+
+Support for ATmega2560 (experimental)
+Aliases: atmega328 -> ATmega328P, atmega2560 -> ATmega2560
+
