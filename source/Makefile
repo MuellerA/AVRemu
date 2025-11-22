@@ -13,7 +13,7 @@ AllObj = main.o execute.o test.o $(LibObj)
 ALL:	AVRemu AVRtest AVRmatch tags
 
 tags:
-	ctags -R .
+	ctags -R . || true
 Clean:
 	rm -f $(AllObj) AVRemu AVRtest
 

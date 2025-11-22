@@ -373,8 +373,8 @@ namespace AVR
           break;
         };
       };
-      if (!found) 
-        sprintf(buff, "%-6s 0x%04x, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), d, addr, addr, instr.Description().c_str()) ;
+      if (!found)
+        sprintf(buff, "%-6s r%d, 0x%04x\t\t; 0x%04x %s", instr.Mnemonic().c_str(), d, addr, addr, instr.Description().c_str()) ;
     };
     return std::string(buff) ;
   }
@@ -399,7 +399,7 @@ namespace AVR
           break;
         };
       };
-      if (!found) 
+      if (!found)
         sprintf(buff, "%-6s 0x%04x, r%d\t\t; 0x%04x %s", instr.Mnemonic().c_str(), addr, r, addr, instr.Description().c_str()) ;
     };
     return std::string(buff) ;
@@ -1291,7 +1291,7 @@ namespace AVR
   {
     // todo exec InstrMULSU
     mcu.NotImplemented(*this) ;
-    
+
     return 2 ;
   }
   std::string InstrMULSU::Disasm(Mcu &mcu, Command cmd) const
@@ -1884,7 +1884,7 @@ namespace AVR
     uint8_t r = mcu.Reg(nr) ;
     if (!(r & (1<<b)))
       return mcu.Skip() + 1 ;
-    return 1 ;    
+    return 1 ;
   }
   std::string InstrSBRC::Disasm(Mcu &mcu, Command cmd) const
   {

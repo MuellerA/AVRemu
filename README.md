@@ -11,7 +11,7 @@ The disassembler shows the MCU specific I/O register and interrupt vector names.
 The twopass disassembler shows direct jump/call targets.
 Modifications by Gilhad: LDS/STS show variable name if possible
 <hr/>
-                                    
+
 Compile:
 <pre>
 cd source
@@ -20,7 +20,7 @@ make -k
 
 <hr/>
 
-Usage: 
+Usage:
 <pre>
 usage: /ei/home/am/c/AVRemu/source/AVRemu [-d] [-e] [-m &lt;mcu&gt;] [-x &lt;xref&gt;] [-p &lt;eeProm&gt;] &lt;avr-bin&gt;
        /ei/home/am/c/AVRemu/source/AVRemu -h
@@ -160,7 +160,7 @@ The IO command is supported for ATxmega*::USART*_DATA and ATmegaXX8::UDRn ports.
 <hr/>
 
 <pre>
-AVRemu/source &gt; ./AVRemu -e -m ATtiny85 -x attiny85.xref -p ledLamp.attiny85.eeprom  ledLamp.attiny85.bin 
+AVRemu/source &gt; ./AVRemu -e -m ATtiny85 -x attiny85.xref -p ledLamp.attiny85.eeprom  ledLamp.attiny85.bin
 
 type "?" for help
 
@@ -228,13 +228,13 @@ External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset
                  00 00 00 00 00 00 00 00
 RESET: RESET
 0000f:   ..     e000          LDI    r16, 0x00		; 0 Load Immediate
-&gt; 
+&gt;
        ________  00 00 00 00 00 00 00 00
        SP: 025f  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
 00010:   ..     b903          OUT    ADCSRB, r16		; 0x03 Store Register to I/O Location
-&gt; 
+&gt;
        ________  00 00 00 00 00 00 00 00
        SP: 025f  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
@@ -276,7 +276,7 @@ Main: 00035
 
 <hr/>
 
-Modifications by Gilhad: 
+Modifications by Gilhad:
 
 LDS/STS show variable name if possible
 
