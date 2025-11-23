@@ -33,6 +33,13 @@ File.open(xrefFileName, 'w') do |xref|
           xref.puts type + ' 0x' + addr + ' ' + label
         end
       end
+      if (line =~ /(008[0-9a-fA-F]+)\s+([lu!][w ][C ][W ][Ii ][dD ][FfO ])\s+([-+:*.a-zA-Z0-9]+)\s+([0-9a-fA-F]+)\s+([-_:*.a-zA-Z0-9]+)/)
+        addr = ($1.to_i(16)).to_s(16)
+        if (section == '.bss') or (section == '.data')
+          type = 'r'
+          xref.puts type + ' 0x' + addr + ' ' + label
+        end
+      end
     end
   end
 end

@@ -8,10 +8,12 @@ MatchObj = match.o $(LibObj)
 TstObj = test.o $(LibObj)
 AllObj = main.o execute.o test.o $(LibObj)
 
-.PHONY:	ALL Clean
+.PHONY:	ALL Clean tags
 
-ALL:	AVRemu AVRtest AVRmatch
+ALL:	AVRemu AVRtest AVRmatch tags
 
+tags:
+	ctags -R . || true
 Clean:
 	rm -f $(AllObj) AVRemu AVRtest
 

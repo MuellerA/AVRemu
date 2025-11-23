@@ -9,9 +9,9 @@ Disassembler / Emulator on Linux for
 
 The disassembler shows the MCU specific I/O register and interrupt vector names. Only those AVR instructions are used which are in the MCU's instruction set. (Exception is the generic ATany which supports all instructions but does not have any MCU knowlege.)
 The twopass disassembler shows direct jump/call targets.
-
+Modifications by Gilhad: LDS/STS show variable name if possible
 <hr/>
-                                    
+
 Compile:
 <pre>
 cd source
@@ -20,7 +20,7 @@ make -k
 
 <hr/>
 
-Usage: 
+Usage:
 <pre>
 usage: /ei/home/am/c/AVRemu/source/AVRemu [-d] [-e] [-m &lt;mcu&gt;] [-x &lt;xref&gt;] [-p &lt;eeProm&gt;] &lt;avr-bin&gt;
        /ei/home/am/c/AVRemu/source/AVRemu -h
@@ -49,8 +49,8 @@ XRef file format
 
 <pre>
 X AAAA NNNN DDDD
-- X     xref type: c: call; j: jump; d: data
-- AAAA  address
+- X     xref type: c: call; j: jump; d: data; r: ram
+- AAAA  address (ram +0x00800000)
 - NNNN  name
 - DDDD  description
 </pre>
@@ -160,7 +160,7 @@ The IO command is supported for ATxmega*::USART*_DATA and ATmegaXX8::UDRn ports.
 <hr/>
 
 <pre>
-AVRemu/source &gt; ./AVRemu -e -m ATtiny85 -x attiny85.xref -p ledLamp.attiny85.eeprom  ledLamp.attiny85.bin 
+AVRemu/source &gt; ./AVRemu -e -m ATtiny85 -x attiny85.xref -p ledLamp.attiny85.eeprom  ledLamp.attiny85.bin
 
 type "?" for help
 
@@ -228,13 +228,13 @@ External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset
                  00 00 00 00 00 00 00 00
 RESET: RESET
 0000f:   ..     e000          LDI    r16, 0x00		; 0 Load Immediate
-&gt; 
+&gt;
        ________  00 00 00 00 00 00 00 00
        SP: 025f  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
 00010:   ..     b903          OUT    ADCSRB, r16		; 0x03 Store Register to I/O Location
-&gt; 
+&gt;
        ________  00 00 00 00 00 00 00 00
        SP: 025f  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
@@ -271,4 +271,23 @@ Main: 00035
 Main: 00035
 00195:   ..     9ab8          SBI    DDRB, 0		; 0x17 Set Bit in I/O Register
 &gt; q
+</pre>
+
+
+<hr/>
+
+Modifications by Gilhad:
+
+LDS/STS show variable name if possible
+
+<pre>
+03caf:   ....   9180 1095     LDS    r24, IP        ; 0x1095 Load Direct from Data Space
+03cb1:   ....   9190 1096     LDS    r25, IP+1      ; 0x1096 Load Direct from Data Space
+03cb3:   ....   91a0 1097     LDS    r26, IP+2      ; 0x1097 Load Direct from Data Space
+03cb5:   ....   91b0 1098     LDS    r27, IP+3      ; 0x1098 Load Direct from Data Space
+...
+03cbb:   ....   9380 1095     STS    IP, r24        ; 0x1095 Store Direct to Data Space
+03cbd:   ....   9390 1096     STS    IP+1, r25      ; 0x1096 Store Direct to Data Space
+03cbf:   ....   93a0 1097     STS    IP+2, r26      ; 0x1097 Store Direct to Data Space
+03cc1:   ....   93b0 1098     STS    IP+3, r27      ; 0x1098 Store Direct to Data Space
 </pre>
