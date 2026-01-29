@@ -33,8 +33,27 @@ File.open(xrefFileName, 'w') do |xref|
           xref.puts type + ' 0x' + addr + ' ' + label
         end
       end
-      if (line =~ /(008[0-9a-fA-F]+)\s+([lu!][w ][C ][W ][Ii ][dD ][FfO ])\s+([-+:*.a-zA-Z0-9]+)\s+([0-9a-fA-F]+)\s+([-_:*.a-zA-Z0-9]+)/)
+      if (line =~ /(008[0-9a-fA-F]+)\s+([lgu!][w ][C ][W ][Ii ][dD ][Ff ])\s+([-+:*.a-zA-Z0-9]+)\s+([0-9a-fA-F]+)\s+([-_:*.a-zA-Z0-9]+)/) # non Objects first
         addr = ($1.to_i(16)).to_s(16)
+        if (section == '.bss') or (section == '.data')
+          type = 'r'
+          xref.puts type + ' 0x' + addr + ' ' + label
+        end
+      end
+    end
+  end
+  Open3.popen2("#{AVR_OBJDUMP} -t -C #{elfFileName}") do |i, o, t|
+    while (line = o.gets)
+      if (line =~ /(008[0-9a-fA-F]+)\s+([lgu!][w ][C ][W ][Ii ][dD ][O])\s+([-+:*.a-zA-Z0-9]+)\s+([0-9a-fA-F]+)\s+([-_:*.a-zA-Z0-9]+)/) # Objects last to get priority
+        addr = ($1.to_i(16)).to_s(16)
+        type = case $2[6]
+               when 'F', 'f'
+                 'c'
+               else
+                 'j'
+               end
+        section = $3
+        label = $5
         if (section == '.bss') or (section == '.data')
           type = 'r'
           xref.puts type + ' 0x' + addr + ' ' + label

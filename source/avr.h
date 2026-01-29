@@ -292,7 +292,7 @@ namespace AVR
     uint8_t Skip() ;
     void Status() ;
     std::string Disasm() ;
-    bool IoName(uint32_t addr, std::string &name) const ;
+    bool IoName(uint32_t addr, std::string &name, bool use_offset = false) const ;
     bool ProgAddrName(uint32_t addr, std::string &name) const ;
     Command ProgramNext() ;
 
@@ -413,6 +413,7 @@ namespace AVR
 
     uint32_t                    _ioSize ;
     std::vector<Io::Register*>  _io ;
+    uint8_t                     _offset;
 
     uint32_t             _ramSize ;
     std::vector<uint8_t> _ram ;
@@ -462,6 +463,18 @@ namespace AVR
 
     IoEeprom ioEeprom ;
     IoUsart  _usart0 ;
+  } ;
+
+  class ATmega2560 : public Mcu
+  {
+  public:
+    ATmega2560() ;
+    virtual ~ATmega2560() ;
+    IoEeprom ioEeprom ;
+    IoUsart  _usart0 ;
+    IoUsart  _usart1 ;
+    IoUsart  _usart2 ;
+    IoUsart  _usart3 ;
   } ;
 
   class ATmega328P : public ATmegaXX8
