@@ -1,6 +1,6 @@
-AVRemu
+# AVRemu
 
-Disassembler / Emulator on Linux for
+Disassembler / Emulator for
 - ATmega48PA, ATmega88PA, ATmega168PA, ATmega328P
 - ATmega8A
 - ATtiny24A, ATtiny44A, ATtiny84A
@@ -11,59 +11,57 @@ Disassembler / Emulator on Linux for
 The disassembler shows the MCU specific I/O register and interrupt vector names. Only those AVR instructions are used which are in the MCU's instruction set. (Exception is the generic ATany which supports all instructions but does not have any MCU knowlege.)
 The twopass disassembler shows direct jump/call targets.
 Modifications by Gilhad: LDS/STS show variable name if possible, ATmega2560
-<hr/>
 
-Compile:
-<pre>
+## Compile
+
+```txt
 cmake -B build.debug -G Ninja -DCMAKE_BUILD_TYPE=Debug .
 cmake -B build.release -G Ninja -DCMAKE_BUILD_TYPE=Release .
 
 cmake --build build.debug
 cmake --build build.release
-</pre>
+```
 
-<hr/>
+## Usage
 
-Usage:
-<pre>
-usage: AVRemu [-d] [-e] [-m &lt;mcu&gt;] [-x &lt;xref&gt;] [-p &lt;eeProm&gt;] &lt;avr-bin&gt;
+```txt
+usage: AVRemu [-d] [-e] [-m <mcu>] [-x <xref>] [-p <eeProm>] <avr-bin>
        AVRemu -h
 parameter:
-   -m &lt;mcu&gt;    MCU type, see below
+   -m <mcu>    MCU type, see below
    -d          disassemble file
    -e          execute file
-   -ee &lt;macro&gt; run macro file &lt;macro&gt;.aem (implies -e)
-   -x &lt;xref&gt;   xref file
-   -p &lt;eeProm&gt; binary file of EEPROM memory
-   &lt;avr-bin&gt;   binary file to be disassembled / executed
+   -ee <macro> run macro file <macro>.aem (implies -e)
+   -x <xref>   xref file
+   -p <eeProm> binary file of EEPROM memory
+   <avr-bin>   binary file to be disassembled / executed
    -h          this help
 Supported MCU types: ATany ATmega168PA ATmega328P ATmega48PA ATmega88PA ATmega8A ATtiny24A ATtiny25 ATtiny44A ATtiny45 ATtiny84A ATtiny85 ATxmega128A4U ATxmega16A4U ATxmega32A4U ATxmega64A4U
-</pre>
+```
 
-<hr/>
+## XRef, Bin File
 
 To extract the bin and xref files from an elf file use the script Elf.rb
-<pre>
-usage: Elf.rb &lt;elf-file(in)&gt; &lt;bin-file(out)&gt; &lt;xref-file(out)&gt;
-</pre>
+```txt
+usage: Elf.rb <elf-file(in)> <bin-file(out)> <xref-file(out)>
+```
 
-<hr/>
+### XRef file format
 
-XRef file format
-
-<pre>
+```txt
 X AAAA NNNN DDDD
 - X     xref type: c: call; j: jump; d: data; r: ram
 - AAAA  address (ram +0x00800000)
 - NNNN  name
 - DDDD  description
-</pre>
+```
 
-<hr/>
+## Disassembler
 
-Disassembler:
-<pre>
-AVRemu &gt; ./build.release/AVRemu -d -m ATtiny85 -x attiny85.xref attiny85.bin
+### Example
+
+```txt
+AVRemu > ./build.release/AVRemu -d -m ATtiny85 -x ledLamp.attiny85.xref ledLamp.attiny85.bin
 
 RESET
 External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset
@@ -136,130 +134,124 @@ RESET: RESET
 00025:   ..     e211          LDI    r17, 0x21		; 33 Load Immediate
 00026:   ..     bf15          OUT    MCUCR, r17		; 0x35 Store Register to I/O Location
 00027:   ..     bf08          OUT    TIFR, r16		; 0x38 Store Register to I/O Location
-</pre>
+```
 
-<hr/>
+## Emulator
 
-Emulator:
+### Macros
 
-Macros
+Macros have the extension .aem (AvrEmuMacro). Macros are executed with the ```m <macro-file-name>``` command (without .aem extension). Macros are searched next to the binary file, in the directory ```~/.avremu/<mcu from -m parameter>``` and in the directory ```~/.avremu``` (later two linux only).
+Commands in the macro file are executed in the same way as in the command line with two exceptions: the empty line does not repeat the previous command, and lines starting with a ```#``` are treated as comment.
 
-Macros have the extension .aem (AvrEmuMacro). Macros are executed with the 'm &lt;macro-file-name&gt;' command (without .aem extension). Macros are searched next to the binary file, in the directory '~/.avremu/&lt;mcu from -m parameter&gt;' and in the directory '~/.avremu'.
-Commands in the macro file are executed in the same way as in the command line with two exceptions: the empty line does not repeat the previous command, and lines starting with a '#' are treated as comment.
+### Filters (Linux only)
 
-<hr/>
+Filters are registered with the ```f + <mask> <os-command>``` command. A filter is a program that receives output lines like the ```v``` command. The filter then returns a line which will be displayed on the command line unless it is the empty line. The filter must respond with exactly one line for each received line.
+A trivial filter would be ```/bin/cat```.
 
-Filters
+### IO input data
 
-Filters are registered with the 'f + &lt;mask&gt; &lt;os-command&gt;' command. A filter is a program that receives output lines like the 'v' command. The filter then returns a line which will be displayed on the command line unless it is the empty line. The filter must respond with exactly one line for each received line.
-A trivial filter would be '/bin/cat'.
-
-<hr/>
-
-IO input data
-
-When setting input data for an io port, the next read operations will return the specified bytes. Corresponding 'ready' status bits will be set accordingly.
+When setting input data for an io port, the next read operations will return the specified bytes. Corresponding ready status bits will be set accordingly.
 The IO command is supported for ATxmega*::USART*_DATA and ATmegaXX8::UDRn ports.
 
-<hr/>
+### Example
 
-<pre>
-AVRemu &gt; ./build-release/AVRemu -e -m ATtiny85 -x attiny85.xref -p ledLamp.attiny85.eeprom  ledLamp.attiny85.bin
+```txt
+AVRemu > ./build.release/AVRemu -e -m ATtiny85 -x ledLamp.attiny85.xref -p ledLamp.attiny85.eeprom  ledLamp.attiny85.bin
 
 type "?" for help
 
 RESET
 External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset
 00000:   ..     c00e          RJMP   RESET		; 14 0x0000f Relative Jump
-&gt; ?
+> ?
 
-&lt;empty line&gt;                  repeat last command
-s [&lt;count&gt;]                   step in count instructions
-n [&lt;count&gt;]                   step over count instructions
+<empty line>                  repeat last command
+s [<count>]                   step in count instructions
+n [<count>]                   step over count instructions
 r                             run
-r &lt;label&gt;                     run to address
+r <label>                     run to address
 rj                            run to next jump / branch
 rc                            run to next call
 rr                            run to next return
 ra                            run to next jump / branch / call / return
-g &lt;label&gt;                     set PC to address
-b + &lt;label&gt;                   add breakpoint
-b - &lt;label&gt;                   remove breakpoint
+g <label>                     set PC to address
+b + <label>                   add breakpoint
+b - <label>                   remove breakpoint
 b ?                           list breakpoints
 r ?                           read registers / useful in macros
-d &lt;addr&gt; ? [&lt;len&gt;]            read memory content
-d @ &lt;X|Y|Z|SP|r&lt;d&gt;&gt; ? [&lt;len&gt;] read memory content
-p [&lt;label&gt;] ? [&lt;len&gt;]         list source
-p @ &lt;X|Y|Z|r&lt;d&gt;&gt; ? [&lt;len&gt;]    list source
-r&lt;d&gt;     = &lt;bytes&gt;            set register
-d &lt;addr&gt; = &lt;bytes&gt;            set data memory
-p &lt;addr&gt; = &lt;words&gt;            set program memory
+d <addr> ? [<len>]            read memory content
+d @ <X|Y|Z|SP|r<d>> ? [<len>] read memory content
+p [<label>] ? [<len>]         list source
+p @ <X|Y|Z|r<d>> ? [<len>]    list source
+r<d>     = <bytes>            set register
+d <addr> = <bytes>            set data memory
+p <addr> = <words>            set program memory
 sf ?                          list stack frames
-ls [&lt;pattern&gt;]                list symbols containing &lt;pattern&gt;
-io &lt;name&gt; = &lt;bytes&gt;           set next io read values (num)
-io &lt;name&gt; = "&lt;asc&gt;"           set next io read values (str)
+ls [<pattern>]                list symbols containing <pattern>
+io <name> = <bytes>           set next io read values (num)
+io <name> = "<asc>"           set next io read values (str)
 io ?                          list io port names
-m &lt;name&gt;                      run macro file &lt;name&gt;.aem
+m <name>                      run macro file <name>.aem
 mq                            quit macro execution
-v io = &lt;on|off&gt;               verbose io on/off
-v eeprom = &lt;on|off&gt;           verbose eeprom on/off
-v data = &lt;on|off&gt;             verbose data error on/off
-v prog = &lt;on|off&gt;             verbose program error on/off
-v all = &lt;on|off&gt;              verbose all on/off
-f + &lt;io|eeprom|data|prog|all&gt; &lt;command&gt; add filter for specified events
+v io = <on|off>               verbose io on/off
+v eeprom = <on|off>           verbose eeprom on/off
+v data = <on|off>             verbose data error on/off
+v prog = <on|off>             verbose program error on/off
+v all = <on|off>              verbose all on/off
+f + <io|eeprom|data|prog|all> <command> add filter for specified events
 f ?                           list active filters
-t on &lt;name&gt; [&lt;addr&gt;]          log to trace file until addr is reached (default 0x00000)
+t on <name> [<addr>]          log to trace file until addr is reached (default 0x00000)
 t off                         close trace file
-$ &lt;text&gt;                      write text to output / useful in macros
+$ <text>                      write text to output / useful in macros
 q                             quit
 h                             help
 ?                             help
-&lt;label&gt; symbol or hex or dec address
-&lt;addr&gt;  hex or dec address
-&lt;count&gt; hex or dec number
-&lt;len&gt;   hex or dec number
-&lt;d&gt;     dec number 0 to 31
-&lt;bytes&gt; list of hex or dec bytes
-&lt;words&gt; list of hex or dec words
+<label> symbol or hex or dec address
+<addr>  hex or dec address
+<count> hex or dec number
+<len>   hex or dec number
+<d>     dec number 0 to 31
+<bytes> list of hex or dec bytes
+<words> list of hex or dec words
 
 RESET
 External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset
 00000:   ..     c00e          RJMP   RESET		; 14 0x0000f Relative Jump
-&gt; s
+> s
        ________  00 00 00 00 00 00 00 00
        SP: 025f  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
 RESET: RESET
 0000f:   ..     e000          LDI    r16, 0x00		; 0 Load Immediate
-&gt;
+>
        ________  00 00 00 00 00 00 00 00
        SP: 025f  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
 00010:   ..     b903          OUT    ADCSRB, r16		; 0x03 Store Register to I/O Location
-&gt;
+>
        ________  00 00 00 00 00 00 00 00
        SP: 025f  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
 00011:   ..     b904          OUT    ADCL, r16		; 0x04 Store Register to I/O Location
-&gt; r0=0xab
+> r0=0xab
        ________  ab 00 00 00 00 00 00 00
        SP: 025f  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
 00011:   ..     b904          OUT    ADCL, r16		; 0x04 Store Register to I/O Location
-&gt; b + Main
+> b + Main
 00011:   ..     b904          OUT    ADCL, r16		; 0x04 Store Register to I/O Location
-&gt; r
+> r
        ________  ab 00 00 00 00 00 00 00
        SP: 025f  00 00 00 00 00 00 00 00
                  00 02 00 00 00 00 00 00
                  00 00 00 00 00 00 00 00
 Main: 00035
 00195:   ..     9ab8          SBI    DDRB, 0		; 0x17 Set Bit in I/O Register
-&gt; p ? 10
+> p ? 10
 Main: 00035
 00195:   ..     9ab8          SBI    DDRB, 0		; 0x17 Set Bit in I/O Register
 00196:   ..     9ab9          SBI    DDRB, 1		; 0x17 Set Bit in I/O Register
@@ -274,17 +266,15 @@ Main: 00035
 
 Main: 00035
 00195:   ..     9ab8          SBI    DDRB, 0		; 0x17 Set Bit in I/O Register
-&gt; q
-</pre>
+> q
+```
 
 
-<hr/>
-
-Modifications by Gilhad:
+## Modifications by Gilhad:
 
 LDS/STS show variable name if possible
 
-<pre>
+```txt
 03caf:   ....   9180 1095     LDS    r24, IP        ; 0x1095 Load Direct from Data Space
 03cb1:   ....   9190 1096     LDS    r25, IP+1      ; 0x1096 Load Direct from Data Space
 03cb3:   ....   91a0 1097     LDS    r26, IP+2      ; 0x1097 Load Direct from Data Space
@@ -294,7 +284,7 @@ LDS/STS show variable name if possible
 03cbd:   ....   9390 1096     STS    IP+1, r25      ; 0x1096 Store Direct to Data Space
 03cbf:   ....   93a0 1097     STS    IP+2, r26      ; 0x1097 Store Direct to Data Space
 03cc1:   ....   93b0 1098     STS    IP+3, r27      ; 0x1098 Store Direct to Data Space
-</pre>
+```
 
 Support for ATmega2560 (experimental)
 Aliases: atmega328 -> ATmega328P, atmega2560 -> ATmega2560

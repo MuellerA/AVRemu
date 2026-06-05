@@ -92,6 +92,7 @@ namespace AVR
       _verbose(VerboseType::All)
 //      _verbose(VerboseType::None)
   {
+    memset(_reg, 0, sizeof(_reg)) ;
     _pcIs22Bit     = false ;
     _isXMega       = false ;
     _isTinyReduced = false ;
@@ -106,8 +107,10 @@ namespace AVR
     for (auto iXref : _xrefs)
       delete iXref ;
 
+#ifdef __linux__
     for (auto iF : _filters)
       delete iF ;
+#endif
   }
 
   void Mcu::Execute()
@@ -202,13 +205,13 @@ namespace AVR
            (sreg && AVR::SREG::Z) ? 'Z' : '_',
            (sreg && AVR::SREG::C) ? 'C' : '_') ;
     
-    printf(" [ 0] %02x %02x [ 2] %02x %02x [ 4] %02x %02x [ 6] %02x %02x     Ticks: %11lu\n",
+    printf(" [ 0] %02x %02x [ 2] %02x %02x [ 4] %02x %02x [ 6] %02x %02x     Ticks: %11llu\n",
            _reg[0], _reg[1], _reg[2], _reg[3], _reg[4], _reg[5], _reg[6], _reg[7],
            _ticks) ;
 
     printf("       SP: %04x ", _sp()) ;
 
-    printf(" [ 8] %02x %02x [10] %02x %02x [12] %02x %02x [14] %02x %02x     Time: %02lu:%02lu:%02lu.%03lu\n",
+    printf(" [ 8] %02x %02x [10] %02x %02x [12] %02x %02x [14] %02x %02x     Time: %02llu:%02llu:%02llu.%03llu\n",
            _reg[8], _reg[9], _reg[10], _reg[11], _reg[12], _reg[13], _reg[14], _reg[15],
            hours, minutes, seconds, mSec) ;
 
@@ -819,6 +822,7 @@ namespace AVR
     if (_verbose && vt)
       fputs(text.c_str(), stdout) ;
 
+#ifdef __linux__
     for (auto filter : _filters)
     {
       if (filter->Verbose() && vt)
@@ -829,8 +833,10 @@ namespace AVR
           fprintf(stdout, "=> %s\n", fromFilter.c_str()) ;
       }
     }
+#endif
   }
 
+#ifdef __linux__
   void Mcu::AddFilter(VerboseType vt, const std::string &command)
   {
     _filters.push_back(new Filter(command, vt)) ;
@@ -840,7 +846,8 @@ namespace AVR
   {
     _filters.erase(std::find_if(_filters.begin(), _filters.end(), [pid](const Filter *f){ return f->Pid() == pid ; })) ;    
   }  
-  
+#endif
+
   void Mcu::AddInstruction(const Instruction *instr)
   {
     // loop should be optimized considering mask()

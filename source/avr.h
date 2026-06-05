@@ -387,10 +387,12 @@ namespace AVR
     VerboseType  Verbose() const { return _verbose ; }
     VerboseType& Verbose()       { return _verbose ; }
     void Verbose(VerboseType vt, const std::string &text) const ;
+#ifdef __linux__    
     void AddFilter(VerboseType vt, const std::string &command) ;
     void DelFilter(pid_t pid) ;
     const std::vector<Filter*>& Filters() const { return _filters ; }
-    
+#endif
+
   protected:
     void AddInstruction(const Instruction *instr) ;
     void AnalyzeXrefs() ;
@@ -434,7 +436,9 @@ namespace AVR
     std::set<uint32_t>               _breakpoints ;
     std::vector<const Instruction*>  _instructions ; // map cmd to instruction
 
+#ifdef __linux__
     std::vector<Filter*> _filters ;
+#endif
     Trace _trace ;
 
     VerboseType _verbose ;

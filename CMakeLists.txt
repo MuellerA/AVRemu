@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(AVR_Emulator CXX)
 
-# C++ Standard und Warnungen global definieren
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -13,6 +12,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"
     set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-fsanitize=address -fsanitize=undefined")
     
     set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
 add_library(avr_lib STATIC

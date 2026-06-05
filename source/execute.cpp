@@ -8,10 +8,12 @@
 #include <regex>
 #include <algorithm>
 #include <cstdlib>
+#ifdef __linux__
 #include <unistd.h>
 #include <pwd.h>
 #include <signal.h>
 #include <sys/wait.h>
+#endif
 
 #include "avr.h"
 #include "instr.h"
@@ -27,6 +29,7 @@ using strings = std::vector<std::string> ;
 ////////////////////////////////////////////////////////////////////////////////
 
 static bool SigInt = false ;
+#ifdef __linux__
 static void SigIntHdl(int /*parameter*/)
 {
   std::cout << std::endl << "Execution Interrupted" << std::endl << std::endl ;
@@ -47,6 +50,7 @@ static void SigChildHdl(int /*parameter*/)
   if (pid > 0)
     SigChild = pid ;  
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Util
@@ -266,10 +270,12 @@ strings CommandStep::Help() const
 
 bool CommandStep::Execute(AVR::Mcu &mcu)
 {
-  void (*prevIntHdl)(int) ;
   SigInt = false ;
+#ifdef __linux__  
+  void (*prevIntHdl)(int) ;
   prevIntHdl = signal(SIGINT, SigIntHdl) ;
-  
+#endif
+
   const std::string &mode = _match[1] ;
   const std::string &countStr = _match[2] ;
   uint32_t count = countStr.size() ? std::stoul(countStr, nullptr, 0) : 1 ;
@@ -309,9 +315,11 @@ bool CommandStep::Execute(AVR::Mcu &mcu)
     }
     break ;
   }
+#ifdef __linux__  
   signal(SIGINT, prevIntHdl) ;
   if (SigInt)
     _exec.SigInt() ;
+#endif
 
   return true ;
 }
@@ -348,9 +356,11 @@ strings CommandRun::Help() const
 
 bool CommandRun::Execute(AVR::Mcu &mcu)
 {
-  void (*prevIntHdl)(int) ;
   SigInt = false ;
+#ifdef __linux__
+  void (*prevIntHdl)(int) ;
   prevIntHdl = signal(SIGINT, SigIntHdl) ;
+#endif
 
   const std::string &m1 = _match[1] ;
   const std::string &m2 = _match[2] ;
@@ -371,9 +381,11 @@ bool CommandRun::Execute(AVR::Mcu &mcu)
         mcu.IsBreakpoint())
       break ;
   }
+#ifdef __linux__  
   signal(SIGINT, prevIntHdl) ;
   if (SigInt)
     _exec.SigInt() ;
+#endif
 
   return true ;
 }
@@ -412,9 +424,11 @@ strings CommandRunTo::Help() const
 
 bool CommandRunTo::Execute(AVR::Mcu &mcu)
 {
-  void (*prevIntHdl)(int) ;
   SigInt = false ;
+#ifdef __linux__
+  void (*prevIntHdl)(int) ;
   prevIntHdl = signal(SIGINT, SigIntHdl) ;
+#endif
 
   const std::string &m1 = _match[1] ;
   uint8_t mode = (uint8_t)(m1[0]) ;
@@ -437,9 +451,11 @@ bool CommandRunTo::Execute(AVR::Mcu &mcu)
     if (mcu.IsBreakpoint())
       break ;
   }
+#ifdef __linux__  
   signal(SIGINT, prevIntHdl) ;
   if (SigInt)
     _exec.SigInt() ;
+#endif
 
   return true ;
 }
@@ -1091,6 +1107,7 @@ bool CommandVerbose::Execute(AVR::Mcu &mcu)
 // CommandFilterAdd
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __linux__
 class CommandFilterAdd : public Command
 {
 public:
@@ -1127,6 +1144,7 @@ bool CommandFilterAdd::Execute(AVR::Mcu &mcu)
 
   return false ; // do not repeat
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // CommandFilterDel
@@ -1136,6 +1154,7 @@ bool CommandFilterAdd::Execute(AVR::Mcu &mcu)
 // CommandFilterList
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __linux__
 class CommandFilterList : public Command
 {
 public:
@@ -1162,6 +1181,7 @@ bool CommandFilterList::Execute(AVR::Mcu &mcu)
   }
   return false ;
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // CommandTrace
@@ -1239,6 +1259,7 @@ bool CommandMacro::Execute(AVR::Mcu &mcu)
 
   ifs.open(macro) ;
   if (ifs.fail())
+#ifdef __linux__  
   {
     struct passwd *pw = getpwuid(getuid()) ;
     const std::string home(pw->pw_dir) ;
@@ -1255,6 +1276,12 @@ bool CommandMacro::Execute(AVR::Mcu &mcu)
       }
     }
   }
+#else
+  {
+    std::cout << "failed to read macro file " << macro << std::endl ;
+    return false ;
+  }
+#endif
 
   _exec.MacroQuit(false) ;
   while (!ifs.eof() && !_exec.IsQuit() && !_exec.IsSigInt() && !_exec.MacroQuit())
@@ -1480,8 +1507,10 @@ namespace AVR
       new CommandMacro(*this),
       new CommandMacroQuit(*this),
       new CommandVerbose(),
+#ifdef __linux__      
       new CommandFilterAdd(),
       new CommandFilterList(),
+#endif
       new CommandTrace(),
       new CommandEcho(),
       new CommandQuit(*this),
@@ -1491,8 +1520,10 @@ namespace AVR
     _quit{false}, _sigInt{false}, _macroQuit{false},
     _lastCommand{nullptr}
   {
+#ifdef __linux__    
     signal(SIGCHLD, SigChildHdl);
-    
+#endif
+
     std::cout << "type \"?\" for help" << std::endl ;
     std::cout << std::endl ;
   }
@@ -1509,11 +1540,13 @@ namespace AVR
 
     while (!_quit)
     {
+#ifdef __linux__      
       if (SigChild)
       {
         _mcu.DelFilter(SigChild) ;
         SigChild = 0 ;
       }
+#endif
 
       if (_sigInt)
       {
