@@ -3,11 +3,11 @@
 # emacs
 *~
 
+# code
+.vscode
+
 # g++
-*.o
-source/AVRemu
-source/AVRmatch
-source/AVRtest
+build*/
 test/*
 source/tags
 *.swp

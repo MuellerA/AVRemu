@@ -15,16 +15,19 @@ Modifications by Gilhad: LDS/STS show variable name if possible, ATmega2560
 
 Compile:
 <pre>
-cd source
-make -k
+cmake -B build.debug -G Ninja -DCMAKE_BUILD_TYPE=Debug .
+cmake -B build.release -G Ninja -DCMAKE_BUILD_TYPE=Release .
+
+cmake --build build.debug
+cmake --build build.release
 </pre>
 
 <hr/>
 
 Usage:
 <pre>
-usage: /ei/home/am/c/AVRemu/source/AVRemu [-d] [-e] [-m &lt;mcu&gt;] [-x &lt;xref&gt;] [-p &lt;eeProm&gt;] &lt;avr-bin&gt;
-       /ei/home/am/c/AVRemu/source/AVRemu -h
+usage: AVRemu [-d] [-e] [-m &lt;mcu&gt;] [-x &lt;xref&gt;] [-p &lt;eeProm&gt;] &lt;avr-bin&gt;
+       AVRemu -h
 parameter:
    -m &lt;mcu&gt;    MCU type, see below
    -d          disassemble file
@@ -60,7 +63,7 @@ X AAAA NNNN DDDD
 
 Disassembler:
 <pre>
-AVRemu/source &gt; ./AVRemu -d -m ATtiny85 -x attiny85.xref attiny85.bin
+AVRemu &gt; ./build.release/AVRemu -d -m ATtiny85 -x attiny85.xref attiny85.bin
 
 RESET
 External Pin, Power-on Reset, Brown-out Reset, Watchdog Reset
@@ -161,7 +164,7 @@ The IO command is supported for ATxmega*::USART*_DATA and ATmegaXX8::UDRn ports.
 <hr/>
 
 <pre>
-AVRemu/source &gt; ./AVRemu -e -m ATtiny85 -x attiny85.xref -p ledLamp.attiny85.eeprom  ledLamp.attiny85.bin
+AVRemu &gt; ./build-release/AVRemu -e -m ATtiny85 -x attiny85.xref -p ledLamp.attiny85.eeprom  ledLamp.attiny85.bin
 
 type "?" for help
 
